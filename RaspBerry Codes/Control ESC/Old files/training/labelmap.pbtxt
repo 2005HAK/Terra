@@ -1,0 +1,16 @@
+item {
+  id: 1
+  name: "Badge"
+}
+item {
+  id: 2
+  name: "Bootlegger"
+}
+item {
+  id: 3
+  name: "G_Man"
+}
+item {
+  id: 4
+  name: "Gun"
+}
