@@ -1,7 +1,7 @@
 """
 Código de controle dos motores
 
-Implementação básica assumindo que existem 6 pinos com PWM nativo (só existem 4)
+Implementação básica assumindo que existem 6 pinos com PWM nativo (a principio só existem 4)
 """
 
 import RPi.GPIO as GPIO
