@@ -1,100 +1,102 @@
-#!/usr/bin/python
-import signal
+import pigpio
+import time
 
-from pizypwm import *
+# Pins motors
+PINS = [1, 2, 3, 4, 5, 6]
+# 1 - Front left 
+# 2 - Front right
+# 3 - Middle right
+# 4 - Middle left
+# 5 - Back right
+# 6 - Back left 
 
-# Constants for pins and frequency
+pi = pigpio.pi()
 
-FREQUENCY_PWM = 333
-
-MR_PIN = 7
-ML_PIN = 11
-FR_PIN = 12
-FL_PIN = 13
-BR_PIN = 15
-BL_PIN = 16
-
-# Called on process interruption. Set all pins to "Input" default mode.
-def endProcess(signalnum = None, handler = None):
-    fr.stop()
-    fl.stop()
-    br.stop()
-    bl.stop()
-    mr.stop()
-    ml.stop()
-
-    GPIO.cleanup()
-    exit(0)
-
-# Prepare handlers for process exit
-signal.signal(signal.SIGTERM, endProcess)
-signal.signal(signal.SIGINT, endProcess)
-
-# Initialize PWM outputs
-fr = PiZyPwm(FREQUENCY_PWM, MR_PIN, GPIO.BOARD)
-fl = PiZyPwm(FREQUENCY_PWM, ML_PIN, GPIO.BOARD)
-br = PiZyPwm(FREQUENCY_PWM, FR_PIN, GPIO.BOARD)
-bl = PiZyPwm(FREQUENCY_PWM, FL_PIN, GPIO.BOARD)
-mr = PiZyPwm(FREQUENCY_PWM, BR_PIN, GPIO.BOARD)
-ml = PiZyPwm(FREQUENCY_PWM, BL_PIN, GPIO.BOARD)
-
-# Start PWM output
-fr.start(50)
-fl.start(50)
-br.start(50)
-bl.start(50)
-mr.start(50)
-ml.start(50)
+for pin in PINS:
+    pi.set_mode(pin, pigpio.OUTPUT)
+    pi.set_PWM_frequency(pin, 50)
+    pi.set_servo_pulsewidth(pin, 1500)
+time.sleep(2)
 
 def motors_control(action):
-    ## actions = action.split(" + ")
-
-    ## for act in actions:
+    """
+    Function that takes an argument with movement instruction and decides how the motors will be activated
+    """
     if action == "UP":
-        mr.ChangeDutyCycle(63)
-        ml.ChangeDutyCycle(63)
+        pi.set_servo_pulsewidth(3, 1900)
+        pi.set_servo_pulsewidth(6, 1900)
     elif action == "DOWN":
-        mr.ChangeDutyCycle(33)
-        ml.ChangeDutyCycle(33)
+        pi.set_servo_pulsewidth(3, 1100)
+        pi.set_servo_pulsewidth(6, 1100)
     else:
-        mr.ChangeDutyCycle(50)
-        ml.ChangeDutyCycle(50)
+        pi.set_servo_pulsewidth(3, 1500)
+        pi.set_servo_pulsewidth(6, 1500)
     if action == "FRONT":
-        br.ChangeDutyCycle(63)
-        bl.ChangeDutyCycle(63)
+        pi.set_servo_pulsewidth(1, 1100)
+        pi.set_servo_pulsewidth(2, 1100)
+        pi.set_servo_pulsewidth(4, 1900)
+        pi.set_servo_pulsewidth(5, 1900)
     else:
-        br.ChangeDutyCycle(50)
-        bl.ChangeDutyCycle(50)
+        pi.set_servo_pulsewidth(1, 1500)
+        pi.set_servo_pulsewidth(2, 1500)
+        pi.set_servo_pulsewidth(4, 1500)
+        pi.set_servo_pulsewidth(5, 1500)
     if action == "BACK":
-        fr.ChangeDutyCycle(63)
-        fl.ChangeDutyCycle(63)
+        pi.set_servo_pulsewidth(1, 1900)
+        pi.set_servo_pulsewidth(2, 1900)
+        pi.set_servo_pulsewidth(4, 1100)
+        pi.set_servo_pulsewidth(5, 1100)
     else:
-        fr.ChangeDutyCycle(50)
-        fl.ChangeDutyCycle(50)
+        pi.set_servo_pulsewidth(1, 1500)
+        pi.set_servo_pulsewidth(2, 1500)
+        pi.set_servo_pulsewidth(4, 1500)
+        pi.set_servo_pulsewidth(5, 1500)
     if action == "RIGHT":
-        fr.ChangeDutyCycle(63)
-        br.ChangeDutyCycle(63)
+        pi.set_servo_pulsewidth(1, 1100)
+        pi.set_servo_pulsewidth(2, 1900)
+        pi.set_servo_pulsewidth(4, 1900)
+        pi.set_servo_pulsewidth(5, 1100)
     else:
-        fr.ChangeDutyCycle(50)
-        br.ChangeDutyCycle(50)
+        pi.set_servo_pulsewidth(1, 1500)
+        pi.set_servo_pulsewidth(2, 1500)
+        pi.set_servo_pulsewidth(4, 1500)
+        pi.set_servo_pulsewidth(5, 1500)
     if action == "LEFT":
-        fl.ChangeDutyCycle(63)
-        bl.ChangeDutyCycle(63)
+        pi.set_servo_pulsewidth(1, 1900)
+        pi.set_servo_pulsewidth(2, 1100)
+        pi.set_servo_pulsewidth(4, 1100)
+        pi.set_servo_pulsewidth(5, 1900)
     else:
-        fl.ChangeDutyCycle(50)
-        bl.ChangeDutyCycle(50)
+        pi.set_servo_pulsewidth(1, 1500)
+        pi.set_servo_pulsewidth(2, 1500)
+        pi.set_servo_pulsewidth(4, 1500)
+        pi.set_servo_pulsewidth(5, 1500)
     if action == "TURN RIGHT":
-        fr.ChangeDutyCycle(63)
-        bl.ChangeDutyCycle(63)
+        pi.set_servo_pulsewidth(1, 1100)
+        pi.set_servo_pulsewidth(2, 1900)
+        pi.set_servo_pulsewidth(4, 1100)
+        pi.set_servo_pulsewidth(5, 1900)
     else:
-        fr.ChangeDutyCycle(50)
-        bl.ChangeDutyCycle(50)
+        pi.set_servo_pulsewidth(1, 1500)
+        pi.set_servo_pulsewidth(2, 1500)
+        pi.set_servo_pulsewidth(4, 1500)
+        pi.set_servo_pulsewidth(5, 1500)
     if action == "TURN LEFT":
-        fl.ChangeDutyCycle(63)
-        br.ChangeDutyCycle(63)
+        pi.set_servo_pulsewidth(1, 1900)
+        pi.set_servo_pulsewidth(2, 1100)
+        pi.set_servo_pulsewidth(4, 1900)
+        pi.set_servo_pulsewidth(5, 1100)
     else:
-        fl.ChangeDutyCycle(50)
-        br.ChangeDutyCycle(50)
+        pi.set_servo_pulsewidth(1, 1500)
+        pi.set_servo_pulsewidth(2, 1500)
+        pi.set_servo_pulsewidth(4, 1500)
+        pi.set_servo_pulsewidth(5, 1500)
+    
 
-if (__name__ == "__main__"):
-    motors_control("UP")
+def finish():
+    """
+    Finish the motors
+    """
+    for pin in PINS:
+        pi.set_PWM_dutycycle(pin, 0)
+    pi.stop()
