@@ -11,17 +11,44 @@ PINS = [1, 2, 3, 4, 5, 6]
 # 6 - Back left 
 
 pi = pigpio.pi()
+# 
+# while(not pi.connect()):
+#     pi = pigpio.pi()
 
-for pin in PINS:
-    pi.set_mode(pin, pigpio.OUTPUT)
-    pi.set_PWM_frequency(pin, 50)
-    pi.set_servo_pulsewidth(pin, 1500)
-time.sleep(2)
+def inicialize_pins():
+    for pin in PINS:
+        pi.set_mode(pin, pigpio.OUTPUT)
+        pi.set_PWM_frequency(pin, 50)
+        pi.set_servo_pulsewidth(pin, 1500)
+    time.sleep(2)
 
 def motors_control(action):
     """
     Function that takes an argument with movement instruction and decides how the motors will be activated
+
+    Parameters:
+
+    - action - action that shoud be execute 
+
+    actions:
+    - "UP"         : move the AUV up, turning on the motors 3 and 6 in the forward direction.
+    - "DOWN"       : move the AUV down, turning on the motors 3 and 6 in the reverse direction.
+    - "FRONT"      : move the AUV front, turning on the motors 1 and 2 in the reverse direction and the motors 4 and 5 in the forward direction.
+    - "BACK"       : move the AUV back, turning on the motors 1 and 2 in the forward direction and the motors 4 and 5 in the reverse direction.
+    - "RIGHT"      : move the AUV right, turning on the motors 2 and 4 in the forward direction and the motors 1 and 5 in the reverse direction.
+    - "LEFT"       : move the AUV left, turning on the motors 1 and 5 in the forward direction and the motors 2 and 4 in the reverse direction.
+    - "TURN RIGHT" : turn the AUV right, turning on the motors 2 and 5 in the forward direction and the motors 1 and 4 in the reverse direction.
+    - "TURN LEFT"  : turn the AUV left, turning on the motors 1 and 4 in the forward direction and the motors 2 and 5 in the reverse direction.
+
+    Return:
+    None
     """
+
+    # valid_actions = ["UP", "DOWN", "FRONT", "BACK", "RIGHT", "LEFT", "TURN RIGHT", "TURN LEFT"]
+    # 
+    # for act in valid_actions:
+    #     raise ValueError(f"Action {act} invalid. The actions valids are {valid_actions}")
+
     if action == "UP":
         pi.set_servo_pulsewidth(3, 1900)
         pi.set_servo_pulsewidth(6, 1900)
@@ -100,3 +127,7 @@ def finish():
     for pin in PINS:
         pi.set_PWM_dutycycle(pin, 0)
     pi.stop()
+
+if __name__ == "__main__":
+    inicialize_pins()
+
