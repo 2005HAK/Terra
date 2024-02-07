@@ -5,12 +5,12 @@ FREQUENCY = 50
 
 # Pins motors
 PINS = [1, 2, 3, 4, 5, 6]
-# 1 - Front left 
-# 2 - Front right
-# 3 - Middle right
-# 4 - Middle left
-# 5 - Back right
-# 6 - Back left 
+# 0 - Front left 
+# 1 - Front right
+# 2 - Middle right
+# 3 - Middle left
+# 4 - Back right
+# 5 - Back left 
 
 pi = pigpio.pi()
 # 
@@ -22,7 +22,7 @@ def inicialize_pins():
         pi.set_mode(pin, pigpio.OUTPUT)
         pi.set_PWM_frequency(pin, FREQUENCY)
         pi.set_servo_pulsewidth(pin, 1500)
-    time.sleep(2)
+    time.sleep(7)
 
 def motors_control(action):
     """
@@ -30,7 +30,7 @@ def motors_control(action):
 
     Parameters:
 
-    - action - action that should be execute 
+    - action       : action that should be execute 
 
     actions:
     - "UP"         : move the AUV up, turning on the motors 3 and 6 in the forward direction.
@@ -52,75 +52,74 @@ def motors_control(action):
     #     raise ValueError(f"Action {act} invalid. The actions valids are {valid_actions}")
 
     if action == "UP":
-        pi.set_servo_pulsewidth(PINS[3], 1900)
-        pi.set_servo_pulsewidth(PINS[6], 1900)
+        pi.set_servo_pulsewidth(PINS[2], 1900)
+        pi.set_servo_pulsewidth(PINS[5], 1900)
     elif action == "DOWN":
-        pi.set_servo_pulsewidth(PINS[3], 1100)
-        pi.set_servo_pulsewidth(PINS[6], 1100)
+        pi.set_servo_pulsewidth(PINS[2], 1100)
+        pi.set_servo_pulsewidth(PINS[5], 1100)
     else:
-        pi.set_servo_pulsewidth(PINS[3], 1500)
-        pi.set_servo_pulsewidth(PINS[6], 1500)
+        pi.set_servo_pulsewidth(PINS[2], 1500)
+        pi.set_servo_pulsewidth(PINS[5], 1500)
     if action == "FRONT":
+        pi.set_servo_pulsewidth(PINS[0], 1100)
         pi.set_servo_pulsewidth(PINS[1], 1100)
-        pi.set_servo_pulsewidth(PINS[2], 1100)
+        pi.set_servo_pulsewidth(PINS[3], 1900)
         pi.set_servo_pulsewidth(PINS[4], 1900)
-        pi.set_servo_pulsewidth(PINS[5], 1900)
     else:
+        pi.set_servo_pulsewidth(PINS[0], 1500)
         pi.set_servo_pulsewidth(PINS[1], 1500)
-        pi.set_servo_pulsewidth(PINS[2], 1500)
+        pi.set_servo_pulsewidth(PINS[3], 1500)
         pi.set_servo_pulsewidth(PINS[4], 1500)
-        pi.set_servo_pulsewidth(PINS[5], 1500)
     if action == "BACK":
+        pi.set_servo_pulsewidth(PINS[0], 1900)
         pi.set_servo_pulsewidth(PINS[1], 1900)
-        pi.set_servo_pulsewidth(PINS[2], 1900)
+        pi.set_servo_pulsewidth(PINS[3], 1100)
         pi.set_servo_pulsewidth(PINS[4], 1100)
-        pi.set_servo_pulsewidth(PINS[5], 1100)
     else:
+        pi.set_servo_pulsewidth(PINS[0], 1500)
         pi.set_servo_pulsewidth(PINS[1], 1500)
-        pi.set_servo_pulsewidth(PINS[2], 1500)
+        pi.set_servo_pulsewidth(PINS[3], 1500)
         pi.set_servo_pulsewidth(PINS[4], 1500)
-        pi.set_servo_pulsewidth(PINS[5], 1500)
     if action == "RIGHT":
-        pi.set_servo_pulsewidth(PINS[1], 1100)
-        pi.set_servo_pulsewidth(PINS[2], 1900)
-        pi.set_servo_pulsewidth(PINS[4], 1900)
-        pi.set_servo_pulsewidth(PINS[5], 1100)
+        pi.set_servo_pulsewidth(PINS[0], 1100)
+        pi.set_servo_pulsewidth(PINS[1], 1900)
+        pi.set_servo_pulsewidth(PINS[3], 1900)
+        pi.set_servo_pulsewidth(PINS[4], 1100)
     else:
+        pi.set_servo_pulsewidth(PINS[0], 1500)
         pi.set_servo_pulsewidth(PINS[1], 1500)
-        pi.set_servo_pulsewidth(PINS[2], 1500)
+        pi.set_servo_pulsewidth(PINS[3], 1500)
         pi.set_servo_pulsewidth(PINS[4], 1500)
-        pi.set_servo_pulsewidth(PINS[5], 1500)
     if action == "LEFT":
-        pi.set_servo_pulsewidth(PINS[1], 1900)
-        pi.set_servo_pulsewidth(PINS[2], 1100)
-        pi.set_servo_pulsewidth(PINS[4], 1100)
-        pi.set_servo_pulsewidth(PINS[5], 1900)
-    else:
-        pi.set_servo_pulsewidth(PINS[1], 1500)
-        pi.set_servo_pulsewidth(PINS[2], 1500)
-        pi.set_servo_pulsewidth(PINS[4], 1500)
-        pi.set_servo_pulsewidth(PINS[5], 1500)
-    if action == "TURN RIGHT":
+        pi.set_servo_pulsewidth(PINS[0], 1900)
         pi.set_servo_pulsewidth(PINS[1], 1100)
-        pi.set_servo_pulsewidth(PINS[2], 1900)
-        pi.set_servo_pulsewidth(PINS[4], 1100)
-        pi.set_servo_pulsewidth(PINS[5], 1900)
-    else:
-        pi.set_servo_pulsewidth(PINS[1], 1500)
-        pi.set_servo_pulsewidth(PINS[2], 1500)
-        pi.set_servo_pulsewidth(PINS[4], 1500)
-        pi.set_servo_pulsewidth(PINS[5], 1500)
-    if action == "TURN LEFT":
-        pi.set_servo_pulsewidth(PINS[1], 1900)
-        pi.set_servo_pulsewidth(PINS[2], 1100)
+        pi.set_servo_pulsewidth(PINS[3], 1100)
         pi.set_servo_pulsewidth(PINS[4], 1900)
-        pi.set_servo_pulsewidth(PINS[5], 1100)
     else:
+        pi.set_servo_pulsewidth(PINS[0], 1500)
         pi.set_servo_pulsewidth(PINS[1], 1500)
-        pi.set_servo_pulsewidth(PINS[2], 1500)
+        pi.set_servo_pulsewidth(PINS[3], 1500)
         pi.set_servo_pulsewidth(PINS[4], 1500)
-        pi.set_servo_pulsewidth(PINS[5], 1500)
-    
+    if action == "TURN RIGHT":
+        pi.set_servo_pulsewidth(PINS[0], 1100)
+        pi.set_servo_pulsewidth(PINS[1], 1900)
+        pi.set_servo_pulsewidth(PINS[3], 1100)
+        pi.set_servo_pulsewidth(PINS[4], 1900)
+    else:
+        pi.set_servo_pulsewidth(PINS[0], 1500)
+        pi.set_servo_pulsewidth(PINS[1], 1500)
+        pi.set_servo_pulsewidth(PINS[3], 1500)
+        pi.set_servo_pulsewidth(PINS[4], 1500)
+    if action == "TURN LEFT":
+        pi.set_servo_pulsewidth(PINS[0], 1900)
+        pi.set_servo_pulsewidth(PINS[1], 1100)
+        pi.set_servo_pulsewidth(PINS[3], 1900)
+        pi.set_servo_pulsewidth(PINS[4], 1100)
+    else:
+        pi.set_servo_pulsewidth(PINS[0], 1500)
+        pi.set_servo_pulsewidth(PINS[1], 1500)
+        pi.set_servo_pulsewidth(PINS[3], 1500)
+        pi.set_servo_pulsewidth(PINS[4], 1500) 
 
 def finish():
     """
@@ -132,4 +131,3 @@ def finish():
 
 if __name__ == "__main__":
     inicialize_pins()
-
