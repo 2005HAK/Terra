@@ -24,13 +24,14 @@ def inicialize_pins():
         pi.set_servo_pulsewidth(pin, 1500)
     time.sleep(7)
 
-def motors_control(action):
+def motors_control(action_z, action_xy):
     """
     Function that takes an argument with movement instruction and decides how the motors will be activated
 
     Parameters:
 
-    - action       : action that should be execute 
+    - action_z        : action that should be execute on the z axis
+    - action_xy       : action that should be execute in the xy plane
 
     actions:
     - "UP"         : move the AUV up, turning on the motors 3 and 6 in the forward direction.
@@ -44,18 +45,20 @@ def motors_control(action):
 
     Return:
     None
-    """
 
-    if action == "UP":
+    """
+    
+    if action_z == "UP":
         pi.set_servo_pulsewidth(PINS[2], 1900)
         pi.set_servo_pulsewidth(PINS[5], 1900)
-    elif action == "DOWN":
+    elif action_z == "DOWN":
         pi.set_servo_pulsewidth(PINS[2], 1100)
         pi.set_servo_pulsewidth(PINS[5], 1100)
     else:
         pi.set_servo_pulsewidth(PINS[2], 1500)
         pi.set_servo_pulsewidth(PINS[5], 1500)
-    if action == "FRONT":
+
+    if action_xy == "FRONT":
         pi.set_servo_pulsewidth(PINS[0], 1100)
         pi.set_servo_pulsewidth(PINS[1], 1100)
         pi.set_servo_pulsewidth(PINS[3], 1900)
@@ -65,7 +68,7 @@ def motors_control(action):
         pi.set_servo_pulsewidth(PINS[1], 1500)
         pi.set_servo_pulsewidth(PINS[3], 1500)
         pi.set_servo_pulsewidth(PINS[4], 1500)
-    if action == "BACK":
+    if action_xy == "BACK":
         pi.set_servo_pulsewidth(PINS[0], 1900)
         pi.set_servo_pulsewidth(PINS[1], 1900)
         pi.set_servo_pulsewidth(PINS[3], 1100)
@@ -75,7 +78,7 @@ def motors_control(action):
         pi.set_servo_pulsewidth(PINS[1], 1500)
         pi.set_servo_pulsewidth(PINS[3], 1500)
         pi.set_servo_pulsewidth(PINS[4], 1500)
-    if action == "RIGHT":
+    if action_xy == "RIGHT":
         pi.set_servo_pulsewidth(PINS[0], 1100)
         pi.set_servo_pulsewidth(PINS[1], 1900)
         pi.set_servo_pulsewidth(PINS[3], 1900)
@@ -85,7 +88,7 @@ def motors_control(action):
         pi.set_servo_pulsewidth(PINS[1], 1500)
         pi.set_servo_pulsewidth(PINS[3], 1500)
         pi.set_servo_pulsewidth(PINS[4], 1500)
-    if action == "LEFT":
+    if action_xy == "LEFT":
         pi.set_servo_pulsewidth(PINS[0], 1900)
         pi.set_servo_pulsewidth(PINS[1], 1100)
         pi.set_servo_pulsewidth(PINS[3], 1100)
@@ -95,7 +98,7 @@ def motors_control(action):
         pi.set_servo_pulsewidth(PINS[1], 1500)
         pi.set_servo_pulsewidth(PINS[3], 1500)
         pi.set_servo_pulsewidth(PINS[4], 1500)
-    if action == "TURN RIGHT":
+    if action_xy == "TURN RIGHT":
         pi.set_servo_pulsewidth(PINS[0], 1100)
         pi.set_servo_pulsewidth(PINS[1], 1900)
         pi.set_servo_pulsewidth(PINS[3], 1100)
@@ -105,7 +108,7 @@ def motors_control(action):
         pi.set_servo_pulsewidth(PINS[1], 1500)
         pi.set_servo_pulsewidth(PINS[3], 1500)
         pi.set_servo_pulsewidth(PINS[4], 1500)
-    if action == "TURN LEFT":
+    if action_xy == "TURN LEFT":
         pi.set_servo_pulsewidth(PINS[0], 1900)
         pi.set_servo_pulsewidth(PINS[1], 1100)
         pi.set_servo_pulsewidth(PINS[3], 1900)
