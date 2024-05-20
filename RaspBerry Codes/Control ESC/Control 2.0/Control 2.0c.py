@@ -1,6 +1,7 @@
 import pigpio
 import time
 
+# Frequency used in PWM
 FREQUENCY = 50
 
 # Pins motors
@@ -31,6 +32,10 @@ pi = pigpio.pi()
 #     pi = pigpio.pi()
 
 def inicialize_pins():
+    """
+    This function initialize the motors
+    """
+
     for pin in PINS:
         pi.set_mode(pin, pigpio.OUTPUT)
         pi.set_PWM_frequency(pin, FREQUENCY)
@@ -58,7 +63,7 @@ def motors_control(actions):
     Return:
     None
     """
-    
+
     for action, value in actions.items():
         forward_value = convert_forward(value)
         reverse_value = convert_reverse(value)
@@ -107,39 +112,35 @@ def motors_control(actions):
             pi.set_servo_pulsewidth(PINS[4], rest_value)
 
 def convert_forward(value):
-    if(value > 10):
-        kgf = value * 0.0371
+    kgf = value * 0.0371
 
-        i = 20
-
-        while kgf_values[i] < kgf:
-            i += 1
-
-        return int((((pwm_values[i - 1] - 1500) * value) / (26.954 * kgf_values[i - 1])) + 1498)
-    else:
-        return rest_value
+    i = 20
+    while kgf_values[i] < kgf:
+        i += 1
+    
+    return pwm_values[i] if kgf_values[i] - kgf < kgf - kgf_values[i - 1] else pwm_values[i - 1]
 
 def convert_reverse(value):
-    if(value > 10):
-        kgf = value * 0.029
+    kgf = value * 0.029
 
-        i = 20
+    i = 20
+    while kgf_values[i] < kgf:
+        i -= 1
 
-        while kgf_values[i] < kgf:
-            i -= 1
-
-        return int((((pwm_values[i + 1] - 1500) * value) / (34.483 * kgf_values[i + 1])) + 1500)
-    else:
-        return rest_value
+    return pwm_values[i] if kgf_values[i] - kgf < kgf - kgf_values[i + 1] else pwm_values[i + 1]
 
 def finish():
     """
     Finish the motors
     """
+
     for pin in PINS:
         pi.set_PWM_dutycycle(pin, 0)
     pi.stop()
 
 # Test
 if __name__ == "__main__":
-    motors_control({"DOWN": 80, "UP": 60})
+    for i in range(100, -1, -1):
+        print(f"{convert_reverse(i)}")
+    for i in range(0, 101):
+        print(f"{convert_forward(i)}")
