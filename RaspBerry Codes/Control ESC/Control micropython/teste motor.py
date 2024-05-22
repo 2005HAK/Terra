@@ -43,7 +43,9 @@ def convert_forward(percent_value):
     motor1.duty_u16(duty)
 
 def convert_reverse(percent_value):
-    pass
+    duty = int(FREQ * (98.35 - 0.262144 * percent_value)) # Encontra o valor do duty cicle correspontende 
+    print(int((15.2587890625 * duty) / FREQ)) # Exibe a frequencia usada
+    motor1.duty_u16(duty)
 
 def finalize_esc():
     print("Finalizando . . .")
@@ -51,19 +53,15 @@ def finalize_esc():
     motor1.duty_u16(value_fin)
 
 # Test
-# init_esc()
-while True:
-    for i in range(101):
-        control(i)
-        sleep(0.01)
-    for i in range(100, -1, -1):
-        control(i)
-        sleep(0.01)
-# for i in range(101):
-#     motor_control(i)
-#     sleep(0.01)
+init_esc()
 
-# motor_control(0)
-# motor_control(100)
+# NÃO PASSAR DE 30% COM A FONTE DE 3A
+
+convert_forward(30)
+sleep(5)
+convert_forward(0)
+sleep(5)
+convert_reverse(30)
+sleep(5)
 
 finalize_esc()

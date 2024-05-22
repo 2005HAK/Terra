@@ -1,4 +1,4 @@
-# import pigpio
+import pigpio
 import time
 import interpolacao as ipo
 
@@ -22,86 +22,86 @@ kgf_values = [2.9, 2.76, 2.56, 2.34, 2.14, 1.95, 1.73, 1.53, 1.37, 1.19, 1.02, 0
 
 coef = ipo.spline(pwm_values, kgf_values)
 
-# pi = pigpio.pi()
+pi = pigpio.pi()
 # # 
 # # while(not pi.connect()):
 # #     pi = pigpio.pi()
 
-# def inicialize_pins():
-#     for pin in PINS:
-#         pi.set_mode(pin, pigpio.OUTPUT)
-#         pi.set_PWM_frequency(pin, FREQUENCY)
-#         pi.set_servo_pulsewidth(pin, rest_value)
-#     time.sleep(7)
+def inicialize_pins():
+    for pin in PINS:
+        pi.set_mode(pin, pigpio.OUTPUT)
+        pi.set_PWM_frequency(pin, FREQUENCY)
+        pi.set_servo_pulsewidth(pin, rest_value)
+    time.sleep(7)
 
-# def motors_control(actions):
-#     """
-#     Function that takes an argument with movement instruction and decides how the motors will be activated
+def motors_control(actions):
+    """
+    Function that takes an argument with movement instruction and decides how the motors will be activated
 
-#     Parameters:
+    Parameters:
 
-#     - action       : action that should be execute 
+    - action       : action that should be execute 
 
-#     actions:
-#     - "UP"         : move the AUV up, turning on the motors 3 and 6 in the forward direction.
-#     - "DOWN"       : move the AUV down, turning on the motors 3 and 6 in the reverse direction.
-#     - "FRONT"      : move the AUV front, turning on the motors 1 and 2 in the reverse direction and the motors 4 and 5 in the forward direction.
-#     - "BACK"       : move the AUV back, turning on the motors 1 and 2 in the forward direction and the motors 4 and 5 in the reverse direction.
-#     - "RIGHT"      : move the AUV right, turning on the motors 2 and 4 in the forward direction and the motors 1 and 5 in the reverse direction.
-#     - "LEFT"       : move the AUV left, turning on the motors 1 and 5 in the forward direction and the motors 2 and 4 in the reverse direction.
-#     - "TURN RIGHT" : turn the AUV right, turning on the motors 2 and 5 in the forward direction and the motors 1 and 4 in the reverse direction.
-#     - "TURN LEFT"  : turn the AUV left, turning on the motors 1 and 4 in the forward direction and the motors 2 and 5 in the reverse direction.
+    actions:
+    - "UP"         : move the AUV up, turning on the motors 3 and 6 in the forward direction.
+    - "DOWN"       : move the AUV down, turning on the motors 3 and 6 in the reverse direction.
+    - "FRONT"      : move the AUV front, turning on the motors 1 and 2 in the reverse direction and the motors 4 and 5 in the forward direction.
+    - "BACK"       : move the AUV back, turning on the motors 1 and 2 in the forward direction and the motors 4 and 5 in the reverse direction.
+    - "RIGHT"      : move the AUV right, turning on the motors 2 and 4 in the forward direction and the motors 1 and 5 in the reverse direction.
+    - "LEFT"       : move the AUV left, turning on the motors 1 and 5 in the forward direction and the motors 2 and 4 in the reverse direction.
+    - "TURN RIGHT" : turn the AUV right, turning on the motors 2 and 5 in the forward direction and the motors 1 and 4 in the reverse direction.
+    - "TURN LEFT"  : turn the AUV left, turning on the motors 1 and 4 in the forward direction and the motors 2 and 5 in the reverse direction.
 
-#     Return:
-#     None
-#     """
+    Return:
+    None
+    """
 
-#     for action, value in actions.items():
-#         forward_value = convert_forward(value)
-#         reverse_value = convert_reverse(value)
+    for action, value in actions.items():
+        forward_value = convert_forward(value)
+        reverse_value = convert_reverse(value)
 
-#         if action == "UP":
-#             pi.set_servo_pulsewidth(PINS[2], forward_value)
-#             pi.set_servo_pulsewidth(PINS[5], forward_value)
-#         elif action == "DOWN":
-#             pi.set_servo_pulsewidth(PINS[2], reverse_value)
-#             pi.set_servo_pulsewidth(PINS[5], reverse_value)
+        if action == "UP":
+            pi.set_servo_pulsewidth(PINS[2], forward_value)
+            pi.set_servo_pulsewidth(PINS[5], forward_value)
+        elif action == "DOWN":
+            pi.set_servo_pulsewidth(PINS[2], reverse_value)
+            pi.set_servo_pulsewidth(PINS[5], reverse_value)
 
-#         if action == "FRONT":
-#             pi.set_servo_pulsewidth(PINS[0], reverse_value)
-#             pi.set_servo_pulsewidth(PINS[1], reverse_value)
-#             pi.set_servo_pulsewidth(PINS[3], forward_value)
-#             pi.set_servo_pulsewidth(PINS[4], forward_value)
-#         if action == "BACK":
-#             pi.set_servo_pulsewidth(PINS[0], forward_value)
-#             pi.set_servo_pulsewidth(PINS[1], forward_value)
-#             pi.set_servo_pulsewidth(PINS[3], reverse_value)
-#             pi.set_servo_pulsewidth(PINS[4], reverse_value)
-#         if action == "RIGHT":
-#             pi.set_servo_pulsewidth(PINS[0], reverse_value)
-#             pi.set_servo_pulsewidth(PINS[1], forward_value)
-#             pi.set_servo_pulsewidth(PINS[3], forward_value)
-#             pi.set_servo_pulsewidth(PINS[4], reverse_value)
-#         if action == "LEFT":
-#             pi.set_servo_pulsewidth(PINS[0], forward_value)
-#             pi.set_servo_pulsewidth(PINS[1], reverse_value)
-#             pi.set_servo_pulsewidth(PINS[3], reverse_value)
-#             pi.set_servo_pulsewidth(PINS[4], forward_value)
-#         if action == "TURN RIGHT":
-#             pi.set_servo_pulsewidth(PINS[0], reverse_value)
-#             pi.set_servo_pulsewidth(PINS[1], forward_value)
-#             pi.set_servo_pulsewidth(PINS[3], reverse_value)
-#             pi.set_servo_pulsewidth(PINS[4], forward_value)
-#         if action == "TURN LEFT":
-#             pi.set_servo_pulsewidth(PINS[0], forward_value)
-#             pi.set_servo_pulsewidth(PINS[1], reverse_value)
-#             pi.set_servo_pulsewidth(PINS[3], forward_value)
-#             pi.set_servo_pulsewidth(PINS[4], reverse_value)
-#         if action == "STAY":
-#             pi.set_servo_pulsewidth(PINS[0], rest_value)
-#             pi.set_servo_pulsewidth(PINS[1], rest_value)
-#             pi.set_servo_pulsewidth(PINS[3], rest_value)
-#             pi.set_servo_pulsewidth(PINS[4], rest_value)
+        if action == "FRONT":
+            pi.set_servo_pulsewidth(PINS[0], reverse_value)
+            pi.set_servo_pulsewidth(PINS[1], reverse_value)
+            pi.set_servo_pulsewidth(PINS[3], forward_value)
+            pi.set_servo_pulsewidth(PINS[4], forward_value)
+        if action == "BACK":
+            pi.set_servo_pulsewidth(PINS[0], forward_value)
+            pi.set_servo_pulsewidth(PINS[1], forward_value)
+            pi.set_servo_pulsewidth(PINS[3], reverse_value)
+            pi.set_servo_pulsewidth(PINS[4], reverse_value)
+        if action == "RIGHT":
+            pi.set_servo_pulsewidth(PINS[0], reverse_value)
+            pi.set_servo_pulsewidth(PINS[1], forward_value)
+            pi.set_servo_pulsewidth(PINS[3], forward_value)
+            pi.set_servo_pulsewidth(PINS[4], reverse_value)
+        if action == "LEFT":
+            pi.set_servo_pulsewidth(PINS[0], forward_value)
+            pi.set_servo_pulsewidth(PINS[1], reverse_value)
+            pi.set_servo_pulsewidth(PINS[3], reverse_value)
+            pi.set_servo_pulsewidth(PINS[4], forward_value)
+        if action == "TURN RIGHT":
+            pi.set_servo_pulsewidth(PINS[0], reverse_value)
+            pi.set_servo_pulsewidth(PINS[1], forward_value)
+            pi.set_servo_pulsewidth(PINS[3], reverse_value)
+            pi.set_servo_pulsewidth(PINS[4], forward_value)
+        if action == "TURN LEFT":
+            pi.set_servo_pulsewidth(PINS[0], forward_value)
+            pi.set_servo_pulsewidth(PINS[1], reverse_value)
+            pi.set_servo_pulsewidth(PINS[3], forward_value)
+            pi.set_servo_pulsewidth(PINS[4], reverse_value)
+        if action == "STAY":
+            pi.set_servo_pulsewidth(PINS[0], rest_value)
+            pi.set_servo_pulsewidth(PINS[1], rest_value)
+            pi.set_servo_pulsewidth(PINS[3], rest_value)
+            pi.set_servo_pulsewidth(PINS[4], rest_value)
 
 def convert_forward(value):
     kgf = value * 0.0371
@@ -147,21 +147,21 @@ def convert_reverse(value):
 
     return x[i]
 
-# def finish():
-#     """
-#     Finish the motors
-#     """
-#     for pin in PINS:
-#         pi.set_PWM_dutycycle(pin, 0)
-#     pi.stop()
+def finish():
+    """
+    Finish the motors
+    """
+    for pin in PINS:
+        pi.set_PWM_dutycycle(pin, 0)
+    pi.stop()
 
 # Test
 if __name__ == "__main__":
-    # while True:
-    #     motors_control({"DOWN": 80, "UP": 60})
-    #     time.sleep(1)
+    while True:
+        motors_control({"DOWN": 80, "UP": 60})
+        time.sleep(1)
 
-    for i in range(100, -1, -1):
-        print(convert_reverse(i))
-    for i in range(101):
-        print(convert_forward(i))
+    # for i in range(100, -1, -1):
+    #     print(convert_reverse(i))
+    # for i in range(101):
+    #     print(convert_forward(i))
