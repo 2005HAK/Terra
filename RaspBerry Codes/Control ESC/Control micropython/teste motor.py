@@ -1,9 +1,9 @@
 from machine import Pin, PWM
 from utime import sleep
 
-FREQ = 400
+FREQ = 200
 
-motor1 = PWM(Pin(11), freq = FREQ)
+motor1 = PWM(Pin(20), freq = FREQ)
 
 # Freq 400Hz: duty de 44% a 76%
 # Freq 100Hz: duty de 11% a 19%
@@ -51,6 +51,9 @@ def finalize_esc():
     print("Finalizando . . .")
     value_fin = int(98.3144 * FREQ)
     motor1.duty_u16(value_fin)
+    sleep(2)
+    motor1.duty_u16(0)
+    sleep(2)
 
 # Test
 init_esc()
@@ -58,10 +61,10 @@ init_esc()
 # NÃO PASSAR DE 30% COM A FONTE DE 3A
 
 convert_forward(30)
-sleep(5)
+sleep(10)
 convert_forward(0)
-sleep(5)
+sleep(3)
 convert_reverse(30)
-sleep(5)
+sleep(10)
 
 finalize_esc()

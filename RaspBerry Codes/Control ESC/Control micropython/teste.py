@@ -3,7 +3,7 @@ from utime import sleep
 
 FREQ = 400
 
-motor1 = PWM(Pin(11), freq = FREQ)
+motor1 = PWM(Pin(20), freq = FREQ)
 
 # Freq 400Hz: duty de 44% a 76%
 # Freq 100Hz: duty de 11% a 19%
