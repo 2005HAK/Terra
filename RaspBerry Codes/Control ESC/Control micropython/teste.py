@@ -52,14 +52,20 @@ def finalize_esc():
 # Test
 init_esc()
 
-for i in range(101):
-    convert_forward(i)
-    sleep(0.01)
+# for i in range(101):
+    # convert_forward(i)
+    # sleep(0.01)
 # for i in range(101):
 #     motor_control(i)
 #     sleep(0.01)
 
 # motor_control(0)
 # motor_control(100)
+    # for i in range(101):
+    #     control(i)
+    #     sleep(.1)
+    # for i in range(100, -1, -1):
+    #     control(i)
+    #     sleep(.1)
 
 finalize_esc()
