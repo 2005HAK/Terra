@@ -1,9 +1,9 @@
 from machine import Pin, PWM
 from utime import sleep
 
-FREQ = 400
+FREQ = 200
 
-motor1 = PWM(Pin(25), freq = FREQ)
+motor1 = PWM(Pin(20), freq = FREQ)
 
 # Freq 400Hz: duty de 44% a 76%
 # Freq 100Hz: duty de 11% a 19%
@@ -13,7 +13,7 @@ def init_esc():
     value_init = int(98.3144 * FREQ) # Equivalente a 1500 us
     print(int((15.2587890625 * value_init) / FREQ)) 
     motor1.duty_u16(value_init)
-    # sleep(7)
+    sleep(7)
 
 def control(percent_value):
     """
@@ -43,29 +43,28 @@ def convert_forward(percent_value):
     motor1.duty_u16(duty)
 
 def convert_reverse(percent_value):
-    pass
+    duty = int(FREQ * (98.35 - 0.262144 * percent_value)) # Encontra o valor do duty cicle correspontende 
+    print(int((15.2587890625 * duty) / FREQ)) # Exibe a frequencia usada
+    motor1.duty_u16(duty)
 
 def finalize_esc():
     print("Finalizando . . .")
-    motor1.duty_u16(0) # Zera o PWM do pino do motor
+    value_fin = int(98.3144 * FREQ)
+    motor1.duty_u16(value_fin)
+    sleep(2)
+    motor1.duty_u16(0)
+    sleep(2)
 
 # Test
 init_esc()
 
-# for i in range(101):
-    # convert_forward(i)
-    # sleep(0.01)
-# for i in range(101):
-#     motor_control(i)
-#     sleep(0.01)
+# NÃO PASSAR DE 30% COM A FONTE DE 3A
 
-# motor_control(0)
-# motor_control(100)
-    # for i in range(101):
-    #     control(i)
-    #     sleep(.1)
-    # for i in range(100, -1, -1):
-    #     control(i)
-    #     sleep(.1)
+convert_forward(30)
+sleep(10)
+convert_forward(0)
+sleep(3)
+convert_reverse(30)
+sleep(10)
 
 finalize_esc()

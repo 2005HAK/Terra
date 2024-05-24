@@ -1,7 +1,3 @@
-"""
-Código principal do programa, irá ser executado em loop
-"""
-
 from pymavlink import mavutil
 import time
 
