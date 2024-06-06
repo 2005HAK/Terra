@@ -1,23 +1,23 @@
 import RPi.GPIO as GPIO
 import threading
 import time
- 
+
 class PiZyPwm(threading.Thread):
 
   def __init__(self, frequency, gpioPin, gpioScheme):
-     """ 
-     Init the PiZyPwm instance. Expected parameters are :
-     - frequency : the frequency in Hz for the PWM pattern. A correct value may be 100.
-     - gpioPin : the pin number which will act as PWM ouput
-     - gpioScheme : the GPIO naming scheme (see RPi.GPIO documentation)
-     """
-     self.baseTime = 1.0 / frequency
-     self.maxCycle = 100.0
-     self.sliceTime = self.baseTime / self.maxCycle
-     self.gpioPin = gpioPin
-     self.terminated = False
-     self.toTerminate = False
-     GPIO.setmode(gpioScheme)
+      """ 
+      Init the PiZyPwm instance. Expected parameters are :
+      - frequency : the frequency in Hz for the PWM pattern. A correct value may be 100.
+      - gpioPin : the pin number which will act as PWM ouput
+      - gpioScheme : the GPIO naming scheme (see RPi.GPIO documentation)
+      """
+      self.baseTime = 1.0 / frequency
+      self.maxCycle = 100.0
+      self.sliceTime = self.baseTime / self.maxCycle
+      self.gpioPin = gpioPin
+      self.terminated = False
+      self.toTerminate = False
+      GPIO.setmode(gpioScheme)
 
 
   def start(self, dutyCycle):

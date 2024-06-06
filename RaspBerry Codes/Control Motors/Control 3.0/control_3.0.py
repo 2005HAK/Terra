@@ -1,6 +1,6 @@
 import pigpio
 import time
-import interpolacao as ipo
+import interpolation as ipo
 
 FREQUENCY = 50
 

@@ -1,3 +1,7 @@
+"""
+Código para calcular os valores de PWM usando 
+"""
+
 import interpolacao as ipo
 
 FREQUENCY = 50
@@ -58,8 +62,8 @@ if __name__ == "__main__":
     #     print(convert_reverse(i), end=", ")
     # for i in range(101):
     #     print(convert_forward(i), end=", ")
-
-    for i in range(101):
-        print(f"{i}: {convert_reverse(i)}")
-    for i in range(101):
-        print(f"{i}: {convert_forward(i)}")
+    for i in range(1000):
+        for i in range(101):
+            print(f"{i}: {convert_reverse(i)}")
+        for i in range(101):
+            print(f"{i}: {convert_forward(i)}")

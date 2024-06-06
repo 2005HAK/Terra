@@ -1,7 +1,7 @@
 import pigpio
 import time
 
-FREQUENCY = 50
+FREQUENCY = 200
 
 # Pins motors
 PINS = [1, 2, 3, 4, 5, 6]
@@ -114,6 +114,12 @@ def finish():
 
 # Test
 if __name__ == "__main__":
-    while True:
-        motors_control({"DOWN": 80, "UP": 60})
-        time.sleep(1)
+    # while True:
+    #     motors_control({"DOWN": 80, "UP": 60})
+    #     time.sleep(1)
+
+    for i in range(0, 10):
+        for i in range(101):
+            print(f"{i}: {convert_reverse(i)}")
+        for i in range(101):
+            print(f"{i}: {convert_forward(i)}")
