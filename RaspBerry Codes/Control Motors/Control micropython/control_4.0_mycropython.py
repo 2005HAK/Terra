@@ -1,7 +1,7 @@
 from machine import Pin, PWM
 from utime import sleep
 
-FREQ = 200
+FREQ = 200 # 50 - 400 Hz
 
 PINS = [16, 17, 18, 19, 20, 21]
 # 0 - Front left 
@@ -95,11 +95,13 @@ def motors_control(actions):
             motores[1].duty_u16(reverse_value)
             motores[3].duty_u16(forward_value)
             motores[4].duty_u16(reverse_value)
-        if action == "STAY":
+        if action == "STOP":
             motores[0].duty_u16(rest_value)
             motores[1].duty_u16(rest_value)
+            motores[2].duty_u16(rest_value)
             motores[3].duty_u16(rest_value)
             motores[4].duty_u16(rest_value)
+            motores[5].duty_u16(rest_value)
 
 def convert_forward(percent_value):
     """
@@ -142,11 +144,7 @@ def finalize_esc():
 if __name__ == "__main__":
     """
     Algoritmo para testar o motor usando micropython
-
-    Esse algoritmo passa valores percentuais para o motor "girar para frente" e para "girar para trás" aguardando
-    um tempo para ver o resultado no motor
     """
-
 
     init_esc()
 

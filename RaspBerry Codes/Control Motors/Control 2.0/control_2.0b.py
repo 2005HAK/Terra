@@ -94,11 +94,13 @@ def motors_control(actions):
             pi.set_servo_pulsewidth(PINS[1], reverse_value)
             pi.set_servo_pulsewidth(PINS[3], forward_value)
             pi.set_servo_pulsewidth(PINS[4], reverse_value)
-        elif action == "STAY":
+        elif action == "STOP":
             pi.set_servo_pulsewidth(PINS[0], rest_value)
             pi.set_servo_pulsewidth(PINS[1], rest_value)
+            pi.set_servo_pulsewidth(PINS[2], rest_value)
             pi.set_servo_pulsewidth(PINS[3], rest_value)
             pi.set_servo_pulsewidth(PINS[4], rest_value)
+            pi.set_servo_pulsewidth(PINS[5], rest_value)
 
 def convert_forward(value):
     if(value > 10):
