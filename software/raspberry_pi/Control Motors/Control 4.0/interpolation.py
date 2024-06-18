@@ -63,6 +63,7 @@ def calc_spline(x, X, coef):
         
         y = np.zeros(n)
         for i in range(21):
+            print(x)
             y[i] = calc_spline(x, X[i], coef)
     
     except:
