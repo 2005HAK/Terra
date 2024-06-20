@@ -46,6 +46,10 @@ def center_object(xyxy):
 
     return [dir1, dir2]
 
+def set_power(xyxy):
+    dx = xyxy[2] - xyxy[0]
+    dy = xyxy[3] - xyxy[1]
+
 import random
 
 def test(coord_inicial):
