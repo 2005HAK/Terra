@@ -1,1 +1,8 @@
-scripts referentes a raspberry pi
+# Scripts referentes a Raspberry pi
+
+Códigos feitos para rodarem na Raspberry pi
+
+- **control_motors/**: Códigos de controle dos motores referentes a movimentações do AUV
+- **navegation/**: Códigos de navegação referentes a qual movimentação o AUV deve executar
+
+Mantenha este repositório organizado e atualizado

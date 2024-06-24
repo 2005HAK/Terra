@@ -1,1 +1,7 @@
-imagens e figuras usadas
+# Imagens usadas na documentação e imagens do projeto
+
+Imagens e figuras usadas nos relatórios e imagens do projeto
+
+- **raspberry_pi/"": Imagens relacionadas ao desenvolvimento de códigos para a Raspberry Pi
+
+Mantenha este repositório organizado e atualizado

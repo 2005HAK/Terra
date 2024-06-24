@@ -1,1 +1,8 @@
-documentação do projeto
+# Diretório com a documentação do projeto
+
+Este diretório contém os relatórios e imagens das atividades desenvolvidas
+
+- **control_motors/**: Documentos relacionados a atividade de controle dos motores
+- **img/**: Imagens usadas nas documentações e imagens do projeto 
+
+Mantenha este diretório organizado e atualizado

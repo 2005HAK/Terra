@@ -58,6 +58,16 @@ def center_object(xyxy):
     return [dir1, power[0], dir2, power[1]]
 
 def set_power(xyxy):
+    """
+    Defines the power that motors execution the moviment
+
+    Uses the diference into the object midpoint and image midpoint to calculate a value of power. The difference is multiplicate for weigth horizontal and vertical to return the value of power in each directions
+
+    :param xyxy: x and y coordinates of the detected object sent as a list to the function
+
+    :return: A list with power_h, horizontal power, and power_v, vertical power, from 0-100%
+    """
+
     power_v = 0
     power_h = 0
 
@@ -76,6 +86,14 @@ def set_power(xyxy):
     power_v = max(min(power_v, 45), 0)
 
     return [power_h, power_v]
+
+def advance():
+    """
+    Advance to the object
+    """
+    pass
+
+# tests
 
 import random
 
