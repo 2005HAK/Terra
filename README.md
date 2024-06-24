@@ -15,4 +15,4 @@ Este repositório contém o código fonte e documentação para o projeto do Ve�
 
 ## Contato
 
-Para mais informações, entre em contato com [terra.ufsc@gmail.com] ou acesse nosso [canal do Slack](https://terra.joinville.ufsc.br/pt_br/).
+Para mais informações, entre em contato com [terra.ufsc@gmail.com] ou acesse nosso [site](https://terra.joinville.ufsc.br/pt_br/).
