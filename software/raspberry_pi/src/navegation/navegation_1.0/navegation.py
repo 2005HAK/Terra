@@ -68,6 +68,9 @@ def set_power(xyxy):
     :return: A list with power_h, horizontal power, and power_v, vertical power, from 0-100%
     """
 
+    # Defines the power maximum that motors can receive
+    POWER_MAX = 45
+
     power_v = 0
     power_h = 0
 
@@ -82,8 +85,8 @@ def set_power(xyxy):
     power_h = k_p_x * m.fabs(error_x)
     power_v = k_p_y * m.fabs(error_y)
 
-    power_h = max(min(power_h, 45), 0)
-    power_v = max(min(power_v, 45), 0)
+    power_h = max(min(power_h, POWER_MAX), 0)
+    power_v = max(min(power_v, POWER_MAX), 0)
 
     return [power_h, power_v]
 
@@ -93,36 +96,46 @@ def advance():
     """
     pass
 
+def navegation(xyxy):
+    # coleta os dados xyxy
+    command = center_object(xyxy)
+    while command[0] != "" or command[2] != "":
+        # repassa os comandos para os motores
+        # coleta os novos dados xyxy
+        command = center_object(xyxy)
+    
+    advance()
+
 # tests
 
-import random
+# import random
 
-def test(coord_inicial):
-    xyxy = coord_inicial
+# def test(coord_inicial):
+#     xyxy = coord_inicial
 
-    decisao = center_object(xyxy)
+#     decisao = center_object(xyxy)
 
-    while(decisao[0] != "" or decisao[2] != ""):
+#     while(decisao[0] != "" or decisao[2] != ""):
 
-        if(decisao[0] == "LEFT"):
-            xyxy[0] = xyxy[0] + 1
-            xyxy[2] = xyxy[2] + 1
-        if(decisao[0] == "RIGHT"):
-            xyxy[0] = xyxy[0] - 1
-            xyxy[2] = xyxy[2] - 1
-        if(decisao[2] == "UP"):
-            xyxy[1] = xyxy[1] + 1
-            xyxy[3] = xyxy[3] + 1
-        if(decisao[2] == "DOWN"):
-            xyxy[1] = xyxy[1] - 1
-            xyxy[3] = xyxy[3] - 1
+#         if(decisao[0] == "LEFT"):
+#             xyxy[0] = xyxy[0] + 1
+#             xyxy[2] = xyxy[2] + 1
+#         if(decisao[0] == "RIGHT"):
+#             xyxy[0] = xyxy[0] - 1
+#             xyxy[2] = xyxy[2] - 1
+#         if(decisao[2] == "UP"):
+#             xyxy[1] = xyxy[1] + 1
+#             xyxy[3] = xyxy[3] + 1
+#         if(decisao[2] == "DOWN"):
+#             xyxy[1] = xyxy[1] - 1
+#             xyxy[3] = xyxy[3] - 1
         
-        decisao = center_object(xyxy)
+#         decisao = center_object(xyxy)
         
-        print(decisao)
-        print(xyxy)
+#         print(decisao)
+#         print(xyxy)
 
-test([random.randint(0, 1280), random.randint(0, 720), random.randint(0, 1280), random.randint(0, 720)])
+# test([random.randint(0, 1280), random.randint(0, 720), random.randint(0, 1280), random.randint(0, 720)])
 
 # xyxy = extract_boxes({"boxes": [0,0,3,4]})
 
