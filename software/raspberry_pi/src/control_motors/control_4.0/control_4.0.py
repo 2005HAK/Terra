@@ -101,10 +101,10 @@ def motors_control(actions):
             pi.set_servo_pulsewidth(PINS[5], rest_value)
 
 def convert_forward(value):
-    return pwm_values[101 + value]
+    return pwm_values[101 + int(value)]
 
 def convert_reverse(value):
-    return pwm_values[value]
+    return pwm_values[int(value)]
 
 def finish():
     """
@@ -120,8 +120,10 @@ if __name__ == "__main__":
     #     motors_control({"DOWN": 80, "UP": 60})
     #     time.sleep(1)
 
-    for i in range(0, 10):
-        for i in range(101):
-            print(f"{i}: {convert_reverse(i)}")
-        for i in range(101):
-            print(f"{i}: {convert_forward(i)}")
+    # for i in range(0, 10):
+    #     for i in range(101):
+    #         print(f"{i}: {convert_reverse(i)}")
+    #     for i in range(101):
+    #         print(f"{i}: {convert_forward(i)}")
+
+    print(convert_forward(4.5))
