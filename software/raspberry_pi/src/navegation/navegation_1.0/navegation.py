@@ -18,13 +18,13 @@ def extract_boxes(data_received):
 
     return data_received["boxes"]
 
-def CENTER(xyxy = []):
+def center(xyxy = []):
     """
-    Calculates the CENTERs of the object
+    Calculates the center of the object
 
     :param: x and y coordinates of the detected object sent as a list to the function
 
-    :return: x and y coordinates as a list of CENTER or [-1, -1] if param is null
+    :return: x and y coordinates as a list of center or [-1, -1] if param is null
     """
 
     return [(xyxy[0] + xyxy[2]) / 2, (xyxy[1] + xyxy[3]) / 2] if xyxy else [-1, -1]
@@ -41,7 +41,7 @@ def center_object(xyxy):
     dir1 = ""
     dir2 = ""
 
-    xm, ym = CENTER(xyxy)
+    xm, ym = center(xyxy)
 
     if(xm >= 0 and xm <= IMAGE_WIDTH and ym >= 0 and ym <= IMAGE_HEIGHT):
         if(xm < IMAGE_CENTER[0] - (ERROR_CENTER / 2)):
@@ -74,7 +74,7 @@ def set_power(xyxy):
     k_p_x = 0.5
     k_p_y = 0.5
 
-    xm, ym = CENTER(xyxy)
+    xm, ym = center(xyxy)
 
     error_x = xm - IMAGE_CENTER[0]
     error_y = ym - IMAGE_CENTER[1]
