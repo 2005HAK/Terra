@@ -113,11 +113,6 @@ def center_object(xyxy):
     return [dir_h, power_h, dir_v, power_v]
 
 def calculate_distance(class_object, xyxy):
-    # Saber qual objeto está sendo visualizado
-    # Com base no objeto obter as dimensões do mesmo
-    # Calcular a distancia do AUV até o objeto
-    # OBS: ainda deve ser testado a questão do erro causado na medição por conta do angulo do objeto na imagem
-
     # Largura real do objeto
     width_objects = {"obj1": 2, "obj2": 1.5}
 
@@ -138,6 +133,7 @@ def advance(class_object, xyxy):
     """
     Advance to the object
     """
+    
     distance_object = calculate_distance(class_object, xyxy)
 
     action = ""
