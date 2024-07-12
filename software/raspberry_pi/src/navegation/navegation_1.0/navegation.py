@@ -26,7 +26,7 @@ def center(xyxy = []):
 
     :param: x and y coordinates of the detected object sent as a list to the function
 
-    :return: x and y coordinates as a list of CENTER or [-1, -1] if param is null
+    :return: x and y coordinates as a list of center or [-1, -1] if param is null
     """
 
     return [(xyxy[0] + xyxy[2]) / 2, (xyxy[1] + xyxy[3]) / 2] if xyxy else [-1, -1]
