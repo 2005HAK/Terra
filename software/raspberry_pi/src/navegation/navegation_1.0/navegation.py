@@ -7,6 +7,7 @@ ERROR_CENTER = 50
 
 SAFE_SECURITY = 1
 
+from pymavlink import mavutil
 import math as m
 
 def extract_boxes(data_received):
@@ -112,29 +113,48 @@ def center_object(xyxy):
 
     return [dir_h, power_h, dir_v, power_v]
 
-def calculate_distance(class_object, xyxy):
-    # Largura real do objeto
+def calculate_distance(object_class, xyxy):
+    """
+    Calculates the distance between AUV and object based on the object's actual width and image dimension
+
+    :param object_class: The class of the detected object
+    :param xyxy: Coordinates of the bounding box of the detected object
+
+    :return: The distance between AUV and object in meters
+    """
+
+    # Actual width of the objects (in meters)
     width_objects = {"obj1": 2, "obj2": 1.5}
 
-    # Diagonal da imagem (em pixels)
-    d = m.sqrt(m.pow(IMAGE_WIDTH, 2) + m.pow(IMAGE_HEIGHT, 2))
+    # Initializes the variable with invalid value to indicates error
+    distance_object = -1
 
-    # Campo de visão diagonal (em rad)
-    a = (m.pi / 180) * 55
+    if (object_class in width_objects) and (xyxy[2] - xyxy[0] != 0):
+        # Image diagonal (in pixels)
+        d = m.sqrt(m.pow(IMAGE_WIDTH, 2) + m.pow(IMAGE_HEIGHT, 2))
 
-    # Distancia focal
-    f = (d / 2) * (m.cos(a / 2) / m.sin(a / 2))
+        # Diagonal field of view (in rad)
+        a = (m.pi / 180) * 55
 
-    distance_object = (f * width_objects[class_object]) / (xyxy[2] - xyxy[0])
+        # focal distance
+        f = (d / 2) * (m.cos(a / 2) / m.sin(a / 2))
+
+        distance_object = (f * width_objects[object_class]) / (xyxy[2] - xyxy[0])
 
     return distance_object
 
-def advance(class_object, xyxy):
+# not tested
+def advance(object_class, xyxy):
     """
-    Advance to the object
+    Decides whether to advance to the object and the power that will be used
+
+    :param object_class: The class of the detected object
+    :param xyxy: Coordinates of the bounding box of the detected object
+
+    :return: action and power that must be used
     """
     
-    distance_object = calculate_distance(class_object, xyxy)
+    distance_object = calculate_distance(object_class, xyxy)
 
     action = ""
     power = 0
@@ -145,6 +165,35 @@ def advance(class_object, xyxy):
         power = set_power(distance = distance_object)
     
     return [action, power]
+
+# not tested
+def collision_detect(connection, direction = False):
+    """
+    Detects whether the AUV has crashed based on acceleretion data from Pixhawk
+
+    :param connection: Connection with Pixhawk
+    :param direction: Whether acceleration data will be returned
+
+    :return: If the AUV collided and the acceleration data if the "direction" variable is True
+    """
+    response = [False]
+    ACC_LIMIT = 15
+    acceleration = []
+
+    while True:
+        msg = connection.recv_match()
+
+        if (msg) and (msg.get_type() == 'SIMSTATE'):
+            acceleration = [float(msg.xacc), float(msg.yacc), float(msg.zacc)]
+            break
+    
+    if any(acc > ACC_LIMIT for acc in acceleration):
+        response[0] = True
+
+        if direction:
+            response.append(acceleration)
+
+    return response
 
 # tests
 
