@@ -17,19 +17,26 @@ def get_data():
     """
     
     sensors_data = []
+    validoSIMSTATE = False
+    validoSCALEDIMU2 = False
 
-    while True:
+    while not validoSCALEDIMU2 or not validoSIMSTATE:
         msg = master.recv_match()
 
         if not msg:
             continue
-        if msg.get_type() == 'SIMSTATE':
-            sensors_data = [msg.xacc, msg.yacc, msg.zacc, msg.xgyro, msg.ygyro, msg.zgyro]
-        if msg.get_type() == 'SCALED_IMU2':
+        if msg.get_type() == 'SIMSTATE' and not validoSIMSTATE:
+            sensors_data.append(msg.xacc)
+            sensors_data.append(msg.yacc)
+            sensors_data.append(msg.zacc)
+            sensors_data.append(msg.xgyro)
+            sensors_data.append(msg.ygyro)
+            sensors_data.append(msg.zgyro)
+            validoSIMSTATE = True
+        if msg.get_type() == 'SCALED_IMU2' and validoSIMSTATE == True:
             sensors_data.append(msg.xmag)
             sensors_data.append(msg.ymag)
             sensors_data.append(msg.zmag)
-        if sensors_data.shape == 9:
-            break
+            validoSCALEDIMU2 = True
     
     return sensors_data

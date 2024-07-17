@@ -168,7 +168,7 @@ def advance(object_class, xyxy):
     return [action, power]
 
 # not tested
-def collision_detect(connection, direction = False):
+def collision_detect(direction = False):
     """
     Detects whether the AUV has crashed based on acceleretion data from Pixhawk
 
@@ -177,9 +177,11 @@ def collision_detect(connection, direction = False):
 
     :return: If the AUV collided and the acceleration data if the "direction" variable is True
     """
+
     response = [False]
     ACC_LIMIT = 15
     sensors = ps.get_data()
+    print(sensors)
     acceleration = [sensors[0], sensors[1], sensors[2]]
 
     # while True:
@@ -234,3 +236,6 @@ def collision_detect(connection, direction = False):
 # xyxy = extract_boxes({"boxes": [0,0,3,4]})
 
 # print(center_object(xyxy))
+
+while True:
+    print(collision_detect(direction=True))
