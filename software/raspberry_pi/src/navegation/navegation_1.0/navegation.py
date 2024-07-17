@@ -8,6 +8,7 @@ ERROR_CENTER = 50
 SAFE_SECURITY = 1
 
 from pymavlink import mavutil
+import pixhawk_sensors as ps
 import math as m
 
 def extract_boxes(data_received):
@@ -178,14 +179,15 @@ def collision_detect(connection, direction = False):
     """
     response = [False]
     ACC_LIMIT = 15
-    acceleration = []
+    sensors = ps.get_data()
+    acceleration = [sensors[0], sensors[1], sensors[2]]
 
-    while True:
-        msg = connection.recv_match()
+    # while True:
+    #     msg = connection.recv_match()
 
-        if (msg) and (msg.get_type() == 'SIMSTATE'):
-            acceleration = [float(msg.xacc), float(msg.yacc), float(msg.zacc)]
-            break
+    #     if (msg) and (msg.get_type() == 'SIMSTATE'):
+    #         acceleration = [float(msg.xacc), float(msg.yacc), float(msg.zacc)]
+    #         break
     
     if any(m.fabs(acc) > ACC_LIMIT for acc in acceleration):
         response[0] = True
