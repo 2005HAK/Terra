@@ -167,7 +167,7 @@ def advance(object_class, xyxy):
     
     return [action, power]
 
-# not tested
+# tested in the simulator
 def collision_detect(direction = False):
     """
     Detects whether the AUV has crashed based on acceleretion data from Pixhawk
@@ -181,16 +181,8 @@ def collision_detect(direction = False):
     response = [False]
     ACC_LIMIT = 15
     sensors = ps.get_data()
-    print(sensors)
     acceleration = [sensors[0], sensors[1], sensors[2]]
 
-    # while True:
-    #     msg = connection.recv_match()
-
-    #     if (msg) and (msg.get_type() == 'SIMSTATE'):
-    #         acceleration = [float(msg.xacc), float(msg.yacc), float(msg.zacc)]
-    #         break
-    
     if any(m.fabs(acc) > ACC_LIMIT for acc in acceleration):
         response[0] = True
 
