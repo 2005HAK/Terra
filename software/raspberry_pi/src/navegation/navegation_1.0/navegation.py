@@ -187,7 +187,7 @@ def collision_detect(connection, direction = False):
             acceleration = [float(msg.xacc), float(msg.yacc), float(msg.zacc)]
             break
     
-    if any(acc > ACC_LIMIT for acc in acceleration):
+    if any(m.fabs(acc) > ACC_LIMIT for acc in acceleration):
         response[0] = True
 
         if direction:
