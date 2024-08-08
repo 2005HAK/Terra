@@ -17,16 +17,19 @@ class State(Enum):
     SEARCH = auto()
     CENTERING = auto()
     ADVANCING = auto()
+    PASS_GATE_WITH_STYLE = auto()
+    STABILIZING = auto()
     STOP = auto()
 
 class AUVStateMachine:
     def __init__(self):
         self.state = State.INIT
+        self.next_state = None
         self.pixhawk = px.Pixhawk()
+        self.motors = None
         self.object_class = None
         self.bounding_box = None
         self.distance = None
-        self.motors = None
 
     def transition_to(self, new_state):
         print(f"Transitioning from {self.state} to {new_state}")
@@ -42,6 +45,8 @@ class AUVStateMachine:
                 self.centering()
             elif self.state == State.ADVANCING:
                 self.advancing()
+            elif self.state == State.STABILIZING:
+                self.stabilizing()
 
         self.stop()
     
@@ -49,19 +54,33 @@ class AUVStateMachine:
         print("Initializing...")
 
         self.motors = cm.Motors()
-        self.state = State.SEARCH
+        self.transition_to(State.SEARCH)
     
     def search(self):
+        """
+        This state defines the search procedure
+        """
+
+        print("Searching...")
+
         while self.bounding_box == None:
             self.motors.define_action({"FRONT": 20})
+            # provavelmente precisa de delay aqui
             if collision_detect(self.pixhawk):
+                # virar a frente do AUV 180º em relação a batida
                 pass
 
             self.bounding_box = get_xyxy()
+
+        # verificar qual objeto(os) encontrou e responder de acordo
         
-        self.state = State.CENTERING
+        self.transition_to(State.CENTERING)
 
     def centering(self):
+        """
+        This state defines the centralization procedure
+        """
+
         print("Centering...")
 
         # atualiza a posição do bounding box
@@ -78,15 +97,64 @@ class AUVStateMachine:
                 is_center = actions[0]
             
             # função para ficar parado no lugar
+
+            self.transition_to(State.ADVANCING)
         else: 
-            self.state = State.SEARCH
+            self.transition_to(State.SEARCH)
+    
+    def advancing(self):
+        """
+        This state difines the advancement procedure
+        """
+
+        print("Advancing...")
+
+        advance = True
+
+        while advance:
+            self.distance = calculate_distance(self.object_class, self.bounding_box)
+            action = advance(self.distance)
+
+            self.motors.define_action({action[1]: action[2]})
+
+            advance = action[0]
+        
+        self.next_state = State.STOP
+        self.transition_to(State.STABILIZING)
+
+    def stabilizing(self):
+        """
+        This state stabilizes the AUV
+        """
+
+        print("Stabilizing...")
+
+        is_stable = False
+
+        while not is_stable:
+            velocity = self.pixhawk.get_vel()
+
+            actions = stabilizes(velocity)
+
+            is_stable = actions[0]
+
+        self.transition_to(self.next_state if self.next_state != None else State.SEARCH)
+        self.next_state = None
+
+    def pass_gate_with_style(self):
+        pass
 
     def stop(self):
+        """
+        This state defines the stopping procedure
+        """
+
         print("Stoping...")
 
         self.motors.finish()
 
-def extract_boxes(data_received):
+#ainda não funciona
+def get_xyxy(data_received):
     """
     Removes the coordinates of the upper left and lower right points of the object from the data sent by Jetson
 
@@ -95,9 +163,9 @@ def extract_boxes(data_received):
     :return: sends the coordinates x0, y0, x1, y1 as a list 
     """
 
-    return data_received["boxes"]
+    return data_received["boxes"] if data_received["boxes"] else None
 
-def center(xyxy = []):
+def center(xyxy = None):
     """
     Calculates the centers of the object
 
@@ -106,9 +174,9 @@ def center(xyxy = []):
     :return: x and y coordinates as a list of center or [-1, -1] if param is null
     """
 
-    return [(xyxy[0] + xyxy[2]) / 2, (xyxy[1] + xyxy[3]) / 2] if xyxy else [-1, -1]
+    return [(xyxy[0] + xyxy[2]) / 2, (xyxy[1] + xyxy[3]) / 2] if xyxy is not None else [-1, -1]
 
-def set_power(bounding_box = [], distance = []):
+def set_power(bounding_box = None, distance = None, velocity = None):
     """
     Defines the power that motors execution the moviment
 
@@ -124,27 +192,27 @@ def set_power(bounding_box = [], distance = []):
 
     powers = []
 
-    if(bounding_box and not distance):
+    if bounding_box is not None and distance is None and velocity is None:
         power_v = 0
         power_h = 0
 
-        k_p_x = 0.5
-        k_p_y = 0.5
+        k_p_h = 0.5
+        k_p_v = 0.5
 
         xm, ym = center(bounding_box)
 
         error_x = xm - IMAGE_CENTER[0]
         error_y = ym - IMAGE_CENTER[1]
 
-        power_h = k_p_x * m.fabs(error_x)
-        power_v = k_p_y * m.fabs(error_y)
+        power_h = k_p_h * m.fabs(error_x)
+        power_v = k_p_v * m.fabs(error_y)
 
         power_h = max(min(power_h, POWER_MAX), 0)
         power_v = max(min(power_v, POWER_MAX), 0)
 
-        powers.append(power_h)
-        powers.append(power_v)
-    elif(distance and not bounding_box):
+        powers.extend([power_h, power_v])
+
+    elif distance is not None and bounding_box is None and velocity is None:
         power_f = 0
 
         k_p_f = 4.5
@@ -156,6 +224,21 @@ def set_power(bounding_box = [], distance = []):
         power_f = max(min(power_f, POWER_MAX), 0)
 
         powers.append(power_f)
+    
+    elif velocity is not None and bounding_box is None and distance is None:
+        k_p_x = 1.5
+        k_p_y = 1.5
+        k_p_z = 1.5
+
+        power_x = k_p_x * m.fabs(velocity[0])
+        power_y = k_p_y * m.fabs(velocity[1])
+        power_z = k_p_z * m.fabs(velocity[2])
+
+        power_x = max(min(power_x, POWER_MAX), 0)
+        power_y = max(min(power_y, POWER_MAX), 0)
+        power_z = max(min(power_z, POWER_MAX), 0)
+
+        powers.extend([power_x, power_y, power_z])
 
     return powers
 
@@ -218,18 +301,16 @@ def calculate_distance(object_class, xyxy):
 
     return distance_object
 
-def advance(object_class, xyxy):
+def advance(distance_object):
     """
     Decides whether to advance to the object and the power that will be used
 
     :param object_class: The class of the detected object
     :param xyxy: Coordinates of the bounding box of the detected object
 
-    :return: action and power that must be used
+    :return: Whether advance or no, action and power that must be used
     """
     
-    distance_object = calculate_distance(object_class, xyxy)
-
     action = ""
     power = 0
 
@@ -238,8 +319,44 @@ def advance(object_class, xyxy):
 
         power = set_power(distance = distance_object)
     
-    return [action, power]
+    return [True if action != "" else False, action, power]
 
+def stabilizes(velocity):
+    """
+    Defines the actions to stabilize the AUV
+
+    :param velocity: List with velocity values on the x, y and z axes, respectively
+
+    :return: Whether it's stable or no and the moviments with their powers 
+    """
+
+    action_x = ""
+    action_y = ""
+    action_z = ""
+
+    # Sets the action on x-axis
+    if velocity[0] > 0:
+        action_x = "BACK"
+    elif velocity[0] < 0:
+        action_x = "FRONT"
+
+    # Sets the action on y-axis
+    if velocity[1] > 0:
+        action_y = "LEFT"
+    elif velocity[1] < 0:
+        action_y = "RIGHT"
+
+    # Sets the action on z-axis
+    if velocity[2] > 0:
+        action_z = "UP"
+    elif velocity[2] < 0:
+        action_z = "DOWN"
+
+    power_x, power_y, power_z = set_power(velocity = velocity)
+
+    return [False if action_x != "" and action_y != "" and action_z != "" else True, action_x, power_x, action_y, power_y, action_z, power_z]
+
+# Acho que faz mais sentido essa função ficar em pixhawk
 def collision_detect(pixhawk):
     """
     Detects whether the AUV has crashed based on acceleretion data from Pixhawk

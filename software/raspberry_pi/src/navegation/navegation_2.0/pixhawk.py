@@ -1,18 +1,16 @@
 from pymavlink import mavutil
+import time
 
 class Pixhawk:
     def __init__(self):
         self.connection = mavutil.mavlink_connection('127.0.0.1:14550')
-        self.xacc = 0
-        self.yacc = 0
-        self.zacc = 0
-        self.xgyro = 0
-        self.ygyro = 0
-        self.zgyro = 0
-        self.xmag = 0
-        self.ymag = 0
-        self.zmag = 0
-        self.update_data()
+        self.acc_current = [0, 0, 0] # current acceleration [x, y, z]
+        self.acc_old = [0, 0, 0] # old accelerantion [x, y, z]
+        self.gyro = [0, 0, 0] # [x, y, z]
+        self.mag = [0, 0, 0] # [x, y, z]
+        self.vel = [0, 0, 0] # [x, y, z]
+        self.current_time = time.time()
+        self.old_time = self.current_time[:]
     
     def update_data(self):
         is_simstate_valid = False
@@ -24,30 +22,38 @@ class Pixhawk:
             if not msg:
                 continue
             if msg.get_type() == 'SIMSTATE':
-                self.xacc = msg.xacc
-                self.yacc = msg.yacc
-                self.zacc = msg.zacc
-                self.xgyro = msg.xgyro
-                self.ygyro = msg.ygyro
-                self.zgyro = msg.zgyro
+                self.acc_old = self.acc_current[:]
+                self.acc_current[0] = msg.xacc
+                self.acc_current[1] = msg.yacc
+                self.acc_current[2] = msg.zacc
+                self.old_time = self.current_time
+                self.current_time = time.time()
+                self.velocity_update()
+                self.gyro[0] = msg.xgyro
+                self.gyro[1] = msg.ygyro
+                self.gyro[2] = msg.zgyro
                 is_simstate_valid = True
             if msg.get_type() == 'SCALED_IMU2':
-                self.xmag = msg.xmag
-                self.ymag = msg.ymag
-                self.zmag = msg.zmag
+                self.mag[0] = msg.xmag
+                self.mag[1] = msg.ymag
+                self.mag[2] = msg.zmag
                 is_scaledimu_valid = True
-                
-    def get_connection(self):
-        return self.connection
     
+    def velocity_update(self):
+        delta_time = self.current_time - self.old_time
+
+        self.vel[0] += delta_time * (self.acc_current[0] + self.acc_old[0]) / 2
+        self.vel[1] += delta_time * (self.acc_current[1] + self.acc_old[1]) / 2
+        self.vel[2] += delta_time * (self.acc_current[2] + self.acc_old[2]) / 2
+
     def get_acc(self):
-        self.update_data()
-        return [self.xacc, self.yacc, self.zacc]
+        return self.acc_current
     
     def get_gyro(self):
-        self.update_data()
-        return [self.xgyro, self.ygyro, self.zgyro]
+        return self.gyro
     
     def get_mag(self):
-        self.update_data()
-        return [self.xmag, self.ymag, self.zmag]
+        return self.mag
+    
+    def get_vel(self):
+        return self.vel
