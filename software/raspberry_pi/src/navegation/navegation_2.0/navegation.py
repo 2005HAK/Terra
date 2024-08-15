@@ -51,6 +51,10 @@ class AUVStateMachine:
         self.stop()
     
     def init(self):
+        """
+        This state inicializes the motors
+        """
+
         print("Initializing...")
 
         self.motors = cm.Motors()
@@ -317,7 +321,7 @@ def advance(distance_object):
     if(distance_object > SAFE_SECURITY):
         action = "FORWARD"
 
-        power = set_power(distance = distance_object)
+        power = set_power(distance = distance_object)[0]
     
     return [True if action != "" else False, action, power]
 
@@ -330,31 +334,33 @@ def stabilizes(velocity):
     :return: Whether it's stable or no and the moviments with their powers 
     """
 
-    action_x = ""
-    action_y = ""
-    action_z = ""
+    # Acceptable error in the velocity 
+    error_velocity = 0.1
 
-    # Sets the action on x-axis
-    if velocity[0] > 0:
-        action_x = "BACK"
-    elif velocity[0] < 0:
-        action_x = "FRONT"
+    power_x = 0
+    power_y = 0
+    power_z = 0
 
-    # Sets the action on y-axis
-    if velocity[1] > 0:
-        action_y = "LEFT"
-    elif velocity[1] < 0:
-        action_y = "RIGHT"
+    action_x = defines_action(velocity[0], error_velocity, "FRONT", "BACK")
+    action_y = defines_action(velocity[1], error_velocity, "RIGHT", "LEFT")
+    action_z = defines_action(velocity[2], error_velocity, "DOWN", "UP")
 
-    # Sets the action on z-axis
-    if velocity[2] > 0:
-        action_z = "UP"
-    elif velocity[2] < 0:
-        action_z = "DOWN"
+    is_stable = action_x == "" and action_y == "" and action_z == ""
 
-    power_x, power_y, power_z = set_power(velocity = velocity)
+    if not is_stable:
+        power_x, power_y, power_z = set_power(velocity = velocity)
 
-    return [False if action_x != "" and action_y != "" and action_z != "" else True, action_x, power_x, action_y, power_y, action_z, power_z]
+    return [is_stable, action_x, power_x, action_y, power_y, action_z, power_z]
+
+def defines_action(velocity, error_velocity, positive_action, negative_action):
+    action = ""
+
+    if velocity > 0 + error_velocity:
+        action = negative_action
+    elif velocity < 0 - error_velocity:
+        action = positive_action
+    
+    return action
 
 # Acho que faz mais sentido essa função ficar em pixhawk
 def collision_detect(pixhawk):
