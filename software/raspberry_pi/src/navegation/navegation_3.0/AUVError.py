@@ -7,4 +7,4 @@ class AUVError(Exception):
 class CollisionDetected(AUVError):
     def __init__(self, acceleration, time):
         self.acceleration = acceleration
-        super().__init__(time, type="Collision detected based in sensor data")
+        super().__init__(time, type = "Collision detected based in sensor data")

@@ -2,6 +2,9 @@ from enum import Enum, auto
 import math as m
 import pixhawk as px
 import control_motors as cm
+import threading
+import time
+from AUVError import *
 
 IMAGE_WIDTH = 1280
 IMAGE_HEIGHT = 720
@@ -31,25 +34,99 @@ class AUVStateMachine:
         self.bounding_box = None
         self.distance = None
 
+        # update sensors data in parallel with the state machine
+        self.sensor_thread = threading.Thread(target=self.update_sensors, daemon=True)
+        self.sensor_thread.start()
+
     def transition_to(self, new_state):
+        """
+        Transition between states
+
+        :param new_state: next state of the state machine
+        """
         print(f"Transitioning from {self.state} to {new_state}")
         self.state = new_state
 
-    def run(self):
-        while self.state != State.STOP:
-            if self.state == State.INIT:
-                self.init()
-            elif self.state == State.SEARCH:
-                self.search()
-            elif self.state == State.CENTERING:
-                self.centering()
-            elif self.state == State.ADVANCING:
-                self.advancing()
-            elif self.state == State.STABILIZING:
-                self.stabilizing()
+    def update_sensors(self):
+        """
+        Updates sensors data every 0.3 milliseconds
+        """
 
-        self.stop()
-    
+        while True:
+            self.pixhawk.update_data()
+            time.sleep(0.3)
+
+    def checks_errors(self):
+        """
+        Checks for errors every 0.3 milliseconds
+        """
+        
+        while True:
+            self.pixhawk.collision_detect()
+            time.sleep(0.3)
+
+    def run(self):
+        try:
+            self.errors_thread = threading.Thread(target=self.checks_errors, daemon=True)
+            self.errors_thread.start()
+
+            while self.state != State.STOP:
+                if self.state == State.INIT:
+                    self.init()
+                elif self.state == State.SEARCH:
+                    self.search()
+                elif self.state == State.CENTERING:
+                    self.centering()
+                elif self.state == State.ADVANCING:
+                    self.advancing()
+                elif self.state == State.STABILIZING:
+                    self.stabilizing()
+
+            self.stop()
+        except AUVError as e:
+            self.error_handling(e)
+
+    # ERRORS HANDLING 
+    def error_handling(self, e):
+        if isinstance(e, CollisionDetected):
+            if self.state == State.SEARCH:
+                self.direction_correction(e.acceleration)
+
+    def direction_correction(self, acceleration):
+        print("Correcting direction...")
+
+        # 10 degrees in rad
+        error_angle = 0.174533
+
+        position_collision = -acceleration
+
+        # a = acos(x / sqrt(x^2 + y^2)) in degrees
+        a = m.acos(position_collision[0] / m.sqrt(m.pow(position_collision[0], 2) + m.pow(position_collision[1], 2)))
+        angle = a * m.pi / 180 # a in rad
+        
+        # turn rigth default
+        action = "TURN RIGTH"
+
+        if position_collision[1] > 0:
+            action = "TURN LEFT"
+
+        gyro_current = self.pixhawk.get_gyro()
+        gyro_old = None
+
+        rotated = 0
+
+        while m.abs(rotated) < angle - error_angle:
+            self.motors.define_action({action: 20})
+
+            gyro_old = gyro_current
+            gyro_current = self.pixhawk.get_gyro()
+            delta_time = self.pixhawk.current_time - self.pixhawk.old_time
+
+            rotated += delta_time * (gyro_current[2] + gyro_old[2]) / 2
+        
+        self.run()
+
+    # STATES
     def init(self):
         """
         This state inicializes the motors
@@ -69,10 +146,6 @@ class AUVStateMachine:
 
         while self.bounding_box == None:
             self.motors.define_action({"FRONT": 20})
-            # provavelmente precisa de delay aqui
-            if collision_detect(self.pixhawk):
-                # virar a frente do AUV 180º em relação a batida
-                pass
 
             self.bounding_box = get_xyxy()
 
@@ -173,7 +246,7 @@ def center(xyxy = None):
     """
     Calculates the centers of the object
 
-    :param: x and y coordinates of the detected object sent as a list to the function
+    :param xyxy: x and y coordinates of the detected object sent as a list to the function
 
     :return: x and y coordinates as a list of center or [-1, -1] if param is null
     """
@@ -361,25 +434,6 @@ def defines_action(velocity, error_velocity, positive_action, negative_action):
         action = positive_action
     
     return action
-
-# Acho que faz mais sentido essa função ficar em pixhawk
-def collision_detect(pixhawk):
-    """
-    Detects whether the AUV has crashed based on acceleretion data from Pixhawk
-
-    :param connection: Connection with Pixhawk
-
-    :return: If the AUV collided
-    """
-
-    response = False
-    ACC_LIMIT = 15
-    acceleration = pixhawk.get_acc()
-
-    if any(m.fabs(acc) > ACC_LIMIT for acc in acceleration):
-        response = True
-
-    return response
 
 def main():
     auv = AUVStateMachine()

@@ -1,5 +1,6 @@
 from pymavlink import mavutil
 import time
+import math as m
 from AUVError import CollisionDetected
 
 class Pixhawk:
@@ -11,7 +12,7 @@ class Pixhawk:
         self.mag = [0, 0, 0] # [x, y, z]
         self.vel = [0, 0, 0] # [x, y, z]
         self.current_time = time.time()
-        self.old_time = self.current_time[:]
+        self.old_time = self.current_time
     
     def update_data(self):
         is_simstate_valid = False
@@ -47,6 +48,22 @@ class Pixhawk:
         self.vel[1] += delta_time * (self.acc_current[1] + self.acc_old[1]) / 2
         self.vel[2] += delta_time * (self.acc_current[2] + self.acc_old[2]) / 2
 
+    def collision_detect(self):
+        """
+        Detects whether the AUV has crashed based on acceleretion data from Pixhawk
+
+        :param connection: Connection with Pixhawk
+
+        :return: If the AUV collided
+        """
+
+        # Acceleration limit to consider a collision
+        ACC_LIMIT = 15
+        acceleration = self.get_acc()
+
+        if any(m.fabs(acc) > ACC_LIMIT for acc in acceleration):
+            raise CollisionDetected(acceleration, self.current_time)
+    
     def get_acc(self):
         return self.acc_current
     
