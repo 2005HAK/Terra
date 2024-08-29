@@ -6,16 +6,24 @@ import threading
 import time
 from AUVError import *
 
+# Width and height of the image seen by the camera
 IMAGE_WIDTH = 1280
 IMAGE_HEIGHT = 720
 
+# Center of the image seen by the camera
 IMAGE_CENTER = [IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2]
 
+# Size of the zone that is considered the center of the image
 ERROR_CENTER = 50
 
-SAFE_SECURITY = 1
+# Distance considered safe for the AUV to approach
+SAFE_DISTANCE = 1
 
 class State(Enum):
+    """
+    **State machine states**
+    """
+
     INIT = auto()
     SEARCH = auto()
     CENTERING = auto()
@@ -25,6 +33,10 @@ class State(Enum):
     STOP = auto()
 
 class AUVStateMachine:
+    """
+    **State machine implementation**
+    """
+
     def __init__(self):
         self.state = State.INIT
         self.next_state = None
@@ -34,7 +46,7 @@ class AUVStateMachine:
         self.bounding_box = None
         self.distance = None
 
-        # update sensors data in parallel with the state machine
+        # Update sensors data in parallel with the state machine
         self.sensor_thread = threading.Thread(target=self.update_sensors, daemon=True)
         self.sensor_thread.start()
 
@@ -42,14 +54,16 @@ class AUVStateMachine:
         """
         Transition between states
 
-        :param new_state: next state of the state machine
+        :param new_state: Next state of the state machine
+        :type new_state: State
         """
+
         print(f"Transitioning from {self.state} to {new_state}")
         self.state = new_state
 
     def update_sensors(self):
         """
-        Updates sensors data every 0.3 milliseconds
+        Updates sensors data every **0.3 ms**
         """
 
         while True:
@@ -58,7 +72,7 @@ class AUVStateMachine:
 
     def checks_errors(self):
         """
-        Checks for errors every 0.3 milliseconds
+        Checks for errors every **0.3 ms**
         """
         
         while True:
@@ -66,7 +80,12 @@ class AUVStateMachine:
             time.sleep(0.3)
 
     def run(self):
+        """
+        Initializes the state machine
+        """
+
         try:
+            # Checks for errors in parallel with the state machine
             self.errors_thread = threading.Thread(target=self.checks_errors, daemon=True)
             self.errors_thread.start()
 
@@ -88,14 +107,28 @@ class AUVStateMachine:
 
     # ERRORS HANDLING 
     def error_handling(self, e):
+        """
+        Handle errrors to return to operation
+
+        :param e: Error detected
+        :type e: AUVError
+        """
+
         if isinstance(e, CollisionDetected):
             if self.state == State.SEARCH:
                 self.direction_correction(e.acceleration)
 
     def direction_correction(self, acceleration):
+        """
+        Corrects the direction of the AUV by turning it 180º in relation to the crash location
+
+        :param acceleration: Acceleration detected at the time of the crash
+        :type acceleration: Float array
+        """
+
         print("Correcting direction...")
 
-        # 10 degrees in rad
+        # 10º in rad
         error_angle = 0.174533
 
         position_collision = -acceleration
@@ -104,7 +137,7 @@ class AUVStateMachine:
         a = m.acos(position_collision[0] / m.sqrt(m.pow(position_collision[0], 2) + m.pow(position_collision[1], 2)))
         angle = a * m.pi / 180 # a in rad
         
-        # turn rigth default
+        # Turn rigth by default
         action = "TURN RIGTH"
 
         if position_collision[1] > 0:
@@ -126,10 +159,10 @@ class AUVStateMachine:
         
         self.run()
 
-    # STATES
+    # DEFINITION OF STATES
     def init(self):
         """
-        This state inicializes the motors
+        **This state initializes the motors**
         """
 
         print("Initializing...")
@@ -139,7 +172,7 @@ class AUVStateMachine:
     
     def search(self):
         """
-        This state defines the search procedure
+        **This state defines the search procedure**
         """
 
         print("Searching...")
@@ -155,7 +188,7 @@ class AUVStateMachine:
 
     def centering(self):
         """
-        This state defines the centralization procedure
+        **This state defines the centralization procedure**
         """
 
         print("Centering...")
@@ -173,7 +206,7 @@ class AUVStateMachine:
 
                 is_center = actions[0]
             
-            # função para ficar parado no lugar
+            # função/estado para ficar parado no lugar
 
             self.transition_to(State.ADVANCING)
         else: 
@@ -181,7 +214,7 @@ class AUVStateMachine:
     
     def advancing(self):
         """
-        This state difines the advancement procedure
+        **This state difines the advancement procedure**
         """
 
         print("Advancing...")
@@ -201,7 +234,7 @@ class AUVStateMachine:
 
     def stabilizing(self):
         """
-        This state stabilizes the AUV
+        **This state stabilizes the AUV**
         """
 
         print("Stabilizing...")
@@ -223,7 +256,7 @@ class AUVStateMachine:
 
     def stop(self):
         """
-        This state defines the stopping procedure
+        **This state defines the stopping procedure**
         """
 
         print("Stoping...")
@@ -237,7 +270,7 @@ def get_xyxy(data_received):
 
     :param data_received: Jetson data with object coordinates
 
-    :return: sends the coordinates x0, y0, x1, y1 as a list 
+    :return: Sends the coordinates x0, y0, x1, y1 as a list 
     """
 
     return data_received["boxes"] if data_received["boxes"] else None
@@ -246,20 +279,23 @@ def center(xyxy = None):
     """
     Calculates the centers of the object
 
-    :param xyxy: x and y coordinates of the detected object sent as a list to the function
+    :param xyxy: x and y coordinates of the detected object
+    :type xyxy: Array
 
     :return: x and y coordinates as a list of center or [-1, -1] if param is null
     """
 
     return [(xyxy[0] + xyxy[2]) / 2, (xyxy[1] + xyxy[3]) / 2] if xyxy is not None else [-1, -1]
 
+# MUDAR ISSO!!! TA MUITO CENTRALIZADO
 def set_power(bounding_box = None, distance = None, velocity = None):
     """
     Defines the power that motors execution the moviment
 
     Uses the diference into the object midpoint and image midpoint to calculate a value of power. The difference is multiplicate for weigth horizontal and vertical to return the value of power in each directions
 
-    :param xyxy: x and y coordinates of the detected object sent as a list to the function
+    :param xyxy: x and y coordinates of the detected object
+    :type xyxy: Array
 
     :return: A list with power_h, horizontal power, and power_v, vertical power, from 0-100%
     """
@@ -294,7 +330,7 @@ def set_power(bounding_box = None, distance = None, velocity = None):
 
         k_p_f = 4.5
 
-        error_f = distance - SAFE_SECURITY
+        error_f = distance - SAFE_DISTANCE
 
         power_f = k_p_f * m.fabs(error_f)
 
@@ -323,9 +359,10 @@ def center_object(xyxy):
     """
     Decides which movement to take based on the position of the object in the image.
 
-    :param xyxy: x and y coordinates of the detected object sent a list to the function
+    :param xyxy: x and y coordinates of the detected object
+    :type xyxy: Array
 
-    :return: movement that the AUV must take
+    :return: Movement that the AUV must take
     """
 
     dir_h = ""
@@ -353,7 +390,9 @@ def calculate_distance(object_class, xyxy):
     Calculates the distance between AUV and object based on the object's actual width and image dimension
 
     :param object_class: The class of the detected object
+    :type object_class: String
     :param xyxy: Coordinates of the bounding box of the detected object
+    :type xyxy: Array
 
     :return: The distance between AUV and object in meters
     """
@@ -382,8 +421,8 @@ def advance(distance_object):
     """
     Decides whether to advance to the object and the power that will be used
 
-    :param object_class: The class of the detected object
-    :param xyxy: Coordinates of the bounding box of the detected object
+    :param distance_object: Distance between the AUV and the object
+    :type distance_object: Int
 
     :return: Whether advance or no, action and power that must be used
     """
@@ -391,7 +430,7 @@ def advance(distance_object):
     action = ""
     power = 0
 
-    if(distance_object > SAFE_SECURITY):
+    if(distance_object > SAFE_DISTANCE):
         action = "FORWARD"
 
         power = set_power(distance = distance_object)[0]
@@ -402,7 +441,8 @@ def stabilizes(velocity):
     """
     Defines the actions to stabilize the AUV
 
-    :param velocity: List with velocity values on the x, y and z axes, respectively
+    :param velocity: Velocity values on the x, y and z axes, respectively
+    :type velocity: Array
 
     :return: Whether it's stable or no and the moviments with their powers 
     """
