@@ -140,6 +140,7 @@ class AUVStateMachine:
         # Turn rigth by default
         action = "TURN RIGTH"
 
+        # y > 0
         if position_collision[1] > 0:
             action = "TURN LEFT"
 
@@ -203,12 +204,12 @@ class AUVStateMachine:
                 actions = center_object()
 
                 self.motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
+                time.sleep(.5)
 
                 is_center = actions[0]
             
-            # função/estado para ficar parado no lugar
-
-            self.transition_to(State.ADVANCING)
+            self.next_state(State.ADVANCING)
+            self.transition_to(State.STABILIZING)
         else: 
             self.transition_to(State.SEARCH)
     
@@ -246,6 +247,11 @@ class AUVStateMachine:
 
             actions = stabilizes(velocity)
 
+            self.motors.define_action({actions[1]: actions[2]}) # x
+            time.sleep(.5)
+            self.motors.define_action({actions[3]: actions[4], actions[5]: actions[6]}) # y e z
+            time.sleep(.5)
+
             is_stable = actions[0]
 
         self.transition_to(self.next_state if self.next_state != None else State.SEARCH)
@@ -262,6 +268,7 @@ class AUVStateMachine:
         print("Stoping...")
 
         self.motors.finish()
+    # END DEFINITION OF STATES
 
 #ainda não funciona
 def get_xyxy(data_received):
