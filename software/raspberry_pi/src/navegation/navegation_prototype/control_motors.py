@@ -63,10 +63,6 @@ class Motors:
                 self.pi.set_servo_pulsewidth(PINS[0], forward_value)
             if action == "BACK":
                 self.pi.set_servo_pulsewidth(PINS[0], reverse_value)
-            if action == "STOP":
-                self.pi.set_servo_pulsewidth(PINS[0], REST_VALUE)
-                self.pi.set_servo_pulsewidth(PINS[1], REST_VALUE)
-                self.pi.set_servo_pulsewidth(PINS[2], REST_VALUE)
 
     def finish(self):
         """

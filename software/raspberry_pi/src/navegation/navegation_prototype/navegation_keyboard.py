@@ -20,9 +20,9 @@ def on_press(key):
         motors.define_action({"BACK": POWER})
     if key == keyboard.Key.esc:
         return False
+    
+if __name__ == "__main__":
+    listener = keyboard.Listener(on_press = on_press)
+    listener.start()
 
-
-listener = keyboard.Listener(on_press=on_press)
-listener.start()
-
-listener.join()
+    listener.join()
