@@ -5,7 +5,9 @@ from AUVError import CollisionDetected
 
 class Pixhawk:
     def __init__(self):
-        self.connection = mavutil.mavlink_connection('127.0.0.1:14550')
+        # serial connetion ('/dev/serial0', baud = 57600)
+        # intranet connetion ('127.0.0.1:12550)
+        self.connection = mavutil.mavlink_connection('/dev/serial0', baud = 57600)
         self.acc_current = [0, 0, 0] # current acceleration [x, y, z]
         self.acc_old = [0, 0, 0] # old accelerantion [x, y, z]
         self.gyro = [0, 0, 0] # [x, y, z]
@@ -20,7 +22,8 @@ class Pixhawk:
 
         while not is_scaledimu_valid or not is_simstate_valid:
             msg = self.connection.recv_match()
-
+            # Avaliar possibilidade de ja filtrar SIMSTATE e SCALED_IMU2 nesse ponto do código ao invés de usar os ifs
+            # falar com o Moro sobre isso
             if not msg:
                 continue
             if msg.get_type() == 'SIMSTATE':

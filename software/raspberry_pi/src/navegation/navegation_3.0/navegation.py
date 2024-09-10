@@ -38,6 +38,7 @@ class AUVStateMachine:
     """
 
     def __init__(self):
+        print("State machine creation...")
         self.state = State.INIT
         self.next_state = None
         self.pixhawk = px.Pixhawk()
@@ -485,3 +486,6 @@ def defines_action(velocity, error_velocity, positive_action, negative_action):
 def main():
     auv = AUVStateMachine()
     auv.run()
+
+if __name__ == "__main__":
+    main()
