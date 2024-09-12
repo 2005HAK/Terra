@@ -1,11 +1,9 @@
 from enum import Enum, auto
 import math as m
 import pixhawk as px
-import ia
 import control_motors as cm
 import threading
 import time
-from AUVError import *
 
 # Width and height of the image seen by the camera
 IMAGE_WIDTH = 1280
@@ -43,7 +41,6 @@ class AUVStateMachine:
         self.state = State.INIT
         self.next_state = None
         self.pixhawk = px.Pixhawk()
-        self.ia = ia.Ia()
         self.motors = None
         self.object_class = None
         self.bounding_box = None
@@ -51,9 +48,7 @@ class AUVStateMachine:
 
         # Update sensors data in parallel with the state machine
         self.sensor_thread = threading.Thread(target=self.update_sensors, daemon=True)
-        self.detection_thread = threading.Thread(target=self.update_detection, daemon=True)
         self.sensor_thread.start()
-        self.detection_thread.start()
 
     def transition_to(self, new_state):
         """
@@ -66,7 +61,6 @@ class AUVStateMachine:
         print(f"Transitioning from {self.state} to {new_state}")
         self.state = new_state
 
-    # Não testado
     def update_sensors(self):
         """
         Updates sensors data every **0.3 ms**
@@ -75,106 +69,25 @@ class AUVStateMachine:
         while True:
             self.pixhawk.update_data()
             time.sleep(0.3)
-    # Não testado
-    def update_detection(self):
-        """
-        Updates detection data every **0.3 ms**
-        """
-
-        while True:
-            self.ia.update_data()
-            time.sleep(0.3)
-
-    # Não testado
-    def checks_errors(self):
-        """
-        Checks for errors every **0.3 ms**
-        """
-        
-        while True:
-            self.pixhawk.collision_detect()
-            time.sleep(0.3)
 
     def run(self):
         """
         Initializes the state machine
         """
 
-        try:
-            # Checks for errors in parallel with the state machine
-            self.errors_thread = threading.Thread(target=self.checks_errors, daemon=True)
-            self.errors_thread.start()
+        while self.state != State.STOP:
+            if self.state == State.INIT:
+                self.init()
+            elif self.state == State.SEARCH:
+                self.search()
+            elif self.state == State.CENTERING:
+                self.centering()
+            elif self.state == State.ADVANCING:
+                self.advancing()
+            elif self.state == State.STABILIZING:
+                self.stabilizing()
 
-            while self.state != State.STOP:
-                if self.state == State.INIT:
-                    self.init()
-                elif self.state == State.SEARCH:
-                    self.search()
-                elif self.state == State.CENTERING:
-                    self.centering()
-                elif self.state == State.ADVANCING:
-                    self.advancing()
-                elif self.state == State.STABILIZING:
-                    self.stabilizing()
-
-            self.stop()
-        except AUVError as e:
-            self.error_handling(e)
-
-    # ERRORS HANDLING 
-    def error_handling(self, e):
-        """
-        Handle errrors to return to operation
-
-        :param e: Error detected
-        :type e: AUVError
-        """
-
-        if isinstance(e, CollisionDetected):
-            if self.state == State.SEARCH:
-                self.direction_correction(e.acceleration)
-
-    def direction_correction(self, acceleration):
-        """
-        Corrects the direction of the AUV by turning it 180º in relation to the crash location
-
-        :param acceleration: Acceleration detected at the time of the crash
-        :type acceleration: Float array
-        """
-
-        print("Correcting direction...")
-
-        # 10º in rad
-        error_angle = 0.174533
-
-        position_collision = -acceleration
-
-        # a = acos(x / sqrt(x^2 + y^2)) in degrees
-        a = m.acos(position_collision[0] / m.sqrt(m.pow(position_collision[0], 2) + m.pow(position_collision[1], 2)))
-        angle = a * m.pi / 180 # a in rad
-        
-        # Turn rigth by default
-        action = "TURN RIGTH"
-
-        # y > 0
-        if position_collision[1] > 0:
-            action = "TURN LEFT"
-
-        gyro_current = self.pixhawk.get_gyro()
-        gyro_old = None
-
-        rotated = 0
-
-        while m.abs(rotated) < angle - error_angle:
-            self.motors.define_action({action: 20})
-
-            gyro_old = gyro_current
-            gyro_current = self.pixhawk.get_gyro()
-            delta_time = self.pixhawk.current_time - self.pixhawk.old_time
-
-            rotated += delta_time * (gyro_current[2] + gyro_old[2]) / 2
-        
-        self.run()
+        self.stop()
 
     # DEFINITION OF STATES
     def init(self):

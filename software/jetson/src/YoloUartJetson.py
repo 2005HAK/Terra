@@ -25,10 +25,9 @@ while True:
 
             # Assuming there is at least one detected object
             if len(boxes) > 0:
-                # Serialize data
-                xyxylist = boxes.xyxy.cpu().numpy().tolist() if boxes.xyxy is not None else []
-                class_ids_list = boxes.id.cpu().numpy.tolist() if boxes.id is not None else []
-                data_to_send = {"boxes": xyxylist, "class_ids": class_ids_list}
+                datas = boxes.data
+                names = result[0].names
+                data_to_send = {"datas": datas, "names": names}
                 serialized_data = json.dumps(data_to_send)
 
                 # Send serialized data over UART
