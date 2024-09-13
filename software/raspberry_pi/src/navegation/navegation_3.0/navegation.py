@@ -44,9 +44,8 @@ class AUVStateMachine:
         self.next_state = None
         self.pixhawk = px.Pixhawk()
         self.ia = ia.Ia()
+        self.target_object = None
         self.motors = None
-        self.object_class = None
-        self.bounding_box = None
         self.distance = None
 
         # Update sensors data in parallel with the state machine
@@ -75,6 +74,7 @@ class AUVStateMachine:
         while True:
             self.pixhawk.update_data()
             time.sleep(0.3)
+
     # Não testado
     def update_detection(self):
         """
@@ -194,10 +194,10 @@ class AUVStateMachine:
 
         print("Searching...")
 
-        while self.bounding_box == None:
+        while not self.ia.found_object():
             self.motors.define_action({"FRONT": 20})
 
-            self.bounding_box = get_xyxy()
+        self.target_object = self.ia.greater_confidence_object()
 
         # verificar qual objeto(os) encontrou e responder de acordo
         
@@ -210,14 +210,15 @@ class AUVStateMachine:
 
         print("Centering...")
 
-        # atualiza a posição do bounding box
-        self.bounding_box = get_xyxy()
-
-        if self.bounding_box != None:
+        if self.ia.found_object():
             is_center = False
             
             while not is_center:
-                actions = center_object()
+                xyxy = self.ia.get_xyxy(self.target_object)
+
+                actions = center_object(xyxy)
+
+                # Mudar de dicionario para array (é mais rápido)
 
                 self.motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
                 time.sleep(.5)
@@ -239,8 +240,8 @@ class AUVStateMachine:
         advance = True
 
         while advance:
-            self.distance = calculate_distance(self.object_class, self.bounding_box)
-            action = advance(self.distance)
+            self.distance = calculate_distance(self.target_object, self.ia.get_xyxy(self.target_object))
+            action = advance_decision(self.distance)
 
             self.motors.define_action({action[1]: action[2]})
 
@@ -285,18 +286,6 @@ class AUVStateMachine:
 
         self.motors.finish()
     # END DEFINITION OF STATES
-
-#ainda não funciona
-def get_xyxy(data_received):
-    """
-    Removes the coordinates of the upper left and lower right points of the object from the data sent by Jetson
-
-    :param data_received: Jetson data with object coordinates
-
-    :return: Sends the coordinates x0, y0, x1, y1 as a list 
-    """
-
-    return data_received["boxes"] if data_received["boxes"] else None
 
 def center(xyxy = None):
     """
@@ -421,7 +410,7 @@ def calculate_distance(object_class, xyxy):
     """
 
     # Actual width of the objects (in meters)
-    width_objects = {"obj1": 2, "obj2": 1.5}
+    width_objects = {"obj1": 2, "obj2": 1.5} # Ex
 
     # Initializes the variable with invalid value to indicates error
     distance_object = -1
@@ -440,7 +429,7 @@ def calculate_distance(object_class, xyxy):
 
     return distance_object
 
-def advance(distance_object):
+def advance_decision(distance_object):
     """
     Decides whether to advance to the object and the power that will be used
 

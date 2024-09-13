@@ -30,7 +30,7 @@ class Pixhawk:
                 self.acc_old = self.acc_current[:]
                 self.acc_current[0] = msg.xacc
                 self.acc_current[1] = msg.yacc
-                self.acc_current[2] = msg.zacc
+                self.acc_current[2] = msg.zacc # -9.81
                 self.old_time = self.current_time
                 self.current_time = time.time()
                 self.velocity_update()
