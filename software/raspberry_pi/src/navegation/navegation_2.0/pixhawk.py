@@ -4,7 +4,7 @@ import time
 class Pixhawk:
     def __init__(self):
         self.connection = mavutil.mavlink_connection('127.0.0.1:14550')
-        self.acc_current = [0, 0, 0] # current acceleration [x, y, z]
+        self.acc_current = [0, 0, 0] # current  acceleration [x, y, z]
         self.acc_old = [0, 0, 0] # old accelerantion [x, y, z]
         self.gyro = [0, 0, 0] # [x, y, z]
         self.mag = [0, 0, 0] # [x, y, z]

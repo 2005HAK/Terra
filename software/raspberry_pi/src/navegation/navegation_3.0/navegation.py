@@ -4,7 +4,7 @@ import pixhawk as px
 import ia
 import control_motors as cm
 import threading
-import time
+import time # importar somente time, é oque esta sendo usado
 from AUVError import *
 
 # Width and height of the image seen by the camera
@@ -40,15 +40,16 @@ class AUVStateMachine:
 
     def __init__(self):
         print("State machine creation...")
+        # self.last_state = None # pode ser util
         self.state = State.INIT
         self.next_state = None
         self.pixhawk = px.Pixhawk()
         self.ia = ia.Ia()
         self.target_object = None
         self.motors = None
-        self.distance = None
+        self.distance = None # passar o calculo e armazenamento de distancia para a pix
 
-        # Update sensors data in parallel with the state machine
+        # Update sensors data and detection data in parallel with the state machine
         self.sensor_thread = threading.Thread(target=self.update_sensors, daemon=True)
         self.detection_thread = threading.Thread(target=self.update_detection, daemon=True)
         self.sensor_thread.start()
@@ -63,6 +64,7 @@ class AUVStateMachine:
         """
 
         print(f"Transitioning from {self.state} to {new_state}")
+        # self.last_state = self.state # pode ser util
         self.state = new_state
 
     # Não testado
@@ -210,10 +212,13 @@ class AUVStateMachine:
 
         print("Centering...")
 
+        self.transition_to(State.SEARCH)
+
         if self.ia.found_object():
             is_center = False
             
             while not is_center:
+                # se o objeto deixar de ser identificado pela ia deve dar um break no while e em search tentar buscar o objeto novamente
                 xyxy = self.ia.get_xyxy(self.target_object)
 
                 actions = center_object(xyxy)
@@ -227,8 +232,6 @@ class AUVStateMachine:
             
             self.next_state(State.ADVANCING)
             self.transition_to(State.STABILIZING)
-        else: 
-            self.transition_to(State.SEARCH)
     
     def advancing(self):
         """
@@ -237,18 +240,24 @@ class AUVStateMachine:
 
         print("Advancing...")
 
+        self.transition_to(State.SEARCH)
+
         advance = True
 
-        while advance:
-            self.distance = calculate_distance(self.target_object, self.ia.get_xyxy(self.target_object))
-            action = advance_decision(self.distance)
+        if self.ia.found_object():
+            while advance:
+                # se o objeto deixar de ser identificado pela ia deve dar um break no while e em search tentar buscar o objeto novamente
+                xyxy = self.ia.get_xyxy(self.target_object)
+                
+                self.distance = calculate_distance(self.target_object, xyxy)
+                action = advance_decision(self.distance)
 
-            self.motors.define_action({action[1]: action[2]})
+                self.motors.define_action({action[1]: action[2]})
 
-            advance = action[0]
-        
-        self.next_state = State.STOP
-        self.transition_to(State.STABILIZING)
+                advance = action[0]
+            
+            self.next_state = State.STOP
+            self.transition_to(State.STABILIZING)
 
     def stabilizing(self):
         """
