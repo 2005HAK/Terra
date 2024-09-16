@@ -81,7 +81,7 @@ if __name__ == "__main__":
     init_esc()
 
     # NÃO PASSAR DE 30% COM A FONTE DE 3A
-
+    
     convert_forward(30)
     sleep(100)
     convert_forward(0)
