@@ -14,24 +14,26 @@ zmag: [mgauss]
 """
 
 from pymavlink import mavutil
+import time
 
-master = mavutil.mavlink_connection('127.0.0.1:14550')
+master = mavutil.mavlink_connection('/dev/ttyACM0', baud=115200)
+
+master.wait_heartbeat()
 
 while True:
-    msg = master.recv_match()
+    msg = master.recv_match(type='HIGHRES_IMU', blocking=True)
 
     if not msg:
         continue
-    if msg.get_type() == 'SIMSTATE':
-        print("\n\n*****Valores de %s*****" % msg.get_type())
-        print("xacc: %s" % msg.xacc)
-        print("yacc: %s²" % msg.yacc)
-        print("zacc: %s" % msg.zacc)
-        print("xgyro: %s" % msg.xgyro)
-        print("ygyro: %s" % msg.ygyro)
-        print("zgyro: %s" % msg.zgyro)
-    if msg.get_type() == 'SCALED_IMU2':
-        print("\n\n*****Valores de %s*****" % msg.get_type())
-        print("ymag: %s" % msg.ymag)
-        print("xmag: %s" % msg.xmag)
-        print("zmag: %s" % msg.zmag)
+
+    print("xacc: %s" % msg.xacc)
+    print("yacc: %s" % msg.yacc)
+    print("zacc: %s" % msg.zacc)
+    print("xgyro: %s" % msg.xgyro)
+    print("ygyro: %s" % msg.ygyro)
+    print("zgyro: %s" % msg.zgyro)
+    print("ymag: %s" % msg.ymag)
+    print("xmag: %s" % msg.xmag)
+    print("zmag: %s" % msg.zmag)
+
+    time.sleep(.1)
