@@ -313,7 +313,7 @@ def set_power(bounding_box = None, distance = None, velocity = None):
     """
 
     # Defines the power maximum that motors can receive (in %)
-    POWER_MAX = 45
+    POWER_MAX = 25
 
     powers = []
 
@@ -459,16 +459,16 @@ def stabilizes(velocity):
     :return: Whether it's stable or no and the moviments with their powers 
     """
 
-    # Acceptable error in the velocity 
-    error_velocity = 0.1
+    # Acceptable error in the velocity
+    error_velocity = [.1, .1, .1]
 
     power_x = 0
     power_y = 0
     power_z = 0
 
-    action_x = defines_action(velocity[0], error_velocity, "FRONT", "BACK")
-    action_y = defines_action(velocity[1], error_velocity, "RIGHT", "LEFT")
-    action_z = defines_action(velocity[2], error_velocity, "DOWN", "UP")
+    action_x = defines_action(velocity[0], error_velocity[0], "FRONT", "BACK")
+    action_y = defines_action(velocity[1], error_velocity[1], "RIGHT", "LEFT")
+    action_z = defines_action(velocity[2], error_velocity[2], "DOWN", "UP")
 
     is_stable = action_x == "" and action_y == "" and action_z == ""
 
