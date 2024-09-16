@@ -3,8 +3,11 @@ from utime import sleep
 
 FREQ = 200
 PIN = 20
+PIN2 = 21
+
 
 motor1 = PWM(Pin(PIN), freq = FREQ)
+motor2 = PWM(Pin(PIN2), freq = FREQ)
 
 # Freq 400Hz: duty de 44% a 76%
 # Freq 100Hz: duty de 11% a 19%
@@ -19,6 +22,7 @@ def init_esc():
     value_init = int(98.3144 * FREQ) # Equivalente a 1500 us
     print(int((15.2587890625 * value_init) / FREQ)) 
     motor1.duty_u16(value_init)
+    motor2.duty_u16(value_init)
     sleep(7)
 
 def motor_control(percent_value):
@@ -34,31 +38,57 @@ def motor_control(percent_value):
     print(int((15.2587890625 * duty) / FREQ)) # Exibe a frequencia usada
     motor1.duty_u16(duty)
 
-def convert_forward(percent_value):
+def convert_forward1(percent_value):
     """
     Recebe um valor de 0% a 100% e converte em uma valor de PWM equivalente entre 1500us e 1900us para que o 
     motor "gire para frente"
 
     Input:
-    - percent_value: valor entre 0 e 100 %
+    - percent_value1: valor entre 0 e 100 %
     """
 
     duty = int(FREQ * (0.262144 * percent_value + 98.35)) # Encontra o valor do duty cicle correspontende 
     print(int((15.2587890625 * duty) / FREQ)) # Exibe a frequencia usada
     motor1.duty_u16(duty)
 
-def convert_reverse(percent_value):
+def convert_forward2(percent_value):
+    """
+    Recebe um valor de 0% a 100% e converte em uma valor de PWM equivalente entre 1500us e 1900us para que o 
+    motor "gire para frente"
+
+    Input:
+    - percent_value1: valor entre 0 e 100 %
+    """
+
+    duty = int(FREQ * (0.262144 * percent_value + 98.35)) # Encontra o valor do duty cicle correspontende 
+    print(int((15.2587890625 * duty) / FREQ)) # Exibe a frequencia usada
+    motor2.duty_u16(duty)
+
+def convert_reverse1(percent_value):
     """
     Recebe um valor de 0% a 100% e converte em uma valor de PWM equivalente entre 1500us e 1100us para que o 
     motor "gire para trás"
 
     Input:
-    - percent_value: valor entre 0 e 100 %
+    - percent_value1: valor entre 0 e 100 %
     """
 
     duty = int(FREQ * (98.35 - 0.262144 * percent_value)) # Encontra o valor do duty cicle correspontende 
     print(int((15.2587890625 * duty) / FREQ)) # Exibe a frequencia usada
     motor1.duty_u16(duty)
+
+def convert_reverse2(percent_value):
+    """
+    Recebe um valor de 0% a 100% e converte em uma valor de PWM equivalente entre 1500us e 1100us para que o 
+    motor "gire para trás"
+
+    Input:
+    - percent_value1: valor entre 0 e 100 %
+    """
+
+    duty = int(FREQ * (98.35 - 0.262144 * percent_value)) # Encontra o valor do duty cicle correspontende 
+    print(int((15.2587890625 * duty) / FREQ)) # Exibe a frequencia usada
+    motor2.duty_u16(duty)
 
 def finalize_esc():
     """
@@ -68,6 +98,7 @@ def finalize_esc():
     print("Finishing . . .")
     value_fin = int(98.3144 * FREQ)
     motor1.duty_u16(value_fin)
+    motor2.duty_u16(value_fin)
 
 # Test
 if __name__ == "__main__":
@@ -81,12 +112,17 @@ if __name__ == "__main__":
     init_esc()
 
     # NÃO PASSAR DE 30% COM A FONTE DE 3A
-    
-    convert_forward(30)
-    sleep(100)
-    convert_forward(0)
-    sleep(30)
-    convert_reverse(30)
-    sleep(100)
 
-    finalize_esc()
+    while True:
+        value1 = int(input("motor 1: "))
+        value2 = int(input("motor 2: "))
+
+        if value1 > 0:
+            convert_forward1(value1)
+        else:
+            convert_reverse1(-value1)
+
+        if value2 > 0:
+            convert_forward2(value2)
+        else:
+            convert_reverse2(-value2)
