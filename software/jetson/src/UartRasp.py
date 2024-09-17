@@ -22,6 +22,6 @@ while True:
             # Process the information as needed
             print("Received Data - Boxes:", boxes, "Class IDs:", class_ids)
 
-            ser.write("ACK\n",encode('utf-8'))
+            ser.write("ACK\n".encode('utf-8'))
         except json.JSONDecodeError as e:
             print("Error decoding JSON:", e)
