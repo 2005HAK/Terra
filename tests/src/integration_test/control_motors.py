@@ -4,13 +4,10 @@ import time
 FREQUENCY = 200
 
 # Pins motors !!!!IMPORTANT: SHOULD BE DEFINED!!!!
-PINS = [1, 2, 3, 4, 5, 6]
-# 0 - Front left 
-# 1 - Front right
-# 2 - Middle right
-# 3 - Middle left
-# 4 - Back right
-# 5 - Back left 
+PINS = [1, 2, 3]
+# 0 - motor de baixo 
+# 1 - Middle right
+# 2 - Middle left
 
 # value for the motor to stop
 REST_VALUE = 1500
@@ -46,14 +43,10 @@ class Motors:
         - action       : action that should be execute 
 
         actions:
-        - "UP"         : move the AUV up, turning on the motors 3 and 6 in the forward direction.
-        - "DOWN"       : move the AUV down, turning on the motors 3 and 6 in the reverse direction.
-        - "FRONT"      : move the AUV front, turning on the motors 1 and 2 in the reverse direction and the motors 4 and 5 in the forward direction.
-        - "BACK"       : move the AUV back, turning on the motors 1 and 2 in the forward direction and the motors 4 and 5 in the reverse direction.
-        - "RIGHT"      : move the AUV right, turning on the motors 2 and 4 in the forward direction and the motors 1 and 5 in the reverse direction.
-        - "LEFT"       : move the AUV left, turning on the motors 1 and 5 in the forward direction and the motors 2 and 4 in the reverse direction.
-        - "TURN RIGHT" : turn the AUV right, turning on the motors 2 and 5 in the forward direction and the motors 1 and 4 in the reverse direction.
-        - "TURN LEFT"  : turn the AUV left, turning on the motors 1 and 4 in the forward direction and the motors 2 and 5 in the reverse direction.
+        - "UP"         : move the AUV up, turning on the motors 1 and 2 in the forward direction.
+        - "DOWN"       : move the AUV down, turning on the motors 1 and 2 in the reverse direction.
+        - "FRONT"      : move the AUV front, turning on the motor 0 in the forward direction.
+        - "BACK"       : move the AUV back, turning on the motor 0 in the reverse direction.
 
         Return:
         None
@@ -66,49 +59,20 @@ class Motors:
             reverse_value = convert_reverse(value)
 
             if action == "UP":
+                self.pi.set_servo_pulsewidth(PINS[1], forward_value)
                 self.pi.set_servo_pulsewidth(PINS[2], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[5], forward_value)
             elif action == "DOWN":
+                self.pi.set_servo_pulsewidth(PINS[1], reverse_value)
                 self.pi.set_servo_pulsewidth(PINS[2], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[5], reverse_value)
 
             if action == "FRONT":
-                self.pi.set_servo_pulsewidth(PINS[0], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[1], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[3], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[4], forward_value)
+                self.pi.set_servo_pulsewidth(PINS[0], forward_value)
             if action == "BACK":
-                self.pi.set_servo_pulsewidth(PINS[0], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[1], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[3], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[4], reverse_value)
-            if action == "RIGHT":
                 self.pi.set_servo_pulsewidth(PINS[0], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[1], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[3], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[4], reverse_value)
-            if action == "LEFT":
-                self.pi.set_servo_pulsewidth(PINS[0], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[1], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[3], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[4], forward_value)
-            if action == "TURN RIGHT":
-                self.pi.set_servo_pulsewidth(PINS[0], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[1], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[3], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[4], forward_value)
-            if action == "TURN LEFT":
-                self.pi.set_servo_pulsewidth(PINS[0], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[1], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[3], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[4], reverse_value)
             if action == "STOP":
                 self.pi.set_servo_pulsewidth(PINS[0], REST_VALUE)
                 self.pi.set_servo_pulsewidth(PINS[1], REST_VALUE)
                 self.pi.set_servo_pulsewidth(PINS[2], REST_VALUE)
-                self.pi.set_servo_pulsewidth(PINS[3], REST_VALUE)
-                self.pi.set_servo_pulsewidth(PINS[4], REST_VALUE)
-                self.pi.set_servo_pulsewidth(PINS[5], REST_VALUE)
 
     def finish(self):
         """
