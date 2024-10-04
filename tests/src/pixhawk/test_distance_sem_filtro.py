@@ -13,7 +13,7 @@ dz = 0
 cont = []
 i = 0
 
-while i < 1000:
+while i < 100:
     t_i = time.time()
     sensors.update_data()
 
