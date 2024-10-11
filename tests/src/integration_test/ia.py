@@ -20,7 +20,6 @@ class Ia:
                             while True:
                                 dct = conn.recv(2048)
                                 if not dct:
-                                    print("Nenhum dado recebido. Encerrando a conexão.")
                                     break
                                 try:
                                     received_dict = json.loads(dct.decode('utf-8'))

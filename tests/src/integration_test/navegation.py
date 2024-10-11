@@ -173,8 +173,9 @@ class AUVStateMachine:
                     print("Lost object!")
             
             if not lost_object:            
-                self.next_state(State.ADVANCING)
-                self.transition_to(State.STABILIZING)
+                self.next_state = State.ADVANCING
+                # self.transition_to(State.STABILIZING)
+                self.transition_to(State.ADVANCING)
     
     def advancing(self):
         """
@@ -186,7 +187,11 @@ class AUVStateMachine:
         advance = True
 
         while advance:
-            self.distance = calculate_distance(self.object_class, self.bounding_box)
+            xyxy = self.ia.get_xyxy(self.target_object)
+            while xyxy is None:
+                xyxy = self.ia.get_xyxy(self.target_object)
+            
+            self.distance = calculate_distance(self.target_object, xyxy)
             action = advance(self.distance)
 
             self.motors.define_action({action[1]: action[2]})
@@ -387,7 +392,7 @@ def advance(object_distance):
     :return: Whether advance or no, action and power that must be used
     """
     
-    action = ""
+    action = None
     power = 0
 
     if(object_distance > SAFE_DISTANCE):
@@ -395,7 +400,7 @@ def advance(object_distance):
 
         power = set_power(distance = object_distance)[0]
     
-    return [True if action != "" else False, action, power]
+    return [True if action is not None else False, action, power]
 
 def stabilizes(velocity):
     """
