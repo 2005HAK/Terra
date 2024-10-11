@@ -34,7 +34,7 @@ def calculate_dynamic_error(buffer):
 ti = time.time()
 td = ti
 
-while td - ti < 60:
+while td - ti < 10:
     sensors.update_data()
     td = time.time()
 
