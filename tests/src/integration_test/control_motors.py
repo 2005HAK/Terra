@@ -16,17 +16,13 @@ PWM_VALUES = [1500, 1464, 1455, 1447, 1439, 1432, 1426, 1420, 1415, 1410, 1405, 
 
 class Motors:
     def __init__(self):
-        print("Starting engines...")
-
         self.pi = pigpio.pi()
 
-        # while(not pi.connect()):
-            # pi = pigpio.pi()
-
-        self.inicialize_pins()
-
-        print("Engines started")
-
+        if not self.pi.connected:
+            print("Unable to connect to pigpio daemon.")
+        else:
+            print("Connected to pigpio daemon.")
+            
     def inicialize_pins(self):
         for pin in PINS:
             self.pi.set_mode(pin, pigpio.OUTPUT)

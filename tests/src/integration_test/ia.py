@@ -1,37 +1,44 @@
-import serial
+import socket
 import json
-import time
 
 class Ia:
     def __init__(self):
         # Initialize UART connection on Raspberry Pi
-        self.connection = serial.Serial('/dev/serial0', baudrate=115200, timeout=1)
-        time.sleep(1)
+        print("Object IA Created")
         self.identified_objects = []
         
     def update_data(self):
-        if self.connection.in_waiting > 0:
-            # Read the serialized data from UART
-            received_data = self.connection.readline().decode('utf-8')
-
-            # Deserialize the JSON data
-            try:
-                parsed_data = json.loads(received_data)
-                
-                # Access the bounding box coordinates and class IDs
-                data = parsed_data["datas"]
-                # Names precisa mesmo ser passado toda vez? não pode ser somente na primeira e manter salvo na rasp?
-                names = parsed_data["names"]
-                
-                self.identified_objects = []
-
-                for dat in data:
-                    object_detected = [names[int(dat[5])], [int(dat[0]), int(dat[1])], [int(dat[2]), int(dat[3])], dat[4]]
-                    self.identified_objects.append(object_detected)
-
-                self.connection.write("ACK\n".encode('utf-8'))
-            except json.JSONDecodeError as e:
-                print("Error decoding JSON:", e)
+                HOST = '0.0.0.0'
+                PORT = 65432
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.bind((HOST, PORT))
+                    s.listen()
+                    while True:
+                        conn, addr = s.accept()
+                        with conn:
+                            print(f"Conectado a addr: {addr}")
+                            while True:
+                                dct = conn.recv(2048)
+                                if not dct:
+                                    print("Nenhum dado recebido. Encerrando a conexão.")
+                                    break
+                                try:
+                                    received_dict = json.loads(dct.decode('utf-8'))
+                                    data = received_dict['data']
+                                    names = received_dict['names']
+                                    
+                                    self.identified_objects = []
+                                    
+                                    print("pegou")
+                                    
+                                    for dat in data:
+                                        object_detected = [names[str(int(dat[5]))], [int(dat[0]), int(dat[1])], [int(dat[2]), int(dat[3])], dat[4]]
+                                        self.identified_objects.append(object_detected)
+                                        
+                                except json.JSONDecodeError:
+                                    print("Erro ao decodificar JSON.")
+                                except Exception as e:
+                                    print(f"Ocorreu um erro: {e}")
 
     def found_object(self):
         """
@@ -55,7 +62,9 @@ class Ia:
 
         for obj in self.identified_objects:
             if obj[0] == object_name:
-                required_object = [obj[1]]
+                required_object = []
+                # required_object = [obj[1][0], obj[1][1], obj[2][0], obj[2][1]] # testar
+                required_object.extend(obj[1])
                 required_object.extend(obj[2])
         
         return required_object
@@ -73,7 +82,7 @@ class Ia:
             confidence_object = self.identified_objects[0]
 
             for obj in self.identified_objects:
-                if obj[5] > confidence_object[5]:
+                if obj[3] > confidence_object[3]:
                     confidence_object = obj[:]
 
         return confidence_object[0] if confidence_object is not None else None
