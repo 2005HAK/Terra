@@ -1,5 +1,6 @@
 from enum import Enum, auto
 import math as m
+import pixhawk as px
 
 IMAGE_WIDTH = 1280
 IMAGE_HEIGHT = 720
@@ -172,7 +173,7 @@ def stabilizes(velocity):
     """
 
     # Acceptable error in the velocity 
-    error_velocity = 0.1
+    error_velocity = 0.06
 
     power_x = 0
     power_y = 0
@@ -199,4 +200,56 @@ def defines_action(velocity, error_velocity, positive_action, negative_action):
     
     return action
 
-print(stabilizes([0.11,0,0]))
+sensors = px.Pixhawk()
+
+# Com filtro (estamos tendo problemas aqui)
+# rx = 0.0006754251140591805
+# ry = 0.0019773677451885305
+# rz = 0.0008347233790354948
+# ermx = .1
+# ermy = .5
+# ermz = .3
+# eix = 0
+# eiy = 0
+# eiz = 0
+# vex = .5
+# vey = .5
+# vez = .5
+# vx = vex * vex + rx
+# vy = vey * vey + ry
+# vz = vez * vez + rz
+
+# while True:
+#     sensors.update_data()
+#     # print(f"Velocidade: {sensors.get_vel()}")
+
+#     gkx = vx / float(vx + ermx)
+#     gky = vy / float(vy + ermy)
+#     gkz = vz / float(vz + ermz)
+
+#     estado_atualx = eix + gkx * (sensors.get_vel()[0] - eix)
+#     estado_atualy = eiy + gky * (sensors.get_vel()[1] - eiy)
+#     estado_atualz = eiz + gkz * (sensors.get_vel()[2] - eiz)
+
+#     variacao_estado_atualx = (1 - gkx) * vx
+#     variacao_estado_atualy = (1 - gky) * vy
+#     variacao_estado_atualz = (1 - gkz) * vz
+
+#     eix = estado_atualx
+#     eiy = estado_atualy
+#     eiz = estado_atualz
+
+#     vx = variacao_estado_atualx + rx
+#     vy = variacao_estado_atualy + ry
+#     vz = variacao_estado_atualz + rz
+
+#     # print([vx, vy, vz])
+
+#     print(stabilizes([vx, vy, vz]))
+
+# sem filtro
+while True:
+    sensors.update_data()
+    # print(f"Velocidade: {sensors.get_vel()}")
+
+    print(stabilizes(sensors.get_vel()))

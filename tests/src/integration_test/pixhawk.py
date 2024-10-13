@@ -7,7 +7,7 @@ class Pixhawk:
     def __init__(self):
         # serial connetion ('/dev/serial0', baud = 57600)
         # intranet connetion ('127.0.0.1:12550)
-        self.connection = mavutil.mavlink_connection('/dev/serial0', baud = 57600)
+        self.connection = mavutil.mavlink_connection('/dev/ttyAMA0', baud = 57600)
         self.acc_current = [0, 0, 0] # current acceleration [x, y, z]
         self.acc_old = [0, 0, 0] # old accelerantion [x, y, z]
         self.gyro = [0, 0, 0] # [x, y, z]
@@ -15,6 +15,15 @@ class Pixhawk:
         self.vel = [0, 0, 0] # [x, y, z]
         self.current_time = time.time()
         self.old_time = self.current_time
+
+        self.send_heartbeat()
+
+    def send_heartbeat(self):
+        """
+        Sends the heartbeat to pixhawk for establish connection
+        """
+        self.connection.mav.heartbeat_send(mavutil.mavlink.MAV_TYPE_GCS,
+                                            mavutil.mavlink.MAV_AUTOPILOT_INVALID, 0, 0, 0)
     
     def update_data(self):
         is_simstate_valid = False

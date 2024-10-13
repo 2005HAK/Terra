@@ -5,7 +5,7 @@ class Pixhawk:
     def __init__(self):
         # serial connetion ('/dev/serial0', baud = 57600)
         # intranet connetion ('127.0.0.1:12550)
-        self.connection = mavutil.mavlink_connection('COM7', baud = 57600)
+        self.connection = mavutil.mavlink_connection('COM7', baud = 115200)
         self.acc_current = [0, 0, 0] # current acceleration [x, y, z]
         self.acc_old = [0, 0, 0] # old accelerantion [x, y, z]
         self.gyro = [0, 0, 0] # [x, y, z]

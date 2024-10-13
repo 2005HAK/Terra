@@ -1,45 +1,93 @@
 import pixhawk as px
-from pymavlink import mavutil
 import matplotlib.pyplot as plt
+import time
+import numpy as np
 
-connection = mavutil.mavlink_connection('/dev/ttyACM0', baud = 115200)
+sensors = px.Pixhawk()
 
-ruido = .2
-erro_medicao = .2
+fx = []
+fy = []
+fz = []
+rx = 0.0006754251140591805
+ry = 0.0019773677451885305
+rz = 0.0008347233790354948
+eix, eiy, eiz = sensors.get_vel()
+vex = .5
+vey = .5
+vez = .5
+vx = vex * vex + rx
+vy = vey * vey + ry
+vz = vez * vez + rz
+cont = []
 
-estimativa_inicial = 0
-variancia_estimativa = .5
+buffer_size = 50
+buffer_x = []
+buffer_y = []
+buffer_z = []
 
-variancia_estimativa_estrapolada = variancia_estimativa * variancia_estimativa + ruido
+def calculate_dynamic_error(buffer):
+    if len(buffer) > 1:
+        return np.std(buffer)  # Calcula o desvio padrão das leituras
+    else:
+        return 0.1  # Valor padrão se não houver dados suficientes
 
-i = 0
-valores = [estimativa_inicial]
-realx = [0]
-cont = [i]
+ti = time.time()
+td = ti
 
-while i < 100:
-    msg = connection.recv_match(type='LOCAL_POSITION_NED', blocking=True)
+while td - ti < 10:
+    sensors.update_data()
+    td = time.time()
 
-    if not msg:
-        continue
-    
-    ganho_kalman = variancia_estimativa_estrapolada / (variancia_estimativa_estrapolada + erro_medicao)
-    estado_atual = estimativa_inicial + ganho_kalman * (msg.vx - estimativa_inicial)
-    variancia_estado_atual = (1 - ganho_kalman) * variancia_estimativa_estrapolada
+    vel_raw = sensors.get_vel()
 
-    estimativa_inicial = estado_atual
-    variancia_estimativa_estrapolada = variancia_estado_atual + ruido
+    # Atualiza buffers com as novas leituras
+    if len(buffer_x) >= buffer_size:
+        buffer_x.pop(0)  # Remove o mais antigo
+    if len(buffer_y) >= buffer_size:
+        buffer_y.pop(0)
+    if len(buffer_z) >= buffer_size:
+        buffer_z.pop(0)
 
-    print(estimativa_inicial)
+    buffer_x.append(vel_raw[0])
+    buffer_y.append(vel_raw[1])
+    buffer_z.append(vel_raw[2])
 
-    valores.append(estimativa_inicial)
-    realx.append(msg.vx)
-    print(msg.vx)
-    i += 1
-    cont.append(i)
+    # Calcula os erros de medição dinamicamente
+    ermx = calculate_dynamic_error(buffer_x)
+    ermy = calculate_dynamic_error(buffer_y)
+    ermz = calculate_dynamic_error(buffer_z)
 
+    gkx = vx / float(vx + ermx)
+    gky = vy / float(vy + ermy)
+    gkz = vz / float(vz + ermz)
 
-plt.plot(cont, valores, "-r")
-plt.plot(cont, realx, "-g")
+    print(f"Erm: {ermx}, {ermy}, {ermz}")
+    print(f"Velocidade Bruta:  {vel_raw[0]}, {vel_raw[1]}, {vel_raw[2]}")
 
+    estado_atualx = eix + gkx * (vel_raw[0] - eix)
+    estado_atualy = eiy + gky * (vel_raw[1] - eiy)
+    estado_atualz = eiz + gkz * (vel_raw[2] - eiz)
+
+    variacao_estado_atualx = (1 - gkx) * vx
+    variacao_estado_atualy = (1 - gky) * vy
+    variacao_estado_atualz = (1 - gkz) * vz
+
+    eix = estado_atualx
+    eiy = estado_atualy
+    eiz = estado_atualz
+
+    vx = variacao_estado_atualx + rx
+    vy = variacao_estado_atualy + ry
+    vz = variacao_estado_atualz + rz
+
+    fx.append(estado_atualx)
+    fy.append(estado_atualy)
+    fz.append(estado_atualz)
+
+    print(f"Velocidade Filtro: {estado_atualx}, {estado_atualy}, {estado_atualz}")
+    cont.append(td - ti)
+
+plt.plot(cont, fx, "-b")
+plt.plot(cont, fy, "-g")
+plt.plot(cont, fz, "-r")
 plt.show()

@@ -1,14 +1,15 @@
 from enum import Enum, auto
 import math as m
-# import pixhawk as px
+import pixhawk as px
+import ia
 import control_motors as cm
 import threading
-import time
-import ia
+import time # importar somente time, é oque esta sendo usado
+from AUVError import *
 
 # Width and height of the image seen by the camera
-IMAGE_WIDTH = 640
-IMAGE_HEIGHT = 480
+IMAGE_WIDTH = 1280
+IMAGE_HEIGHT = 720
 
 # Center of the image seen by the camera
 IMAGE_CENTER = [IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2]
@@ -42,16 +43,16 @@ class AUVStateMachine:
         # self.last_state = None # pode ser util
         self.state = State.INIT
         self.next_state = None
-        # self.pixhawk = px.Pixhawk()
+        self.pixhawk = px.Pixhawk()
         self.ia = ia.Ia()
         self.target_object = None
         self.motors = None
         self.distance = None # passar o calculo e armazenamento de distancia para a pix
 
         # Update sensors data and detection data in parallel with the state machine
-        #self.sensor_thread = threading.Thread(target=self.update_sensors, daemon=True)
+        self.sensor_thread = threading.Thread(target=self.update_sensors, daemon=True)
         self.detection_thread = threading.Thread(target=self.update_detection, daemon=True)
-        #self.sensor_thread.start()
+        self.sensor_thread.start()
         self.detection_thread.start()
 
     def transition_to(self, new_state):
@@ -63,8 +64,10 @@ class AUVStateMachine:
         """
 
         print(f"Transitioning from {self.state} to {new_state}")
+        # self.last_state = self.state # pode ser util
         self.state = new_state
 
+    # Não testado
     def update_sensors(self):
         """
         Updates sensors data every **0.3 ms**
@@ -73,42 +76,113 @@ class AUVStateMachine:
         while True:
             self.pixhawk.update_data()
             time.sleep(0.3)
-        
+
+    # Não testado
     def update_detection(self):
         """
         Updates detection data every **0.3 ms**
         """
 
-        self.ia.update_data()
+        while True:
+            self.ia.update_data()
+            time.sleep(0.3)
+
+    # Não testado
+    def checks_errors(self):
+        """
+        Checks for errors every **0.3 ms**
+        """
+        
+        while True:
+            self.pixhawk.collision_detect()
+            time.sleep(0.3)
 
     def run(self):
         """
         Initializes the state machine
         """
 
-        while self.state != State.STOP:
-            if self.state == State.INIT:
-                self.init()
-            elif self.state == State.SEARCH:
-                self.search()
-            elif self.state == State.CENTERING:
-                self.centering()
-            elif self.state == State.ADVANCING:
-                self.advancing()
-            elif self.state == State.STABILIZING:
-                self.stabilizing()
+        try:
+            # Checks for errors in parallel with the state machine
+            self.errors_thread = threading.Thread(target=self.checks_errors, daemon=True)
+            self.errors_thread.start()
 
-        self.stop()
+            while self.state != State.STOP:
+                if self.state == State.INIT:
+                    self.init()
+                elif self.state == State.SEARCH:
+                    self.search()
+                elif self.state == State.CENTERING:
+                    self.centering()
+                elif self.state == State.ADVANCING:
+                    self.advancing()
+                elif self.state == State.STABILIZING:
+                    self.stabilizing()
+
+            self.stop()
+        except AUVError as e:
+            self.error_handling(e)
+
+    # ERRORS HANDLING 
+    def error_handling(self, e):
+        """
+        Handle errrors to return to operation
+
+        :param e: Error detected
+        :type e: AUVError
+        """
+
+        if isinstance(e, CollisionDetected):
+            if self.state == State.SEARCH:
+                self.direction_correction(e.acceleration)
+
+    def direction_correction(self, acceleration):
+        """
+        Corrects the direction of the AUV by turning it 180º in relation to the crash location
+
+        :param acceleration: Acceleration detected at the time of the crash
+        :type acceleration: Float array
+        """
+
+        print("Correcting direction...")
+
+        # 10º in rad
+        error_angle = 0.174533
+
+        position_collision = -acceleration
+
+        # a = acos(x / sqrt(x^2 + y^2)) in degrees
+        a = m.acos(position_collision[0] / m.sqrt(m.pow(position_collision[0], 2) + m.pow(position_collision[1], 2)))
+        angle = a * m.pi / 180 # a in rad
+        
+        # Turn rigth by default
+        action = "TURN RIGTH"
+
+        # y > 0
+        if position_collision[1] > 0:
+            action = "TURN LEFT"
+
+        gyro_current = self.pixhawk.get_gyro()
+        gyro_old = None
+
+        rotated = 0
+
+        while m.abs(rotated) < angle - error_angle:
+            self.motors.define_action({action: 20})
+
+            gyro_old = gyro_current
+            gyro_current = self.pixhawk.get_gyro()
+            delta_time = self.pixhawk.current_time - self.pixhawk.old_time
+
+            rotated += delta_time * (gyro_current[2] + gyro_old[2]) / 2
+        
+        self.run()
 
     # DEFINITION OF STATES
     def init(self):
         """
         **This state initializes the motors**
         """
-        print("Searching for launcher...")
-        
-        while self.target_object != "Cube":
-            self.search_objects()
 
         print("Initializing...")
 
@@ -122,23 +196,14 @@ class AUVStateMachine:
 
         print("Searching...")
 
-        # Não é a melhor abordagem, fazer o auv girar e descer antes de tentar ir para frente
-        while self.target_object == None:
+        while not self.ia.found_object():
             self.motors.define_action({"FRONT": 20})
-            self.search_objects()
+
+        self.target_object = self.ia.greater_confidence_object()
 
         # verificar qual objeto(os) encontrou e responder de acordo
-        print(f"Target object is {self.target_object}")
+        
         self.transition_to(State.CENTERING)
-
-    def search_objects(self):
-        """
-        Checks if objects were found. Found saved in target_object
-        """
-
-        if self.ia.found_object():
-            self.target_object = self.ia.greater_confidence_object()
-
 
     def centering(self):
         """
@@ -148,8 +213,6 @@ class AUVStateMachine:
         print("Centering...")
 
         self.transition_to(State.SEARCH)
-        
-        lost_object = False
 
         if self.ia.found_object():
             is_center = False
@@ -158,24 +221,17 @@ class AUVStateMachine:
                 # se o objeto deixar de ser identificado pela ia deve dar um break no while e em search tentar buscar o objeto novamente
                 xyxy = self.ia.get_xyxy(self.target_object)
 
-                if xyxy != None:
-                    actions = center_object(xyxy)
+                actions = center_object(xyxy)
 
-                    # Mudar de dicionario para array (é mais rápido)
+                # Mudar de dicionario para array (é mais rápido)
 
-                    self.motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
-                    time.sleep(.5)
+                self.motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
+                time.sleep(.5)
 
-                    is_center = actions[0]
-                else:
-                    is_center = True
-                    lost_object = True
-                    print("Lost object!")
+                is_center = actions[0]
             
-            if not lost_object:            
-                self.next_state = State.ADVANCING
-                # self.transition_to(State.STABILIZING)
-                self.transition_to(State.ADVANCING)
+            self.next_state(State.ADVANCING)
+            self.transition_to(State.STABILIZING)
     
     def advancing(self):
         """
@@ -184,22 +240,24 @@ class AUVStateMachine:
 
         print("Advancing...")
 
+        self.transition_to(State.SEARCH)
+
         advance = True
 
-        while advance:
-            xyxy = self.ia.get_xyxy(self.target_object)
-            while xyxy is None:
+        if self.ia.found_object():
+            while advance:
+                # se o objeto deixar de ser identificado pela ia deve dar um break no while e em search tentar buscar o objeto novamente
                 xyxy = self.ia.get_xyxy(self.target_object)
+                
+                self.distance = calculate_distance(self.target_object, xyxy)
+                action = advance_decision(self.distance)
+
+                self.motors.define_action({action[1]: action[2]})
+
+                advance = action[0]
             
-            self.distance = calculate_distance(self.target_object, xyxy)
-            action = advance(self.distance)
-
-            self.motors.define_action({action[1]: action[2]})
-
-            advance = action[0]
-        
-        self.next_state = State.STOP
-        self.transition_to(State.STABILIZING)
+            self.next_state = State.STOP
+            self.transition_to(State.STABILIZING)
 
     def stabilizing(self):
         """
@@ -247,7 +305,7 @@ def center(xyxy = None):
 
     :return: x and y coordinates as a list of center or [-1, -1] if param is null
     """
-    
+
     return [(xyxy[0] + xyxy[2]) / 2, (xyxy[1] + xyxy[3]) / 2] if xyxy is not None else [-1, -1]
 
 # MUDAR ISSO!!! TA MUITO CENTRALIZADO
@@ -264,7 +322,7 @@ def set_power(bounding_box = None, distance = None, velocity = None):
     """
 
     # Defines the power maximum that motors can receive (in %)
-    POWER_MAX = 45
+    POWER_MAX = 25
 
     powers = []
 
@@ -361,10 +419,10 @@ def calculate_distance(object_class, xyxy):
     """
 
     # Actual width of the objects (in meters)
-    width_objects = {"Cube": 0.055, "obj2": 1.5}
+    width_objects = {"obj1": 2, "obj2": 1.5} # Ex
 
     # Initializes the variable with invalid value to indicates error
-    object_distance = -1
+    distance_object = -1
 
     if (object_class in width_objects) and (xyxy[2] - xyxy[0] != 0):
         # Image diagonal (in pixels)
@@ -376,31 +434,29 @@ def calculate_distance(object_class, xyxy):
         # focal distance
         f = (d / 2) * (m.cos(a / 2) / m.sin(a / 2))
 
-        object_distance = (f * width_objects[object_class]) / (xyxy[2] - xyxy[0])
+        distance_object = (f * width_objects[object_class]) / (xyxy[2] - xyxy[0])
 
-        print(f"Object_distance {object_distance} m")
+    return distance_object
 
-    return object_distance
-
-def advance(object_distance):
+def advance_decision(distance_object):
     """
     Decides whether to advance to the object and the power that will be used
 
-    :param object_distance: Distance between the AUV and the object
-    :type object_distance: Int
+    :param distance_object: Distance between the AUV and the object
+    :type distance_object: Int
 
     :return: Whether advance or no, action and power that must be used
     """
     
-    action = None
+    action = ""
     power = 0
 
-    if(object_distance > SAFE_DISTANCE):
+    if(distance_object > SAFE_DISTANCE):
         action = "FORWARD"
 
-        power = set_power(distance = object_distance)[0]
+        power = set_power(distance = distance_object)[0]
     
-    return [True if action is not None else False, action, power]
+    return [True if action != "" else False, action, power]
 
 def stabilizes(velocity):
     """
@@ -412,16 +468,16 @@ def stabilizes(velocity):
     :return: Whether it's stable or no and the moviments with their powers 
     """
 
-    # Acceptable error in the velocity 
-    error_velocity = 0.1
+    # Acceptable error in the velocity
+    error_velocity = [.1, .1, .1]
 
     power_x = 0
     power_y = 0
     power_z = 0
 
-    action_x = defines_action(velocity[0], error_velocity, "FRONT", "BACK")
-    action_y = defines_action(velocity[1], error_velocity, "RIGHT", "LEFT")
-    action_z = defines_action(velocity[2], error_velocity, "DOWN", "UP")
+    action_x = defines_action(velocity[0], error_velocity[0], "FRONT", "BACK")
+    action_y = defines_action(velocity[1], error_velocity[1], "RIGHT", "LEFT")
+    action_z = defines_action(velocity[2], error_velocity[2], "DOWN", "UP")
 
     is_stable = action_x == "" and action_y == "" and action_z == ""
 
@@ -439,3 +495,10 @@ def defines_action(velocity, error_velocity, positive_action, negative_action):
         action = positive_action
     
     return action
+
+def main():
+    auv = AUVStateMachine()
+    auv.run()
+
+if __name__ == "__main__":
+    main()
