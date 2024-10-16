@@ -21,7 +21,7 @@ class Motors:
     def __init__(self):
         print("Starting engines...")
 
-        self.pi = pigpio.pi()
+        self.gpio = pigpio.pi()
 
         # while(not pi.connect()):
             # pi = pigpio.pi()
@@ -33,7 +33,8 @@ class Motors:
 
     def inicialize_pins(self):
         for pin in PINS:
-            motor = Motor()
+            motor = Motor(pin, self.gpio)
+            self.motors.append(motor)
 
         time.sleep(7)
 
@@ -66,49 +67,49 @@ class Motors:
             reverse_value = convert_reverse(value)
 
             if action == "UP":
-                self.pi.set_servo_pulsewidth(PINS[2], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[5], forward_value)
+                self.motors[2].move(forward_value)
+                self.motors[5].move(forward_value)
             elif action == "DOWN":
-                self.pi.set_servo_pulsewidth(PINS[2], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[5], reverse_value)
+                self.motors[2].move(reverse_value)
+                self.motors[5].move(reverse_value)
 
             if action == "FRONT":
-                self.pi.set_servo_pulsewidth(PINS[0], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[1], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[3], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[4], forward_value)
+                self.motors[0].move(reverse_value)
+                self.motors[1].move(reverse_value)
+                self.motors[3].move(forward_value)
+                self.motors[4].move(forward_value)
             if action == "BACK":
-                self.pi.set_servo_pulsewidth(PINS[0], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[1], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[3], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[4], reverse_value)
+                self.motors[0].move(forward_value)
+                self.motors[1].move(forward_value)
+                self.motors[3].move(reverse_value)
+                self.motors[4].move(reverse_value)
             if action == "RIGHT":
-                self.pi.set_servo_pulsewidth(PINS[0], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[1], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[3], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[4], reverse_value)
+                self.motors[0].move(reverse_value)
+                self.motors[1].move(forward_value)
+                self.motors[3].move(forward_value)
+                self.motors[4].move(reverse_value)
             if action == "LEFT":
-                self.pi.set_servo_pulsewidth(PINS[0], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[1], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[3], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[4], forward_value)
+                self.motors[0].move(forward_value)
+                self.motors[1].move(reverse_value)
+                self.motors[3].move(reverse_value)
+                self.motors[4].move(forward_value)
             if action == "TURN RIGHT":
-                self.pi.set_servo_pulsewidth(PINS[0], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[1], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[3], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[4], forward_value)
+                self.motors[0].move(reverse_value)
+                self.motors[1].move(forward_value)
+                self.motors[3].move(reverse_value)
+                self.motors[4].move(forward_value)
             if action == "TURN LEFT":
-                self.pi.set_servo_pulsewidth(PINS[0], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[1], reverse_value)
-                self.pi.set_servo_pulsewidth(PINS[3], forward_value)
-                self.pi.set_servo_pulsewidth(PINS[4], reverse_value)
+                self.motors[0].move(forward_value)
+                self.motors[1].move(reverse_value)
+                self.motors[3].move(forward_value)
+                self.motors[4].move(reverse_value)
             if action == "STOP":
-                self.pi.set_servo_pulsewidth(PINS[0], REST_VALUE)
-                self.pi.set_servo_pulsewidth(PINS[1], REST_VALUE)
-                self.pi.set_servo_pulsewidth(PINS[2], REST_VALUE)
-                self.pi.set_servo_pulsewidth(PINS[3], REST_VALUE)
-                self.pi.set_servo_pulsewidth(PINS[4], REST_VALUE)
-                self.pi.set_servo_pulsewidth(PINS[5], REST_VALUE)
+                self.motors[0].move(REST_VALUE)
+                self.motors[1].move(REST_VALUE)
+                self.motors[2].move(REST_VALUE)
+                self.motors[3].move(REST_VALUE)
+                self.motors[4].move(REST_VALUE)
+                self.motors[5].move(REST_VALUE)
 
     def finish(self):
         """
@@ -117,8 +118,8 @@ class Motors:
         print("Turning off the engines...")
 
         for pin in PINS:
-            self.pi.set_PWM_dutycycle(pin, 0)
-        self.pi.stop()
+            self.gpio.set_PWM_dutycycle(pin, 0)
+        self.gpio.stop()
 
         print("Engines off")
 
@@ -143,10 +144,14 @@ class Motor:
         self.stable_power = 0
         self.current_power = 0
         self.direction = None
-        self.pi = pi
+        self.gpio = pi
+
+        self.init_motor()
     
     def init_motor(self):
-        self.pi.set_mode(self.pin, pigpio.OUTPUT)
-        self.pi.set_PWM_frequency(self.pin, FREQUENCY)
-        self.pi.set_servo_pulsewidth(self.pin, REST_VALUE)
+        self.gpio.set_mode(self.pin, pigpio.OUTPUT)
+        self.gpio.set_PWM_frequency(self.pin, FREQUENCY)
+        self.gpio.set_servo_pulsewidth(self.pin, REST_VALUE)
 
+    def move(self, value):
+        self.gpio.set_servo_pulsewidth(self.pin, value)
