@@ -162,19 +162,7 @@ class AUVStateMachine:
         if position_collision[1] > 0:
             action = "TURN LEFT"
 
-        gyro_current = self.pixhawk.get_gyro()
-        gyro_old = None
-
-        rotated = 0
-
-        while m.abs(rotated) < angle - error_angle:
-            self.motors.define_action({action: 20})
-
-            gyro_old = gyro_current
-            gyro_current = self.pixhawk.get_gyro()
-            delta_time = self.pixhawk.current_time - self.pixhawk.old_time
-
-            rotated += delta_time * (gyro_current[2] + gyro_old[2]) / 2
+        self.rotate(angle=angle, action=action)
         
         self.run()
 
@@ -194,10 +182,19 @@ class AUVStateMachine:
         **This state defines the search procedure**
         """
 
+        # 1/8 turns
+        rotation_current = 0
+
         print("Searching...")
 
         while not self.ia.found_object():
-            self.motors.define_action({"FRONT": 20})
+            if rotation_current < 8:
+                self.rotate()
+                rotation_current += 1
+            else:
+                #  terminar a essa parte
+                self.motors.define_action({"DOWN": 20})
+                rotation_current = 0
 
         self.target_object = self.ia.greater_confidence_object()
 
@@ -205,6 +202,21 @@ class AUVStateMachine:
         
         self.transition_to(State.CENTERING)
 
+    def rotate(self, angle = 0.785398, error_angle = 0.174533, action = "TURN LEFT"):
+        gyro_current = self.pixhawk.get_gyro()
+        gyro_old = None
+
+        rotated = 0
+
+        while m.abs(rotated) < angle - error_angle:
+            self.motors.define_action({action: 20})
+
+            gyro_old = gyro_current
+            gyro_current = self.pixhawk.get_gyro()
+            delta_time = self.pixhawk.current_time - self.pixhawk.old_time
+
+            rotated += delta_time * (gyro_current[2] + gyro_old[2]) / 2
+            
     def centering(self):
         """
         **This state defines the centralization procedure**
