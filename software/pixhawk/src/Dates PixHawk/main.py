@@ -14,6 +14,7 @@ def main():
         except:
             print("Erro ao coletar dados")
         
+        
         print(dados[0])
         print(dados[1])
         print(dados[2])
