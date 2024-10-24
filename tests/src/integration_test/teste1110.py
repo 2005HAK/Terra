@@ -1,6 +1,13 @@
 import ia
-import control_motors as cm
 import threading
+
+def search_objects():
+	"""
+	Checks if objects were found. Found saved in target_object
+	"""
+
+	if ia.found_object():
+		target_object = ia.greater_confidence_object()
 
 # Width and height of the image seen by the camera
 IMAGE_WIDTH = 640
@@ -17,16 +24,14 @@ SAFE_DISTANCE = 1
 
 ia = ia.Ia()
 target_object = None
-motors = cm.Motors()
-motors.inicialize_pins()
 distance = None
 
 detection_thread = threading.Thread(target=ia.update_data, daemon=True)
 detection_thread.start()
 
 while target_object == None:
-	motors.define_action({"FRONT": 20})
-	search_objects()
+       print("Andando para frente")
+       search_objects()
 
 print(f"Target object is {target_object}")
 
@@ -42,13 +47,12 @@ while not is_center:
 	
 	print(xyxy)
 
-	if xyxy != None:
+        if xyxy != None:
 		actions = center_object(xyxy)
 
 		# Mudar de dicionario para array (é mais rápido)
-
-		motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
-		time.sleep(.5)
+            
+        print(f"{actions[1]}: {actions[2]}, {actions[3]}: {actions[4]}")
 
 		is_center = actions[0]
 			
@@ -67,14 +71,6 @@ while advance:
 	motors.define_action({action[1]: action[2]})
 
 	advance = action[0]
-
-def search_objects():
-	"""
-	Checks if objects were found. Found saved in target_object
-	"""
-
-	if ia.found_object():
-		target_object = ia.greater_confidence_object()
 
 def set_power(bounding_box = None, distance = None, velocity = None):
     """
