@@ -19,7 +19,7 @@ IMAGE_CENTER = [IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2]
 ERROR_CENTER = 50
 
 # Distance considered safe for the AUV to approach
-SAFE_DISTANCE = .1
+SAFE_DISTANCE = .2
 
 class State(Enum):
     """
@@ -115,7 +115,7 @@ class AUVStateMachine:
         print("Initializing...")
 
         # self.motors = cm.Motors()
-        self.transition_to(State.ADVANCING)
+        self.transition_to(State.SEARCH)
     
     def search(self):
         """
@@ -365,7 +365,7 @@ def calculate_distance(object_class, xyxy):
     """
 
     # Actual width of the objects (in meters)
-    width_objects = {"Cube": 0.055, "cell phone": .07}
+    width_objects = {"Cube": 0.055, "cell phone": .075}
 
     # Initializes the variable with invalid value to indicates error
     object_distance = -1
@@ -375,7 +375,7 @@ def calculate_distance(object_class, xyxy):
         d = m.sqrt(m.pow(IMAGE_WIDTH, 2) + m.pow(IMAGE_HEIGHT, 2))
 
         # Diagonal field of view (in rad)
-        a = (m.pi / 180) * 78.6
+        a = (m.pi / 180) * 60
 
         # focal distance
         f = (d / 2) * (m.cos(a / 2) / m.sin(a / 2))
