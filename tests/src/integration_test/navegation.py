@@ -10,6 +10,8 @@ import ia
 IMAGE_WIDTH = 640
 IMAGE_HEIGHT = 480
 
+OBJECT_INITIALIZATION = "cell phone"
+
 # Center of the image seen by the camera
 IMAGE_CENTER = [IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2]
 
@@ -107,7 +109,7 @@ class AUVStateMachine:
         """
         print("Searching for launcher...")
         
-        while self.target_object != "Cube":
+        while self.target_object != OBJECT_INITIALIZATION:
             self.search_objects()
 
         print("Initializing...")
