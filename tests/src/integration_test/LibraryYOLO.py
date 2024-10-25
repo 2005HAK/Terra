@@ -4,6 +4,7 @@ from torch.cuda import is_available
 from json import dumps
 import socket
 from os import listdir
+import time
 
 def Verificar_Cuda():
     device = 'cuda' if is_available() else 'cpu'
@@ -50,14 +51,31 @@ def Rodar_Yolo(HOST,PORT,model):
     if conex:
         print(f"Conectado ao servidor {HOST} na porta {PORT}")
     px = int(input("Rodar Em quantos Pixels? "))
+
+    
+
     while True:
-        # Captura um quadro da câmera
-        ret, frame = cap.read()
+        old = time.time()
+        frames = []
+
+        while len(frames) < 10:
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            frames.append(frame)
+        
+        new = time.time()
+
+        print(new - old)       
+
         if not ret:
             break
-        results = model(frame, verbose=False, stream=True, show=True,imgsz=px,save=False,max_det=1)
+        results = model(frames, verbose=False, stream=True, show=False,imgsz=px,save=False,max_det=1)
+        
         for result in results:
             boxes = result.boxes.data.cpu().numpy().tolist()
             dicio = {'data': boxes, 'names': result.names}
             if conex:
                 Enviar_Dicionario(HOST,PORT,dicio)
+        
