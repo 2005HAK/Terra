@@ -1,7 +1,7 @@
 from enum import Enum, auto
 import math as m
 # import pixhawk as px
-# import control_motors as cm
+import control_motors as cm
 import threading
 import time
 import ia
@@ -10,16 +10,16 @@ import ia
 IMAGE_WIDTH = 640
 IMAGE_HEIGHT = 480
 
-OBJECT_INITIALIZATION = "cell phone"
+OBJECT_INITIALIZATION = "Cube"
 
 # Center of the image seen by the camera
 IMAGE_CENTER = [IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2]
 
 # Size of the zone that is considered the center of the image
-ERROR_CENTER = 50
+ERROR_CENTER = 100
 
 # Distance considered safe for the AUV to approach
-SAFE_DISTANCE = .2
+SAFE_DISTANCE = .05
 
 class State(Enum):
     """
@@ -47,7 +47,7 @@ class AUVStateMachine:
         # self.pixhawk = px.Pixhawk()
         self.ia = ia.Ia()
         self.target_object = None
-        # self.motors = None
+        self.motors = None
         self.distance = None # passar o calculo e armazenamento de distancia para a pix
 
         # Update sensors data and detection data in parallel with the state machine
@@ -114,7 +114,7 @@ class AUVStateMachine:
 
         print("Initializing...")
 
-        # self.motors = cm.Motors()
+        self.motors = cm.Motors()
         self.transition_to(State.SEARCH)
     
     def search(self):
@@ -126,7 +126,7 @@ class AUVStateMachine:
 
         # Não é a melhor abordagem, fazer o auv girar e descer antes de tentar ir para frente
         while self.target_object == None:
-            # self.motors.define_action({"FRONT": 20})
+            self.motors.define_action({"FRONT": 20})
             self.search_objects()
 
         # verificar qual objeto(os) encontrou e responder de acordo
@@ -167,7 +167,7 @@ class AUVStateMachine:
 
                     print(f"{actions[1]}: {actions[2]}, {actions[3]}: {actions[4]}")
 
-                    # self.motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
+                    self.motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
                     time.sleep(.5)
 
                     is_center = actions[0]
@@ -198,7 +198,7 @@ class AUVStateMachine:
             self.distance = calculate_distance(self.target_object, xyxy)
             action = advance(self.distance)
 
-            # self.motors.define_action({action[1]: action[2]})
+            self.motors.define_action({action[1]: action[2]})
 
             advanc = action[0]
         
@@ -268,7 +268,7 @@ def set_power(bounding_box = None, distance = None, velocity = None):
     """
 
     # Defines the power maximum that motors can receive (in %)
-    POWER_MAX = 45
+    POWER_MAX = 25
 
     powers = []
 
@@ -284,8 +284,8 @@ def set_power(bounding_box = None, distance = None, velocity = None):
         error_x = xm - IMAGE_CENTER[0]
         error_y = ym - IMAGE_CENTER[1]
 
-        power_h = k_p_h * m.fabs(error_x)
-        power_v = k_p_v * m.fabs(error_y)
+        power_h = k_p_h * (m.fabs(error_x) - 25)
+        power_v = k_p_v * (m.fabs(error_y) - 25)
 
         power_h = max(min(power_h, POWER_MAX), 0)
         power_v = max(min(power_v, POWER_MAX), 0)
@@ -295,7 +295,7 @@ def set_power(bounding_box = None, distance = None, velocity = None):
     elif distance is not None and bounding_box is None and velocity is None:
         power_f = 0
 
-        k_p_f = 4.5
+        k_p_f = 100
 
         error_f = distance - SAFE_DISTANCE
 
@@ -400,7 +400,7 @@ def advance(object_distance):
     power = 0
 
     if(object_distance > SAFE_DISTANCE):
-        action = "FORWARD"
+        action = "FRONT"
 
         power = set_power(distance = object_distance)[0]
     

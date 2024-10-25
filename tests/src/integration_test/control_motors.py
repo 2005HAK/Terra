@@ -4,7 +4,7 @@ import time
 FREQUENCY = 200
 
 # Pins motors !!!!IMPORTANT: SHOULD BE DEFINED!!!!
-PINS = [1, 2, 3]
+PINS = [17, 27, 22]
 # 0 - motor de baixo 
 # 1 - Middle right
 # 2 - Middle left
@@ -22,6 +22,8 @@ class Motors:
             print("Unable to connect to pigpio daemon.")
         else:
             print("Connected to pigpio daemon.")
+            
+        self.inicialize_pins()
             
     def inicialize_pins(self):
         for pin in PINS:
