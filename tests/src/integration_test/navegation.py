@@ -17,7 +17,7 @@ IMAGE_CENTER = [IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2]
 ERROR_CENTER = 50
 
 # Distance considered safe for the AUV to approach
-SAFE_DISTANCE = 1
+SAFE_DISTANCE = .1
 
 class State(Enum):
     """
@@ -45,7 +45,7 @@ class AUVStateMachine:
         # self.pixhawk = px.Pixhawk()
         self.ia = ia.Ia()
         self.target_object = None
-        self.motors = None
+        # self.motors = None
         self.distance = None # passar o calculo e armazenamento de distancia para a pix
 
         # Update sensors data and detection data in parallel with the state machine
@@ -112,8 +112,8 @@ class AUVStateMachine:
 
         print("Initializing...")
 
-        self.motors = cm.Motors()
-        self.transition_to(State.SEARCH)
+        # self.motors = cm.Motors()
+        self.transition_to(State.ADVANCING)
     
     def search(self):
         """
@@ -124,7 +124,7 @@ class AUVStateMachine:
 
         # Não é a melhor abordagem, fazer o auv girar e descer antes de tentar ir para frente
         while self.target_object == None:
-            self.motors.define_action({"FRONT": 20})
+            # self.motors.define_action({"FRONT": 20})
             self.search_objects()
 
         # verificar qual objeto(os) encontrou e responder de acordo
@@ -163,7 +163,9 @@ class AUVStateMachine:
 
                     # Mudar de dicionario para array (é mais rápido)
 
-                    self.motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
+                    print(f"{actions[1]}: {actions[2]}, {actions[3]}: {actions[4]}")
+
+                    # self.motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
                     time.sleep(.5)
 
                     is_center = actions[0]
@@ -184,9 +186,9 @@ class AUVStateMachine:
 
         print("Advancing...")
 
-        advance = True
+        advanc = True
 
-        while advance:
+        while advanc:
             xyxy = self.ia.get_xyxy(self.target_object)
             while xyxy is None:
                 xyxy = self.ia.get_xyxy(self.target_object)
@@ -194,12 +196,12 @@ class AUVStateMachine:
             self.distance = calculate_distance(self.target_object, xyxy)
             action = advance(self.distance)
 
-            self.motors.define_action({action[1]: action[2]})
+            # self.motors.define_action({action[1]: action[2]})
 
-            advance = action[0]
+            advanc = action[0]
         
-        self.next_state = State.STOP
-        self.transition_to(State.STABILIZING)
+        # self.next_state = State.STOP
+        self.transition_to(State.STOP)
 
     def stabilizing(self):
         """
@@ -215,9 +217,9 @@ class AUVStateMachine:
 
             actions = stabilizes(velocity)
 
-            self.motors.define_action({actions[1]: actions[2]}) # x
+            # self.motors.define_action({actions[1]: actions[2]}) # x
             time.sleep(.5)
-            self.motors.define_action({actions[3]: actions[4], actions[5]: actions[6]}) # y e z
+            # self.motors.define_action({actions[3]: actions[4], actions[5]: actions[6]}) # y e z
             time.sleep(.5)
 
             is_stable = actions[0]
@@ -235,7 +237,7 @@ class AUVStateMachine:
 
         print("Stoping...")
 
-        self.motors.finish()
+        # self.motors.finish()
     # END DEFINITION OF STATES
 
 def center(xyxy = None):
@@ -361,7 +363,7 @@ def calculate_distance(object_class, xyxy):
     """
 
     # Actual width of the objects (in meters)
-    width_objects = {"Cube": 0.055, "obj2": 1.5}
+    width_objects = {"Cube": 0.055, "cell phone": .07}
 
     # Initializes the variable with invalid value to indicates error
     object_distance = -1
@@ -371,14 +373,14 @@ def calculate_distance(object_class, xyxy):
         d = m.sqrt(m.pow(IMAGE_WIDTH, 2) + m.pow(IMAGE_HEIGHT, 2))
 
         # Diagonal field of view (in rad)
-        a = (m.pi / 180) * 55
+        a = (m.pi / 180) * 78.6
 
         # focal distance
         f = (d / 2) * (m.cos(a / 2) / m.sin(a / 2))
 
         object_distance = (f * width_objects[object_class]) / (xyxy[2] - xyxy[0])
 
-        print(f"Object_distance {object_distance} m")
+        print(f"Object_distance {object_distance:.4} m")
 
     return object_distance
 

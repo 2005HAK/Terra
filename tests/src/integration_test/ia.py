@@ -27,12 +27,12 @@ class Ia:
                                     names = received_dict['names']
                                     
                                     self.identified_objects = []
-                                    
-                                    print("pegou")
-                                    
+
                                     for dat in data:
                                         object_detected = [names[str(int(dat[5]))], [int(dat[0]), int(dat[1])], [int(dat[2]), int(dat[3])], dat[4]]
                                         self.identified_objects.append(object_detected)
+                                    
+                                    print(self.identified_objects)
                                         
                                 except json.JSONDecodeError:
                                     print("Erro ao decodificar JSON.")
