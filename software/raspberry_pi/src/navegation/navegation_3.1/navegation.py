@@ -146,14 +146,13 @@ class AUVStateMachine:
 
         print("Correcting direction...")
 
-        # 10º in rad
-        error_angle = 0.174533
-
         position_collision = -acceleration
 
         # a = acos(x / sqrt(x^2 + y^2)) in degrees
         a = m.acos(position_collision[0] / m.sqrt(m.pow(position_collision[0], 2) + m.pow(position_collision[1], 2)))
-        angle = a * m.pi / 180 # a in rad
+        angle = m.abs(a * m.pi / 180) # a in rad
+
+        rotation_angle = m.pi - angle
         
         # Turn rigth by default
         action = "TURN RIGTH"
@@ -162,7 +161,7 @@ class AUVStateMachine:
         if position_collision[1] > 0:
             action = "TURN LEFT"
 
-        self.rotate(angle=angle, action=action)
+        self.rotate(angle=rotation_angle, action=action)
         
         self.run()
 

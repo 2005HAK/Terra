@@ -62,7 +62,7 @@ class Pixhawk:
 
     def collision_detect(self):
         """
-        Detects whether the AUV has crashed based on acceleretion data from Pixhawk
+        Detects whether the AUV has crashed based on acceleration data from Pixhawk
 
         :param connection: Connection with Pixhawk
 
