@@ -1,13 +1,13 @@
+from pandas.core.array_algos.transforms import shift
 from ultralytics import YOLO
+from ultralytics.utils.checks import cuda_is_available
 from cv2 import VideoCapture
-from torch.cuda import is_available
 from json import dumps
 import socket
 from os import listdir
 
 def Verificar_Cuda():
-    device = 'cuda' if is_available() else 'cpu'
-    return device.upper()
+    print("Rodando em: CUDA" if cuda_is_available() else "Rodando em: CPU")
 
 def Enviar_Dicionario(HOST, PORT, dicio):
     try:
@@ -61,3 +61,22 @@ def Rodar_Yolo(HOST,PORT,model):
             dicio = {'data': boxes, 'names': result.names}
             if conex:
                 Enviar_Dicionario(HOST,PORT,dicio)
+
+def Teste_Confianca(model):
+    st = bool(input("Stream?(False/True) "))
+    sh = bool(input("Show?(False/True) "))
+    hf = bool(input("Half?(False/True) "))
+    sv = bool(input("Save?(False/True) "))
+    px = int(input("Quantidade de Pixels? "))
+    results = model('Video.mp4', stream=st, show=sh, half=hf, save=sv,imgsz=px,max_det=1)
+    i = 0
+    mediac = 0
+    for result in results:
+        for datas in result.boxes.data:
+            i += 1
+            mediac += datas[4]
+            print(f"Confiança: {datas[4] * 100:.4}%")
+    print(f"A Media de confiança é: {(mediac / i) * 100:.4}")
+    print(f"Quantidade de detecções: {i}")
+def modo():
+    return int(input("Qual Modo gostaria de escolher?\n[1][Teste de Confiança]\n[2][Run em SSH]\n"))
