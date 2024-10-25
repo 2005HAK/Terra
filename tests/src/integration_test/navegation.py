@@ -1,7 +1,7 @@
 from enum import Enum, auto
 import math as m
 # import pixhawk as px
-import control_motors as cm
+# import control_motors as cm
 import threading
 import time
 import ia

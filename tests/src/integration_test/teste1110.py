@@ -30,8 +30,8 @@ detection_thread = threading.Thread(target=ia.update_data, daemon=True)
 detection_thread.start()
 
 while target_object == None:
-       print("Andando para frente")
-       search_objects()
+    print("Andando para frente")
+    search_objects()
 
 print(f"Target object is {target_object}")
 
@@ -46,8 +46,8 @@ while not is_center:
 	xyxy = ia.get_xyxy(target_object)
 	
 	print(xyxy)
-
-        if xyxy != None:
+      
+    if xyxy != None:
 		actions = center_object(xyxy)
 
 		# Mudar de dicionario para array (é mais rápido)

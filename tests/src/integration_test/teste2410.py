@@ -43,5 +43,4 @@ is_center = False
 while not is_center:
 	xyxy = ia.get_xyxy(target_object)
 	
-    print(xyxy)
-
+	print(xyxy)
