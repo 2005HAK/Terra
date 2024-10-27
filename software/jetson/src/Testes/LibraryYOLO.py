@@ -1,8 +1,7 @@
-from pandas.core.array_algos.transforms import shift
 from ultralytics import YOLO
 from ultralytics.utils.checks import cuda_is_available
 from json import dumps
-import socket
+from socket import socket,AF_INET,SOCK_STREAM
 from os import listdir
 
 def Verificar_Cuda():
@@ -10,7 +9,7 @@ def Verificar_Cuda():
 
 def Enviar_Dicionario(HOST, PORT, dicio):
     try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        with socket(AF_INET, SOCK_STREAM) as s:
             s.connect((HOST, PORT))
             data_json = dumps(dicio)
             s.sendall(data_json.encode('utf-8'))
@@ -27,17 +26,14 @@ def Definir_Modelo():
         print("[",x,"][",mod,"]")
         x+=1
     esc = int(input())
-    model = YOLO('modelos/'+Modelos[esc])
-    return model
+    return YOLO('modelos/'+Modelos[esc])
 
 def Definir_Host():
     x = input("Usar o HOST Padrão?(s/n) ")
     if x == 's':
         return '192.168.0.1'
     else:
-        HOST = str(input("Digite o ip host:"))
-        return HOST
-
+        return str(input("Digite o ip host:"))
 def Verificar_Transmissao():
     v = input("Conectar com servidor?(s/n) ")
     if v == 's': return True
