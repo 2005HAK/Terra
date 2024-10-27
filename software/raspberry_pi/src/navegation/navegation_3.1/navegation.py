@@ -11,6 +11,8 @@ from AUVError import *
 IMAGE_WIDTH = 1280
 IMAGE_HEIGHT = 720
 
+OBJECT_INITIALIZATION = "Cube"
+
 # Center of the image seen by the camera
 IMAGE_CENTER = [IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2]
 
@@ -167,6 +169,13 @@ class AUVStateMachine:
         """
         **This state initializes the motors**
         """
+        print("Searching for launcher...")
+        
+        while self.target_object != OBJECT_INITIALIZATION:
+            self.search_objects()
+
+        # manter comentado para testes que somente 1 objeto é identificado
+        # self.target_object = None
 
         print("Initializing...")
 
@@ -183,7 +192,7 @@ class AUVStateMachine:
 
         print("Searching...")
 
-        while not self.ia.found_object():
+        while self.target_object == None:
             if rotation_current < 8:
                 self.rotate()
                 rotation_current += 1
@@ -192,11 +201,19 @@ class AUVStateMachine:
                 self.motors.define_action({"DOWN": 20})
                 rotation_current = 0
 
-        self.target_object = self.ia.greater_confidence_object()
+            self.search_objects()
 
         # verificar qual objeto(os) encontrou e responder de acordo
         
         self.transition_to(State.CENTERING)
+
+    def search_objects(self):
+        """
+        Checks if objects were found. Found saved in target_object
+        """
+
+        if self.ia.found_object():
+            self.target_object = self.ia.greater_confidence_object()
 
     def rotate(self, angle = 0.785398, error_angle = 0.174533, action = "TURN LEFT"):
         gyro_current = self.pixhawk.get_gyro()

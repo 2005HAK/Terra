@@ -10,10 +10,10 @@ z = 0
 fx = []
 fy = []
 fz = []
-rx = 0.0006754251140591805
-ry = 0.0019773677451885305
-rz = 0.0008347233790354948
-erm = .1
+rx = 0
+ry = 0
+rz = 0
+erm = .03
 eix = 0
 eiy = 0
 eiz = 0
@@ -27,7 +27,7 @@ cont = []
 i = 0
 
 while i < 1000:
-    t_i = time.time()
+    # t_i = time.time()
     sensors.update_data()
 
     gkx = vx / float(vx + erm)
@@ -54,14 +54,15 @@ while i < 1000:
     fy.append(estado_atualy)
     fz.append(estado_atualz)
     cont.append(i)
+    print(i)
     i += 1
-    t_f = time.time()
+    # t_f = time.time()
 
-    x += fx[-1] * (t_f - t_i)
-    y += fy[-1] * (t_f - t_i)
-    z += fz[-1] * (t_f - t_i)
+    # x += fx[-1] * (t_f - t_i)
+    # y += fy[-1] * (t_f - t_i)
+    # z += fz[-1] * (t_f - t_i)
 
-    print(f"Distancia percorrida: x: {x}, y: {y}, z: {z}")
+    # print(f"Distancia percorrida: x: {x}, y: {y}, z: {z}")
 
 plt.plot(cont, fx, "-b")
 plt.plot(cont, fy, "-g")
