@@ -5,9 +5,8 @@ class Pixhawk:
     def __init__(self):
         # serial connetion ('/dev/serial0', baud = 57600)
         # intranet connetion ('127.0.0.1:12550)
-        self.connection = mavutil.mavlink_connection('COM7', baud = 57600)
-        self.acc_current = [0, 0, 0] # current acceleration [x, y, z]
-        self.acc_old = [0, 0, 0] # old accelerantion [x, y, z]
+        self.connection = mavutil.mavlink_connection('COM5', baud = 115200)
+        self.acc = [0, 0, 0] # current acceleration [x, y, z]
         self.gyro = [0, 0, 0] # [x, y, z]
         self.mag = [0, 0, 0] # [x, y, z]
         self.vel = [0, 0, 0] # [x, y, z]
@@ -18,44 +17,51 @@ class Pixhawk:
         self.send_heartbeat()
 
     def send_heartbeat(self):
-        self.connection.mav.heartbeat_send(mavutil.mavlink.MAV_TYPE_GCS,
+        self.connection.mav.heartbeat_send(mavutil.mavlink.MAV_TYPE_SUBMARINE,
                                             mavutil.mavlink.MAV_AUTOPILOT_INVALID, 0, 0, 0)
     
     def update_data(self):
-        msg1 = False
-        msg2 = False
+        is_highres_imu_valid = False
+        is_local_position_ned_valid = False
 
-        while not msg1 or not msg2:
-            msg = self.connection.recv_match()
+        self.old_time = self.current_time
+
+        while not is_local_position_ned_valid or not is_highres_imu_valid:
+            msg = self.connection.recv_match(type=['GLOBAL_POSITION_INT', 'SCALED_IMU2'])
 
             if msg is None:
                 continue
 
-            if msg.get_type() == 'HIGHRES_IMU':
-                self.acc_old = self.acc_current[:]
-                self.acc_current[0] = msg.xacc
-                self.acc_current[1] = msg.yacc
-                self.acc_current[2] = msg.zacc
+            if msg.get_type() == 'SCALED_IMU2':
+                # conferir as conversões
+                convert_to_ms = 9.80665 / 1000
+                convert_to_rad = 1 / 1000
+                convert_to_t = 1 / 10000000
 
-                self.old_time = self.current_time
-                self.current_time = time.time()
+                self.acc[0] = msg.xacc * convert_to_ms
+                self.acc[1] = msg.yacc * convert_to_ms
+                self.acc[2] = msg.zacc * convert_to_ms
 
-                self.gyro[0] = msg.xgyro
-                self.gyro[1] = msg.ygyro
-                self.gyro[2] = msg.zgyro
+                self.gyro[0] = msg.xgyro * convert_to_rad
+                self.gyro[1] = msg.ygyro * convert_to_rad
+                self.gyro[2] = msg.zgyro * convert_to_rad
+                # Dados de mag não funcionam
                 self.mag[0] = msg.xmag
                 self.mag[1] = msg.ymag
                 self.mag[2] = msg.zmag
+                
+                is_highres_imu_valid = True
+            if msg.get_type() == 'GLOBAL_POSITION_INT':
+                self.vel[0] = msg.vx / 100
+                self.vel[1] = msg.vy / 100
+                self.vel[2] = msg.vz / 100
 
-                msg1 = True
-            if msg.get_type() == 'LOCAL_POSITION_NED':
-                self.vel[0] = msg.vx 
-                self.vel[1] = msg.vy
-                self.vel[2] = msg.vz
+                is_local_position_ned_valid = True
 
-                msg2 = True
+        self.current_time = time.time()
+
     def get_acc(self):
-        return self.acc_current
+        return self.acc
     
     def get_gyro(self):
         return self.gyro
