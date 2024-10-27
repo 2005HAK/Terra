@@ -1,7 +1,6 @@
 from pandas.core.array_algos.transforms import shift
 from ultralytics import YOLO
 from ultralytics.utils.checks import cuda_is_available
-from cv2 import VideoCapture
 from json import dumps
 import socket
 from os import listdir
@@ -46,21 +45,16 @@ def Verificar_Transmissao():
 
 def Rodar_Yolo(HOST,PORT,model):
     conex = Verificar_Transmissao()
-    cap = VideoCapture(0)
     if conex:
         print(f"Conectado ao servidor {HOST} na porta {PORT}")
     px = int(input("Rodar Em quantos Pixels? "))
     while True:
-        # Captura um quadro da câmera
-        ret, frame = cap.read()
-        if not ret:
-         break
-        results = model(frame, verbose=False, stream=True, show=True,imgsz=px,save=False,max_det=1)
-        for result in results:
-            boxes = result.boxes.data.cpu().numpy().tolist()
-            dicio = {'data': boxes, 'names': result.names}
-            if conex:
-                Enviar_Dicionario(HOST,PORT,dicio)
+        for results in model.predict(source=0, verbose=False, stream=True, show=True,imgsz=px,save=False,max_det=1):
+            for result in results:
+                boxes = result.boxes.data.cpu().numpy().tolist()
+                dicio = {'data': boxes, 'names': result.names}
+                if conex:
+                    Enviar_Dicionario(HOST,PORT,dicio)
 
 def Teste_Confianca(model):
     st = bool(input("Stream?(False/True) "))
