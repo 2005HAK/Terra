@@ -5,7 +5,7 @@ class Pixhawk:
     def __init__(self):
         # serial connetion ('/dev/serial0', baud = 57600)
         # intranet connetion ('127.0.0.1:12550)
-        self.connection = mavutil.mavlink_connection('COM5', baud = 115200)
+        self.connection = mavutil.mavlink_connection('/dev/serial0', baud = 57600)
         self.acc = [0, 0, 0] # current acceleration [x, y, z]
         self.gyro = [0, 0, 0] # [x, y, z]
         self.mag = [0, 0, 0] # [x, y, z]
@@ -21,12 +21,12 @@ class Pixhawk:
                                             mavutil.mavlink.MAV_AUTOPILOT_INVALID, 0, 0, 0)
     
     def update_data(self):
-        is_highres_imu_valid = False
-        is_local_position_ned_valid = False
+        is_scaled_imu_valid = 0
+        is_global_position_int_valid = 0
 
         self.old_time = self.current_time
 
-        while not is_local_position_ned_valid or not is_highres_imu_valid:
+        while not is_global_position_int_valid or not is_scaled_imu_valid:
             msg = self.connection.recv_match(type=['GLOBAL_POSITION_INT', 'SCALED_IMU2'])
 
             if msg is None:
@@ -50,13 +50,13 @@ class Pixhawk:
                 self.mag[1] = msg.ymag
                 self.mag[2] = msg.zmag
                 
-                is_highres_imu_valid = True
+                is_scaled_imu_valid = 1
             if msg.get_type() == 'GLOBAL_POSITION_INT':
                 self.vel[0] = msg.vx / 100
                 self.vel[1] = msg.vy / 100
                 self.vel[2] = msg.vz / 100
 
-                is_local_position_ned_valid = True
+                is_global_position_int_valid = 1
 
         self.current_time = time.time()
 

@@ -72,22 +72,22 @@ match(w):
                     px.update_data()
                     print(f"Aceleração: {px.get_acc()}")    
                     # print(px.current_time - px.old_time)
-                    os.system("cls")
+                    os.system("clear")
             case 2:
                 while 1:
                     px.update_data()
                     print(f"Velocidade: {px.get_vel()}")
                     # print(px.current_time - px.old_time)
-                    os.system("cls")
+                    # os.system("clear")
             case 3:
                 while 1:
                     px.update_data()
                     print(f"Giroscópio: {px.get_gyro()}")
                     # print(px.current_time - px.old_time)
-                    os.system("cls")
+                    os.system("clear")
             case 4:
                 while 1:
                     px.update_data()
                     print(f"Magnetrome: {px.get_mag()}")
                     # print(px.current_time - px.old_time)
-                    os.system("cls")
+                    os.system("clear")
