@@ -127,13 +127,11 @@ class Motor:
         - pin: pin connected in the motor
         - stable_power: power for this motor to stabilize the AUV (Vx: 0, Vy: 0, Vz: 0)
         - current_power: current power set in this motor
-        - direction: whether it is forward or backward
         """
 
         self.pin = pin
         self.stable_power = stable_power
         self.current_power = 0
-        self.direction = None
         self.gpio = pi
 
         self.init_motor()

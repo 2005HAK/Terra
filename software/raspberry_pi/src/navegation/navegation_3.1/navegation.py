@@ -83,10 +83,8 @@ class AUVStateMachine:
         Updates detection data every **0.3 ms**
         """
 
-        while True:
-            self.ia.update_data()
-            time.sleep(0.3)
-
+        self.ia.update_data()
+        
     # Não testado
     def checks_errors(self):
         """
@@ -148,9 +146,8 @@ class AUVStateMachine:
 
         position_collision = -acceleration
 
-        # a = acos(x / sqrt(x^2 + y^2)) in degrees
-        a = m.acos(position_collision[0] / m.sqrt(m.pow(position_collision[0], 2) + m.pow(position_collision[1], 2)))
-        angle = m.abs(a * m.pi / 180) # a in rad
+        # angle = (acos(x / sqrt(x^2 + y^2)) * pi / 180) in rad
+        angle = (m.acos(position_collision[0] / m.sqrt(m.pow(position_collision[0], 2) + m.pow(position_collision[1], 2))) * m.pi) / 180
 
         rotation_angle = m.pi - angle
         
@@ -215,6 +212,8 @@ class AUVStateMachine:
             delta_time = self.pixhawk.current_time - self.pixhawk.old_time
 
             rotated += delta_time * (gyro_current[2] + gyro_old[2]) / 2
+
+        self.motors.define_action({action: 0})
             
     def centering(self):
         """
