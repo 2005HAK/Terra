@@ -17,7 +17,7 @@ class Ia:
             while True:
                 conn, addr = s.accept()
                 with conn:
-                    print(f"Conectado a addr: {addr}")
+                    # print(f"Conectado a addr: {addr}")
                     while True:
                         dct = conn.recv(2048)
                         if not dct:
@@ -38,7 +38,7 @@ class Ia:
                                 ]
                                 self.identified_objects.append(object_detected)
 
-                            print(self.identified_objects)
+                            # print(self.identified_objects)
 
                         except json.JSONDecodeError:
                             print("Erro ao decodificar JSON.")

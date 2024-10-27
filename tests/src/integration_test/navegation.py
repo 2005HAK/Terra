@@ -19,7 +19,7 @@ IMAGE_CENTER = [IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2]
 ERROR_CENTER = 100
 
 # Distance considered safe for the AUV to approach
-SAFE_DISTANCE = .05
+SAFE_DISTANCE = .1
 
 class State(Enum):
     """
@@ -168,7 +168,6 @@ class AUVStateMachine:
                     print(f"{actions[1]}: {actions[2]}, {actions[3]}: {actions[4]}")
 
                     self.motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
-                    time.sleep(.5)
 
                     is_center = actions[0]
                 else:
