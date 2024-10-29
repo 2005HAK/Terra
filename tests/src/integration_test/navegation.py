@@ -16,7 +16,7 @@ OBJECT_INITIALIZATION = "Cube"
 IMAGE_CENTER = [IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2]
 
 # Size of the zone that is considered the center of the image
-ERROR_CENTER = 100
+ERROR_CENTER = 50
 
 # Distance considered safe for the AUV to approach
 SAFE_DISTANCE = .1
@@ -52,7 +52,7 @@ class AUVStateMachine:
 
         # Update sensors data and detection data in parallel with the state machine
         #self.sensor_thread = threading.Thread(target=self.update_sensors, daemon=True)
-        self.detection_thread = threading.Thread(target=self.update_detection, daemon=True)
+        self.detection_thread = threading.Thread(target=self.ia.update_data, daemon=True)
         #self.sensor_thread.start()
         self.detection_thread.start()
 
@@ -65,8 +65,10 @@ class AUVStateMachine:
         """
 
         print(f"Transitioning from {self.state} to {new_state}")
+        # self.last_state = self.state # pode ser util
         self.state = new_state
-
+    
+    # Não testado
     def update_sensors(self):
         """
         Updates sensors data every **0.3 ms**
@@ -75,13 +77,16 @@ class AUVStateMachine:
         while True:
             self.pixhawk.update_data()
             time.sleep(0.3)
+    
+    # Não testado
+    def checks_errors(self):
+        """
+        Checks for errors every **0.3 ms**
+        """
         
-    def update_detection(self):
-        """
-        Updates detection data every **0.3 ms**
-        """
-
-        self.ia.update_data()
+        while True:
+            self.pixhawk.collision_detect()
+            time.sleep(0.3)
 
     def run(self):
         """
@@ -151,10 +156,10 @@ class AUVStateMachine:
 
         self.transition_to(State.SEARCH)
         
-        lost_object = False
+        lost_object = 0
 
         if self.ia.found_object():
-            is_center = False
+            is_center = 0
             
             while not is_center:
                 # se o objeto deixar de ser identificado pela ia deve dar um break no while e em search tentar buscar o objeto novamente
@@ -171,8 +176,8 @@ class AUVStateMachine:
 
                     is_center = actions[0]
                 else:
-                    is_center = True
-                    lost_object = True
+                    is_center = 1
+                    lost_object = 1
                     print("Lost object!")
             
             if not lost_object:            
@@ -187,19 +192,19 @@ class AUVStateMachine:
 
         print("Advancing...")
 
-        advanc = True
+        advance = 1
 
-        while advanc:
+        while advance:
             xyxy = self.ia.get_xyxy(self.target_object)
             while xyxy is None:
                 xyxy = self.ia.get_xyxy(self.target_object)
             
             self.distance = calculate_distance(self.target_object, xyxy)
-            action = advance(self.distance)
+            action = advance_decision(self.distance)
 
             self.motors.define_action({action[1]: action[2]})
 
-            advanc = action[0]
+            advance = action[0]
         
         # self.next_state = State.STOP
         self.transition_to(State.STOP)
@@ -218,9 +223,9 @@ class AUVStateMachine:
 
             actions = stabilizes(velocity)
 
-            # self.motors.define_action({actions[1]: actions[2]}) # x
+            self.motors.define_action({actions[1]: actions[2]}) # x
             time.sleep(.5)
-            # self.motors.define_action({actions[3]: actions[4], actions[5]: actions[6]}) # y e z
+            self.motors.define_action({actions[3]: actions[4], actions[5]: actions[6]}) # y e z
             time.sleep(.5)
 
             is_stable = actions[0]
@@ -349,7 +354,7 @@ def center_object(xyxy):
 
     power_h, power_v = set_power(bounding_box = xyxy)
 
-    return [False if dir_h != "" or dir_v != "" else True, dir_h, power_h, dir_v, power_v]
+    return [0 if dir_h != "" or dir_v != "" else 1, dir_h, power_h, dir_v, power_v]
 
 def calculate_distance(object_class, xyxy):
     """
@@ -385,7 +390,7 @@ def calculate_distance(object_class, xyxy):
 
     return object_distance
 
-def advance(object_distance):
+def advance_decision(object_distance):
     """
     Decides whether to advance to the object and the power that will be used
 
@@ -403,7 +408,7 @@ def advance(object_distance):
 
         power = set_power(distance = object_distance)[0]
     
-    return [True if action is not None else False, action, power]
+    return [1 if action is not None else 0, action, power]
 
 def stabilizes(velocity):
     """
@@ -416,17 +421,17 @@ def stabilizes(velocity):
     """
 
     # Acceptable error in the velocity 
-    error_velocity = 0.1
+    error_velocity = [.1, .1, .1]
 
     power_x = 0
     power_y = 0
     power_z = 0
 
-    action_x = defines_action(velocity[0], error_velocity, "FRONT", "BACK")
-    action_y = defines_action(velocity[1], error_velocity, "RIGHT", "LEFT")
-    action_z = defines_action(velocity[2], error_velocity, "DOWN", "UP")
+    action_x = defines_action(velocity[0], error_velocity[0], "FRONT", "BACK")
+    action_y = defines_action(velocity[1], error_velocity[1], "RIGHT", "LEFT")
+    action_z = defines_action(velocity[2], error_velocity[2], "DOWN", "UP")
 
-    is_stable = action_x == "" and action_y == "" and action_z == ""
+    is_stable = 1 if action_x == "" and action_y == "" and action_z == "" else 0
 
     if not is_stable:
         power_x, power_y, power_z = set_power(velocity = velocity)

@@ -4,45 +4,46 @@ import json
 class Ia:
     def __init__(self):
         # Initialize UART connection on Raspberry Pi
-        print("Object IA Created")
+        print("Object IA created")
         self.identified_objects = []
         self.host = "0.0.0.0"
         self.port = 65432
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.bind((self.host, self.port))
+        self.socket.listen()
+        print("Socket opened")
 
     def update_data(self):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((self.host, self.port))
-            s.listen()
-            while True:
-                conn, addr = s.accept()
-                with conn:
-                    print(f"Conectado a addr: {addr}")
-                    while True:
-                        dct = conn.recv(2048)
-                        if not dct:
-                            break
-                        try:
-                            received_dict = json.loads(dct.decode("utf-8"))
-                            data = received_dict["data"]
-                            names = received_dict["names"]
+        while True:
+            conn, addr = self.socket.accept()
+            with conn:
+                print(f"Conectado a addr: {addr}")
+                while True:
+                    dct = conn.recv(2048)
+                    if not dct:
+                        break
+                    try:
+                        received_dict = json.loads(dct.decode("utf-8"))
+                        data = received_dict["data"]
+                        names = received_dict["names"]
 
-                            self.identified_objects = []
+                        self.identified_objects = []
 
-                            for dat in data:
-                                object_detected = [
-                                    names.get(str(int(dat[5])), "Desconhecido"),
-                                    [int(dat[0]), int(dat[1])],
-                                    [int(dat[2]), int(dat[3])],
-                                    dat[4],
-                                ]
-                                self.identified_objects.append(object_detected)
+                        for dat in data:
+                            object_detected = [
+                                names.get(str(int(dat[5])), "Desconhecido"),
+                                [int(dat[0]), int(dat[1])],
+                                [int(dat[2]), int(dat[3])],
+                                dat[4],
+                            ]
+                            self.identified_objects.append(object_detected)
 
-                            print(self.identified_objects)
+                        print(self.identified_objects)
 
-                        except json.JSONDecodeError:
-                            print("Erro ao decodificar JSON.")
-                        except Exception as e:
-                            print(f"Ocorreu um erro: {e}")
+                    except json.JSONDecodeError:
+                        print("Erro ao decodificar JSON.")
+                    except Exception as e:
+                        print(f"Ocorreu um erro: {e}")
 
     def found_object(self):
         """
@@ -90,3 +91,7 @@ class Ia:
                     confidence_object = obj[:]
 
         return confidence_object[0] if confidence_object is not None else None
+    
+    def stop(self):
+        self.socket.close()
+        print("Socket closed")
