@@ -1,6 +1,6 @@
 from enum import Enum, auto
 import math as m
-# import pixhawk as px
+import pixhawk as px
 import control_motors as cm
 import threading
 import time
@@ -44,16 +44,16 @@ class AUVStateMachine:
         # self.last_state = None # pode ser util
         self.state = State.INIT
         self.next_state = None
-        # self.pixhawk = px.Pixhawk()
+        self.pixhawk = px.Pixhawk()
         self.ia = ia.Ia()
         self.target_object = None
         self.motors = None
         self.distance = None # passar o calculo e armazenamento de distancia para a pix
 
         # Update sensors data and detection data in parallel with the state machine
-        #self.sensor_thread = threading.Thread(target=self.update_sensors, daemon=True)
+        self.sensor_thread = threading.Thread(target=self.update_sensors, daemon=True)
         self.detection_thread = threading.Thread(target=self.ia.update_data, daemon=True)
-        #self.sensor_thread.start()
+        self.sensor_thread.start()
         self.detection_thread.start()
 
     def transition_to(self, new_state):
@@ -180,10 +180,11 @@ class AUVStateMachine:
                     lost_object = 1
                     print("Lost object!")
             
-            if not lost_object:            
+            if not lost_object:   
+                self.motors.define_action({"DOWN": 0})         
                 self.next_state = State.ADVANCING
-                # self.transition_to(State.STABILIZING)
-                self.transition_to(State.ADVANCING)
+                self.transition_to(State.STABILIZING)
+                # self.transition_to(State.ADVANCING)
     
     def advancing(self):
         """
@@ -220,6 +221,8 @@ class AUVStateMachine:
 
         while not is_stable:
             velocity = self.pixhawk.get_vel()
+            
+            print(velocity)
 
             actions = stabilizes(velocity)
 
@@ -299,7 +302,7 @@ def set_power(bounding_box = None, distance = None, velocity = None):
     elif distance is not None and bounding_box is None and velocity is None:
         power_f = 0
 
-        k_p_f = 100
+        k_p_f = 50
 
         error_f = distance - SAFE_DISTANCE
 
@@ -419,9 +422,8 @@ def stabilizes(velocity):
 
     :return: Whether it's stable or no and the moviments with their powers 
     """
-
     # Acceptable error in the velocity 
-    error_velocity = [.1, .1, .1]
+    error_velocity = [.05, .05, .05]
 
     power_x = 0
     power_y = 0

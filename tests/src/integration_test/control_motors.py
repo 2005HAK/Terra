@@ -18,22 +18,23 @@ class Motors:
     def __init__(self):
         print("Starting engines...")
 
-        # descomentar
-        # self.gpio = pigpio.pi()
+        self.gpio = pigpio.pi()
 
         # while(not pi.connect()):
             # pi = pigpio.pi()
 
         self.motors = []
 
-        # descomentar
-        # self.inicialize_pins()
+        self.inicialize_pins()
 
         print("Engines started")
 
     def inicialize_pins(self):
         for pin in PINS:
-            motor = Motor(pin, self.gpio, 0 if pin != 27 or pin != 22 else 30)
+            if pin == 27 or pin == 22:
+                    motor = Motor(pin, self.gpio, -14)
+            else:
+                    motor = Motor(pin, self.gpio, 0)
             self.motors.append(motor)
 
         time.sleep(7)
@@ -63,54 +64,21 @@ class Motors:
         for action, value in actions.items():
             print(f"Action: {action}, Power: {value}")
 
-            # Descomentar
-
-            """
             if action == "UP":
+                self.motors[1].move(value)
                 self.motors[2].move(value)
-                self.motors[5].move(value)
             elif action == "DOWN":
+                self.motors[1].move(-value)
                 self.motors[2].move(-value)
-                self.motors[5].move(-value)
 
             if action == "FRONT":
                 self.motors[0].move(-value)
-                self.motors[1].move(-value)
-                self.motors[3].move(value)
-                self.motors[4].move(value)
             if action == "BACK":
                 self.motors[0].move(value)
-                self.motors[1].move(value)
-                self.motors[3].move(-value)
-                self.motors[4].move(-value)
-            if action == "RIGHT":
-                self.motors[0].move(-value)
-                self.motors[1].move(value)
-                self.motors[3].move(value)
-                self.motors[4].move(-value)
-            if action == "LEFT":
-                self.motors[0].move(value)
-                self.motors[1].move(-value)
-                self.motors[3].move(-value)
-                self.motors[4].move(value)
-            if action == "TURN RIGHT":
-                self.motors[0].move(-value)
-                self.motors[1].move(value)
-                self.motors[3].move(-value)
-                self.motors[4].move(value)
-            if action == "TURN LEFT":
-                self.motors[0].move(value)
-                self.motors[1].move(-value)
-                self.motors[3].move(value)
-                self.motors[4].move(-value)
             if action == "STAY" or action == None:
                 self.motors[0].move(0)
                 self.motors[1].move(0)
                 self.motors[2].move(0)
-                self.motors[3].move(0)
-                self.motors[4].move(0)
-                self.motors[5].move(0)
-            """
 
     def finish(self):
         """
@@ -119,15 +87,10 @@ class Motors:
 
         print("Turning off the motors...")
 
-        # descomentar
-
-        """
         for motor in self.motors:
             motor.finishes_motor()
 
         self.gpio.stop()
-
-        """
 
         print("Motors off")
 
@@ -145,6 +108,8 @@ class Motor:
         self.stable_power = stable_power
         self.current_power = 0
         self.gpio = pi
+        
+        print(f"pin: {self.pin}, stable: {self.stable_power}")
 
         self.init_motor()
     
@@ -154,12 +119,14 @@ class Motor:
         self.gpio.set_servo_pulsewidth(self.pin, 1500)
 
     def move(self, value):
-        useful_power = ((100 - self.stable_power) if value > 0 else (100 + self.stable_power)) * (value / 100)
+        useful_power = ((100 - self.stable_power) if value >= 0 else (100 + self.stable_power)) * (value / 100)
         self.current_power = self.stable_power + useful_power
+        print(f"current: {self.current_power}, useful: {useful_power}, stable: {self.stable_power}")
+        time.sleep(.1)
         self.gpio.set_servo_pulsewidth(self.pin, self.convert_value(self.current_power))
 
     def convert_value(self, value):
         return PWM_VALUES[100 + int(value)] if value < 101 and value > -101 else PWM_VALUES[100 + int(self.stable_power)]
     
     def finishes_motor(self):
-        self.gpio.set_servo_pulsewidth(1500)
+        self.gpio.set_servo_pulsewidth(self.pin, 1500)
