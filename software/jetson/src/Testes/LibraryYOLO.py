@@ -45,7 +45,7 @@ def Rodar_Yolo(HOST,PORT,model):
         print(f"Conectado ao servidor {HOST} na porta {PORT}")
     px = int(input("Rodar Em quantos Pixels? "))
     while True:
-        for results in model.predict(source=0, verbose=False, stream=True, show=True,imgsz=px,save=False,max_det=1):
+        for results in model.predict(source=0, verbose=False, stream=True, show=True,imgsz=px,save=False,max_det=1, conf=.8):
             for result in results:
                 boxes = result.boxes.data.cpu().numpy().tolist()
                 dicio = {'data': boxes, 'names': result.names}

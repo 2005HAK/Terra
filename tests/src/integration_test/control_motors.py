@@ -18,12 +18,15 @@ class Motors:
     def __init__(self):
         print("Starting engines...")
 
+        # descomentar
         # self.gpio = pigpio.pi()
 
         # while(not pi.connect()):
             # pi = pigpio.pi()
+
         self.motors = []
 
+        # descomentar
         # self.inicialize_pins()
 
         print("Engines started")
@@ -59,6 +62,9 @@ class Motors:
 
         for action, value in actions.items():
             print(f"Action: {action}, Power: {value}")
+
+            # Descomentar
+
             """
             if action == "UP":
                 self.motors[2].move(value)
@@ -97,7 +103,7 @@ class Motors:
                 self.motors[1].move(-value)
                 self.motors[3].move(value)
                 self.motors[4].move(-value)
-            if action == "STAY":
+            if action == "STAY" or action == None:
                 self.motors[0].move(0)
                 self.motors[1].move(0)
                 self.motors[2].move(0)
@@ -113,10 +119,15 @@ class Motors:
 
         print("Turning off the motors...")
 
+        # descomentar
+
+        """
         for motor in self.motors:
             motor.finishes_motor()
 
         self.gpio.stop()
+
+        """
 
         print("Motors off")
 

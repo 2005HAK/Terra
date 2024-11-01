@@ -170,7 +170,7 @@ class AUVStateMachine:
 
                     # Mudar de dicionario para array (é mais rápido)
 
-                    print(f"{actions[1]}: {actions[2]}, {actions[3]}: {actions[4]}")
+                    # print(f"{actions[1]}: {actions[2]}, {actions[3]}: {actions[4]}")
 
                     self.motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
 
@@ -243,7 +243,7 @@ class AUVStateMachine:
 
         print("Stoping...")
 
-        # self.motors.finish()
+        self.motors.finish()
     # END DEFINITION OF STATES
 
 def center(xyxy = None):
