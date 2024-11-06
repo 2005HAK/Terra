@@ -351,6 +351,7 @@ def center_set_power(bounding_box = None):
     """
 
     k_p = [.5, .5]
+    k_i = [.5, .5]
 
     xm, ym = center(bounding_box)
 
@@ -360,6 +361,7 @@ def center_set_power(bounding_box = None):
 
 def advance_set_power(distance = None):
     k_p = [4.5]
+    k_i = [4.5]
 
     errors = [(distance - SAFE_DISTANCE)]
 
@@ -367,6 +369,7 @@ def advance_set_power(distance = None):
 
 def stabilizes_set_power(velocity = None):
     k_p = [1.5, 1.5, 1.5]
+    k_i = [1.5, 1.5, 1.5]
 
     return set_power(k_p, velocity)
 
