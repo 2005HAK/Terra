@@ -1,3 +1,9 @@
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+# Descomentar as partes que fazem os motores se moverem
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 import pigpio
 import time
 
@@ -21,14 +27,11 @@ class Motors:
     def __init__(self):
         print("Starting engines...")
 
-        self.gpio = pigpio.pi()
-
-        # while(not pi.connect()):
-            # pi = pigpio.pi()
+        # self.gpio = pigpio.pi()
 
         self.motors = []
 
-        self.inicialize_pins()
+        # self.inicialize_pins()
 
         print("Engines started")
 
@@ -66,7 +69,7 @@ class Motors:
 
         for action, value in actions.items():
             print(f"Action: {action}, Power: {value}")
-
+            """
             if action == "UP":
                 self.motors[2].move(value)
                 self.motors[5].move(value)
@@ -111,6 +114,7 @@ class Motors:
                 self.motors[3].move(0)
                 self.motors[4].move(0)
                 self.motors[5].move(0)
+            """
 
     def finish(self):
         """
@@ -118,12 +122,12 @@ class Motors:
         """
 
         print("Turning off the motors...")
-
+        """
         for motor in self.motors:
             motor.finishes_motor()
 
         self.gpio.stop()
-
+        """
         print("Motors off")
 
 class Motor:

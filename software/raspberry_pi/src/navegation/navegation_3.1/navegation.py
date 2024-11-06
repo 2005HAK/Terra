@@ -345,73 +345,51 @@ def center(xyxy = None):
 
     return [(xyxy[0] + xyxy[2]) / 2, (xyxy[1] + xyxy[3]) / 2] if xyxy is not None else [-1, -1]
 
-# MUDAR ISSO!!! TA MUITO CENTRALIZADO
-def set_power(bounding_box = None, distance = None, velocity = None):
+def center_set_power(bounding_box = None):
+    """
+    Defines the constants for proportional controller and error between the interest variables
+    """
+
+    k_p = [.5, .5]
+
+    xm, ym = center(bounding_box)
+
+    errors = [(xm - IMAGE_CENTER[0]), (ym - IMAGE_CENTER[1])]
+
+    return set_power(k_p, errors)
+
+def advance_set_power(distance = None):
+    k_p = [4.5]
+
+    errors = [(distance - SAFE_DISTANCE)]
+
+    return set_power(k_p, errors)
+
+def stabilizes_set_power(velocity = None):
+    k_p = [1.5, 1.5, 1.5]
+
+    return set_power(k_p, velocity)
+
+def set_power(k_p = None, errors = None):
     """
     Defines the power that motors execution the moviment
+    
+    Multiplies the error by a constant to send the required power
 
-    Uses the diference into the object midpoint and image midpoint to calculate a value of power. The difference is multiplicate for weigth horizontal and vertical to return the value of power in each directions
+    :param k_p: constants to the proportional controler
+    :type k_p: Array of float
+    :param errors: Errors values between detect value and target value
+    :type errors: Array of float
 
-    :param xyxy: x and y coordinates of the detected object
-    :type xyxy: Array
-
-    :return: A list with power_h, horizontal power, and power_v, vertical power, from 0-100%
+    :return: A array of float with power values
     """
 
-    # Defines the power maximum that motors can receive (in %)
-    POWER_MAX = 25
+    values = [0 * len(errors)]
 
-    powers = []
-
-    if bounding_box is not None and distance is None and velocity is None:
-        power_v = 0
-        power_h = 0
-
-        k_p_h = 0.5
-        k_p_v = 0.5
-
-        xm, ym = center(bounding_box)
-
-        error_x = xm - IMAGE_CENTER[0]
-        error_y = ym - IMAGE_CENTER[1]
-
-        power_h = k_p_h * m.fabs(error_x)
-        power_v = k_p_v * m.fabs(error_y)
-
-        power_h = max(min(power_h, POWER_MAX), 0)
-        power_v = max(min(power_v, POWER_MAX), 0)
-
-        powers.extend([power_h, power_v])
-
-    elif distance is not None and bounding_box is None and velocity is None:
-        power_f = 0
-
-        k_p_f = 4.5
-
-        error_f = distance - SAFE_DISTANCE
-
-        power_f = k_p_f * m.fabs(error_f)
-
-        power_f = max(min(power_f, POWER_MAX), 0)
-
-        powers.append(power_f)
+    for i in range(len(errors)):
+        values[i] = max(min(k_p[i] * m.fabs(errors[i]), 100), 0)
     
-    elif velocity is not None and bounding_box is None and distance is None:
-        k_p_x = 1.5
-        k_p_y = 1.5
-        k_p_z = 1.5
-
-        power_x = k_p_x * m.fabs(velocity[0])
-        power_y = k_p_y * m.fabs(velocity[1])
-        power_z = k_p_z * m.fabs(velocity[2])
-
-        power_x = max(min(power_x, POWER_MAX), 0)
-        power_y = max(min(power_y, POWER_MAX), 0)
-        power_z = max(min(power_z, POWER_MAX), 0)
-
-        powers.extend([power_x, power_y, power_z])
-
-    return powers
+    return values
 
 def center_object(xyxy):
     """
