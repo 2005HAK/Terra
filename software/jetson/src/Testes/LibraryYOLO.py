@@ -19,7 +19,7 @@ def Enviar_Dicionario(HOST, PORT, dicio):
         print(f"Erro inesperado: {e}")
 
 def Definir_Modelo():
-    Modelos = listdir('modelos')
+    Modelos = listdir('Treinos/modelos')
     x=0
     print("Qual Versão Gostaria de Escolher?")
     for mod in Modelos:
