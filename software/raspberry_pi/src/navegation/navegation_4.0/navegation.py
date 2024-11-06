@@ -345,7 +345,7 @@ def center(xyxy = None):
 
     return [(xyxy[0] + xyxy[2]) / 2, (xyxy[1] + xyxy[3]) / 2] if xyxy is not None else [-1, -1]
 
-def center_set_power(bounding_box = None):
+def center_set_power(bounding_box = None, del_time = None):
     """
     Defines the constants for proportional controller and error between the interest variables
     """
@@ -357,23 +357,23 @@ def center_set_power(bounding_box = None):
 
     errors = [(xm - IMAGE_CENTER[0]), (ym - IMAGE_CENTER[1])]
 
-    return set_power(k_p, errors)
+    return set_power(k_p, k_i, errors, del_time)
 
-def advance_set_power(distance = None):
+def advance_set_power(distance = None, del_time = None):
     k_p = [4.5]
     k_i = [4.5]
 
     errors = [(distance - SAFE_DISTANCE)]
 
-    return set_power(k_p, errors)
+    return set_power(k_p, k_i, errors, del_time)
 
-def stabilizes_set_power(velocity = None):
+def stabilizes_set_power(velocity = None, del_time = None):
     k_p = [1.5, 1.5, 1.5]
     k_i = [1.5, 1.5, 1.5]
 
-    return set_power(k_p, velocity)
+    return set_power(k_p, k_i, velocity, del_time)
 
-def set_power(k_p = None, errors = None):
+def set_power(k_p = None, k_i = None, errors = None, del_time = None):
     """
     Defines the power that motors execution the moviment
     
@@ -390,7 +390,8 @@ def set_power(k_p = None, errors = None):
     values = [0 * len(errors)]
 
     for i in range(len(errors)):
-        values[i] = max(min(k_p[i] * m.fabs(errors[i]), 100), 0)
+        e = m.fabs(errors[i])
+        values[i] = max(min(k_p[i] * e + k_i[i] * (e * del_time), 100), 0)
     
     return values
 
