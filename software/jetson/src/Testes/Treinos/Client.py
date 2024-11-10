@@ -15,17 +15,17 @@ def main():
         model = YOLO("yolo11n.pt")
         results = model.train(
                 device='cuda',
-                data="datasets/data",
+                data="C:/Users/Gustavo/Desktop/Terra/software/jetson/src/Testes/Treinos/datasets/data.yaml",
                 epochs=epochs,
                 imgsz=640,
                 name=f"Treino_Com_{epochs}_Epochs",
                 project="TreinosCubo",
                 save=True
             )
-
+        print(f"Dicionario de results:\n{results.results_dict}")
         results_dict = {
-            "maps_50": results.maps["50"],
-            "val_loss": results.results_dict["metrics/val/loss"]
+            "maps_50": results.results_dict['metrics/mAP50-95(B)'],
+            "val_loss": results.results_dict.get("metrics/val/loss")
         }
 
         client_socket.send(dumps(results_dict).encode())
