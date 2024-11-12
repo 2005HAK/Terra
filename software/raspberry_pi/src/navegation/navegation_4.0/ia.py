@@ -1,5 +1,5 @@
-import socket
-import json
+from socket import socket
+from json import loads, JSONDecodeError
 from time import time
 
 class Ia:
@@ -11,7 +11,7 @@ class Ia:
         self.current_time = time()
         self.host = "0.0.0.0"
         self.port = 65432
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket = socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind((self.host, self.port))
         self.socket.listen()
         print("Socket opened")
@@ -26,7 +26,7 @@ class Ia:
                     if not dct:
                         break
                     try:
-                        received_dict = json.loads(dct.decode("utf-8"))
+                        received_dict = loads(dct.decode("utf-8"))
                         data = received_dict["data"]
                         names = received_dict["names"]
 
@@ -46,7 +46,7 @@ class Ia:
 
                         print(self.identified_objects)
 
-                    except json.JSONDecodeError:
+                    except JSONDecodeError:
                         print("Erro ao decodificar JSON.")
                     except Exception as e:
                         print(f"Ocorreu um erro: {e}")

@@ -1,5 +1,5 @@
-import pigpio
-import time
+from pigpio import pi, OUTPUT
+from time import sleep
 
 # Defines the power maximum that motors can receive (in %)
 POWER_MAX = 25
@@ -21,7 +21,7 @@ class Motors:
     def __init__(self):
         print("Starting engines...")
 
-        self.gpio = pigpio.pi()
+        self.gpio = pi()
 
         # while(not pi.connect()):
             # pi = pigpio.pi()
@@ -35,12 +35,12 @@ class Motors:
     def inicialize_pins(self):
         for pin in PINS:
             if pin == 27 or pin == 22:
-                    motor = Motor(pin, self.gpio, -14)
+                motor = Motor(pin, self.gpio, -14)
             else:
-                    motor = Motor(pin, self.gpio, 0)
+                motor = Motor(pin, self.gpio, 0)
             self.motors.append(motor)
 
-        time.sleep(7)
+        sleep(7)
 
     def define_action(self, actions):
         """
@@ -144,7 +144,7 @@ class Motor:
         self.init_motor()
     
     def init_motor(self):
-        self.gpio.set_mode(self.pin, pigpio.OUTPUT)
+        self.gpio.set_mode(self.pin, OUTPUT)
         self.gpio.set_PWM_frequency(self.pin, FREQUENCY)
         self.gpio.set_servo_pulsewidth(self.pin, 1500)
 

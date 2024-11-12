@@ -1,10 +1,10 @@
 from enum import Enum, auto
-import math as m
+from math import acos, pi, sqrt, pow, cos, sin, fabs
 import pixhawk as px
 import ia
 import control_motors as cm
-import threading
-import time # importar somente time, é oque esta sendo usado
+from threading import Thread
+from time import sleep
 from AUVError import *
 
 # Width and height of the image seen by the camera
@@ -52,8 +52,8 @@ class AUVStateMachine:
         self.distance = None # passar o calculo e armazenamento de distancia para a pix
 
         # Update sensors data and detection data in parallel with the state machine
-        self.sensor_thread = threading.Thread(target=self.update_sensors, daemon=True)
-        self.detection_thread = threading.Thread(target=self.ia.update_data, daemon=True)
+        self.sensor_thread = Thread(target=self.update_sensors, daemon=True)
+        self.detection_thread = Thread(target=self.ia.update_data, daemon=True)
         self.sensor_thread.start()
         self.detection_thread.start()
 
@@ -77,14 +77,7 @@ class AUVStateMachine:
 
         while True:
             self.pixhawk.update_data()
-            time.sleep(0.3)
-
-    def update_detection(self):
-        """
-        Updates detection data every **0.3 ms**
-        """
-
-        self.ia.update_data()
+            sleep(0.3)
         
     # Não testado
     def checks_errors(self):
@@ -94,7 +87,7 @@ class AUVStateMachine:
         
         while True:
             self.pixhawk.collision_detect()
-            time.sleep(0.3)
+            sleep(0.3)
 
     def run(self):
         """
@@ -103,7 +96,7 @@ class AUVStateMachine:
 
         try:
             # Checks for errors in parallel with the state machine
-            self.errors_thread = threading.Thread(target=self.checks_errors, daemon=True)
+            self.errors_thread = Thread(target=self.checks_errors, daemon=True)
             self.errors_thread.start()
 
             while self.state != State.STOP:
@@ -148,9 +141,9 @@ class AUVStateMachine:
         position_collision = -acceleration
 
         # angle = (acos(x / sqrt(x^2 + y^2)) * pi / 180) in rad
-        angle = (m.acos(position_collision[0] / m.sqrt(m.pow(position_collision[0], 2) + m.pow(position_collision[1], 2))) * m.pi) / 180
+        angle = (acos(position_collision[0] / sqrt(pow(position_collision[0], 2) + pow(position_collision[1], 2))) * pi) / 180
 
-        rotation_angle = m.pi - angle
+        rotation_angle = pi - angle
         
         # Turn rigth by default
         action = "TURN RIGTH"
@@ -220,7 +213,7 @@ class AUVStateMachine:
 
         rotated = 0
 
-        while m.abs(rotated) < angle - error_angle:
+        while fabs(rotated) < angle - error_angle:
             self.motors.define_action({action: 20})
 
             gyro_old = gyro_current
@@ -309,9 +302,9 @@ class AUVStateMachine:
             actions = stabilizes(velocity)
 
             self.motors.define_action({actions[1]: actions[2]}) # x
-            time.sleep(.5)
+            sleep(.5)
             self.motors.define_action({actions[3]: actions[4], actions[5]: actions[6]}) # y e z
-            time.sleep(.5)
+            sleep(.5)
 
             is_stable = actions[0]
 
@@ -390,7 +383,7 @@ def set_power(k_p = None, k_i = None, errors = None, del_time = None):
     values = [0 * len(errors)]
 
     for i in range(len(errors)):
-        e = m.fabs(errors[i])
+        e = fabs(errors[i])
         values[i] = max(min(k_p[i] * e + k_i[i] * (e * del_time), 100), 0)
     
     return values
@@ -445,13 +438,13 @@ def calculate_distance(object_class, xyxy):
 
     if (object_class in width_objects) and (xyxy[2] - xyxy[0] != 0):
         # Image diagonal (in pixels)
-        d = m.sqrt(m.pow(IMAGE_WIDTH, 2) + m.pow(IMAGE_HEIGHT, 2))
+        d = sqrt(pow(IMAGE_WIDTH, 2) + pow(IMAGE_HEIGHT, 2))
 
         # Diagonal field of view (in rad)
-        a = (m.pi / 180) * 55
+        a = (pi / 180) * 55
 
         # focal distance
-        f = (d / 2) * (m.cos(a / 2) / m.sin(a / 2))
+        f = (d / 2) * (cos(a / 2) / sin(a / 2))
 
         object_distance = (f * width_objects[object_class]) / (xyxy[2] - xyxy[0])
 
