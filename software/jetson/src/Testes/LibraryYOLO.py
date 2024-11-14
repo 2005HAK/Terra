@@ -26,7 +26,7 @@ def Definir_Modelo():
         print("[",x,"][",mod,"]")
         x+=1
     esc = int(input())
-    return YOLO('modelos/'+Modelos[esc])
+    return YOLO('Treinos/modelos/'+Modelos[esc])
 
 def Definir_Host():
     x = input("Usar o HOST Padrão?(s/n) ")
@@ -43,6 +43,5 @@ def Rodar_Yolo(HOST,PORT,model):
             for result in results:
                 boxes = result.boxes.data.cpu().numpy().tolist()
                 dicio = {'data': boxes, 'names': result.names}
-                if conex:
-                    Enviar_Dicionario(HOST,PORT,dicio)
+                Enviar_Dicionario(HOST,PORT,dicio)
 

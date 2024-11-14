@@ -33,14 +33,14 @@ class Motors:
     def __init__(self):
         print("Starting engines...")
 
-        self.gpio = pi()
+        # self.gpio = pi()
 
         # while(not pi.connect()):
             # pi = pigpio.pi()
 
         self.motors = []
 
-        self.inicialize_pins()
+        # self.inicialize_pins()
 
         print("Engines started")
 
@@ -77,52 +77,59 @@ class Motors:
         """
 
         for action, value in actions.items():
-            print(f"Action: {action}, Power: {value}")
-
             if action == Actions.UP:
-                self.motors[2].move(value)
-                self.motors[5].move(value)
+                print(f"Action: UP, Power: {value} %")
+                # self.motors[2].move(value)
+                # self.motors[5].move(value)
             elif action == Actions.DOWN:
-                self.motors[2].move(-value)
-                self.motors[5].move(-value)
+                print(f"Action: DOWN, Power: {value} %")
+                # self.motors[2].move(-value)
+                # self.motors[5].move(-value)
 
             if action == Actions.FORWARD:
-                self.motors[0].move(-value)
-                self.motors[1].move(-value)
-                self.motors[3].move(value)
-                self.motors[4].move(value)
+                print(f"Action: FORWARD, Power: {value} %")
+                # self.motors[0].move(-value)
+                # self.motors[1].move(-value)
+                # self.motors[3].move(value)
+                # self.motors[4].move(value)
             if action == Actions.BACKWARD:
-                self.motors[0].move(value)
-                self.motors[1].move(value)
-                self.motors[3].move(-value)
-                self.motors[4].move(-value)
+                print(f"Action: BACKWARD, Power: {value} %")
+                # self.motors[0].move(value)
+                # self.motors[1].move(value)
+                # self.motors[3].move(-value)
+                # self.motors[4].move(-value)
             if action == Actions.RIGHT:
-                self.motors[0].move(-value)
-                self.motors[1].move(value)
-                self.motors[3].move(value)
-                self.motors[4].move(-value)
+                print(f"Action: RIGHT, Power: {value} %")
+                # self.motors[0].move(-value)
+                # self.motors[1].move(value)
+                # self.motors[3].move(value)
+                # self.motors[4].move(-value)
             if action == Actions.LEFT:
-                self.motors[0].move(value)
-                self.motors[1].move(-value)
-                self.motors[3].move(-value)
-                self.motors[4].move(value)
+                print(f"Action: LEFT, Power: {value} %")
+                # self.motors[0].move(value)
+                # self.motors[1].move(-value)
+                # self.motors[3].move(-value)
+                # self.motors[4].move(value)
             if action == Actions.TURNRIGHT:
-                self.motors[0].move(-value)
-                self.motors[1].move(value)
-                self.motors[3].move(-value)
-                self.motors[4].move(value)
+                print(f"Action: TURN RIGHT, Power: {value} %")
+                # self.motors[0].move(-value)
+                # self.motors[1].move(value)
+                # self.motors[3].move(-value)
+                # self.motors[4].move(value)
             if action == Actions.TURNLEFT:
-                self.motors[0].move(value)
-                self.motors[1].move(-value)
-                self.motors[3].move(value)
-                self.motors[4].move(-value)
+                print(f"Action: TURN LEFT, Power: {value} %")
+                # self.motors[0].move(value)
+                # self.motors[1].move(-value)
+                # self.motors[3].move(value)
+                # self.motors[4].move(-value)
             if action == Actions.STAY:
-                self.motors[0].move(0)
-                self.motors[1].move(0)
-                self.motors[2].move(0)
-                self.motors[3].move(0)
-                self.motors[4].move(0)
-                self.motors[5].move(0)
+                print(f"Action: STAY, Power: {value} %")
+                # self.motors[0].move(0)
+                # self.motors[1].move(0)
+                # self.motors[2].move(0)
+                # self.motors[3].move(0)
+                # self.motors[4].move(0)
+                # self.motors[5].move(0)
 
     def finish(self):
         """

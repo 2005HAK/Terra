@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from math import acos, pi, sqrt, pow, cos, sin, fabs
-import pixhawk as px
+# import pixhawk as px
 import ia
 from control_motors import Actions, Motors
 # import control_motors as cm
@@ -9,8 +9,8 @@ from time import sleep
 from AUVError import *
 
 # Width and height of the image seen by the camera
-IMAGE_WIDTH = 1280
-IMAGE_HEIGHT = 720
+IMAGE_WIDTH = 640
+IMAGE_HEIGHT = 480
 
 OBJECT_INITIALIZATION = "Cube"
 
@@ -21,7 +21,7 @@ IMAGE_CENTER = [IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2]
 ERROR_CENTER = 50
 
 # Distance considered safe for the AUV to approach
-SAFE_DISTANCE = 1
+SAFE_DISTANCE = .1
 
 class State(Enum):
     """
@@ -46,16 +46,16 @@ class AUVStateMachine:
         # self.last_state = None # pode ser util
         self.state = State.INIT
         self.next_state = None
-        self.pixhawk = px.Pixhawk()
+        # self.pixhawk = px.Pixhawk()
         self.ia = ia.Ia()
         self.target_object = None
         self.motors = None
         self.distance = None # passar o calculo e armazenamento de distancia para a pix
 
         # Update sensors data and detection data in parallel with the state machine
-        self.sensor_thread = Thread(target=self.update_sensors, daemon=True)
+        # self.sensor_thread = Thread(target=self.update_sensors, daemon=True)
         self.detection_thread = Thread(target=self.ia.update_data, daemon=True)
-        self.sensor_thread.start()
+        # self.sensor_thread.start()
         self.detection_thread.start()
 
     def transition_to(self, new_state):
@@ -97,8 +97,8 @@ class AUVStateMachine:
 
         try:
             # Checks for errors in parallel with the state machine
-            self.errors_thread = Thread(target=self.checks_errors, daemon=True)
-            self.errors_thread.start()
+            # self.errors_thread = Thread(target=self.checks_errors, daemon=True)
+            # self.errors_thread.start()
 
             while self.state != State.STOP:
                 if self.state == State.INIT:
@@ -244,11 +244,9 @@ class AUVStateMachine:
                 xyxy = self.ia.get_xyxy(self.target_object)
 
                 if xyxy != None:
-                    actions = center_object(xyxy)
+                    actions = center_object(xyxy, self.ia.current_time - self.ia.last_time)
 
                     # Mudar de dicionario para array (é mais rápido)
-
-                    print(f"{actions[1]}: {actions[2]}, {actions[3]}: {actions[4]}")
 
                     self.motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
 
@@ -259,8 +257,10 @@ class AUVStateMachine:
                     print("Lost object!")
             
             if not lost_object:            
-                self.next_state = State.ADVANCING
-                self.transition_to(State.STABILIZING)
+                self.motors.define_action({Actions.STAY: 0})
+                # self.next_state = State.ADVANCING
+                # self.transition_to(State.STABILIZING)
+                self.transition_to(State.ADVANCING)
     
     def advancing(self):
         """
@@ -279,14 +279,15 @@ class AUVStateMachine:
                 xyxy = self.ia.get_xyxy(self.target_object)
                 
                 self.distance = calculate_distance(self.target_object, xyxy)
-                action = advance_decision(self.distance)
+                action = advance_decision(self.distance, self.ia.current_time - self.ia.last_time)
 
                 self.motors.define_action({action[1]: action[2]})
 
                 advance = action[0]
             
-            self.next_state = State.STOP
-            self.transition_to(State.STABILIZING)
+            # self.next_state = State.STOP
+            # self.transition_to(State.STABILIZING)
+            self.transition_to(State.STOP)
 
     def stabilizing(self):
         """
@@ -324,7 +325,7 @@ class AUVStateMachine:
 
         self.ia.stop()
 
-        self.motors.finish()
+        # self.motors.finish()
     # END DEFINITION OF STATES
 
 def center(xyxy = None):
@@ -381,7 +382,7 @@ def set_power(k_p = None, k_i = None, errors = None, del_time = None):
     :return: A array of float with power values
     """
 
-    values = [0 * len(errors)]
+    values = [0 for i in range(len(errors))]
 
     for i in range(len(errors)):
         e = fabs(errors[i])
@@ -389,7 +390,7 @@ def set_power(k_p = None, k_i = None, errors = None, del_time = None):
     
     return values
 
-def center_object(xyxy):
+def center_object(xyxy, del_time):
     """
     Decides which movement to take based on the position of the object in the image.
 
@@ -399,25 +400,25 @@ def center_object(xyxy):
     :return: Movement that the AUV must take
     """
 
-    dir_h = ""
-    dir_v = ""
+    dir_h = None
+    dir_v = None
     power_h = 0
     power_v = 0
     xm, ym = center(xyxy)
 
     if(xm >= 0 and xm <= IMAGE_WIDTH and ym >= 0 and ym <= IMAGE_HEIGHT):
         if(xm < IMAGE_CENTER[0] - (ERROR_CENTER / 2)):
-            dir_h = "LEFT"
+            dir_h = Actions.LEFT
         elif(xm > IMAGE_CENTER[0] + (ERROR_CENTER / 2)):
-            dir_h = "RIGHT"
+            dir_h = Actions.RIGHT
         if(ym < IMAGE_CENTER[1] - (ERROR_CENTER / 2)):
-            dir_v = "UP"
+            dir_v = Actions.UP
         elif(ym > IMAGE_CENTER[1] + (ERROR_CENTER / 2)):
-            dir_v = "DOWN"
+            dir_v = Actions.DOWN
 
-    power_h, power_v = set_power(bounding_box = xyxy)
+    power_h, power_v = center_set_power(xyxy, del_time)
 
-    return [0 if dir_h != "" or dir_v != "" else 1, dir_h, power_h, dir_v, power_v]
+    return [0 if dir_h is not None or dir_v is not None else 1, dir_h, power_h, dir_v, power_v]
 
 def calculate_distance(object_class, xyxy):
     """
@@ -432,7 +433,7 @@ def calculate_distance(object_class, xyxy):
     """
 
     # Actual width of the objects (in meters)
-    width_objects = {"obj1": 2, "obj2": 1.5} # Ex
+    width_objects = {"obj1": 2, "Cube": .055} # Ex
 
     # Initializes the variable with invalid value to indicates error
     object_distance = -1
@@ -448,10 +449,11 @@ def calculate_distance(object_class, xyxy):
         f = (d / 2) * (cos(a / 2) / sin(a / 2))
 
         object_distance = (f * width_objects[object_class]) / (xyxy[2] - xyxy[0])
+        print(f"Object distance: {object_distance}")
 
     return object_distance
 
-def advance_decision(object_distance):
+def advance_decision(object_distance, del_time):
     """
     Decides whether to advance to the object and the power that will be used
 
@@ -467,9 +469,9 @@ def advance_decision(object_distance):
     if(object_distance > SAFE_DISTANCE):
         action = Actions.FORWARD
 
-        power = set_power(distance = object_distance)[0]
+        power = advance_set_power(object_distance, del_time)[0]
     
-    return [1 if action != "" else 0, action, power]
+    return [1 if action != None else 0, action, power]
 
 def stabilizes(velocity):
     """
