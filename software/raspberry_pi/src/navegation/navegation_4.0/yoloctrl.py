@@ -1,8 +1,8 @@
-from socket import socket
+from socket import socket, AF_INET, SOCK_STREAM
 from json import loads, JSONDecodeError
 from time import time
 
-class Ia:
+class YoloCtrl:
     def __init__(self):
         # Initialize UART connection on Raspberry Pi
         print("Object IA created")
@@ -11,7 +11,7 @@ class Ia:
         self.current_time = time()
         self.host = "0.0.0.0"
         self.port = 65432
-        self.socket = socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket = socket(AF_INET, SOCK_STREAM)
         self.socket.bind((self.host, self.port))
         self.socket.listen()
         print("Socket opened")

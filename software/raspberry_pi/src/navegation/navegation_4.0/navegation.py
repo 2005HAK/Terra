@@ -1,9 +1,8 @@
 from enum import Enum, auto
 from math import acos, pi, sqrt, pow, cos, sin, fabs
-import pixhawk as px
-import ia
-from control_motors import Actions, Motors
-# import control_motors as cm
+from sensors import Sensors
+from yoloctrl import YoloCtrl
+from thrusters_control import Actions, ThrustersControl
 from threading import Thread
 from time import sleep
 from AUVError import *
@@ -46,15 +45,15 @@ class AUVStateMachine:
         # self.last_state = None # pode ser util
         self.state = State.INIT
         self.next_state = None
-        self.pixhawk = px.Pixhawk()
-        self.ia = ia.Ia()
+        self.sensors = Sensors()
+        self.yolo_ctrl = YoloCtrl()
         self.target_object = None
-        self.motors = None
+        self.thrusters = None
         self.distance = None # passar o calculo e armazenamento de distancia para a pix
 
         # Update sensors data and detection data in parallel with the state machine
-        self.sensor_thread = Thread(target=self.update_sensors, daemon=True)
-        self.detection_thread = Thread(target=self.ia.update_data, daemon=True)
+        self.sensor_thread = Thread(target=self.sensors.update_data, daemon=True)
+        self.detection_thread = Thread(target=self.yolo_ctrl.update_data, daemon=True)
         self.sensor_thread.start()
         self.detection_thread.start()
 
@@ -71,24 +70,15 @@ class AUVStateMachine:
         self.state = new_state
 
     # Não testado
-    def update_sensors(self):
-        """
-        Updates sensors data every **0.3 ms**
-        """
-
-        while True:
-            self.pixhawk.update_data()
-            sleep(0.1)
-        
-    # Não testado
     def checks_errors(self):
         """
         Checks for errors every **0.3 ms**
         """
         
         while True:
-            self.pixhawk.collision_detect()
-            sleep(0.01)
+            self.sensors.collision_detect()
+            self.sensors.detect_overheat()
+            sleep(0.1)
 
     def run(self):
         """
@@ -160,8 +150,9 @@ class AUVStateMachine:
     # DEFINITION OF STATES
     def init(self):
         """
-        **This state initializes the motors**
+        **This state initializes the thrusters**
         """
+
         print("Searching for launcher...")
         
         while self.target_object != OBJECT_INITIALIZATION:
@@ -172,7 +163,7 @@ class AUVStateMachine:
 
         print("Initializing...")
 
-        self.motors = Motors()
+        self.thrusters = ThrustersControl()
         self.transition_to(State.SEARCH)
     
     def search(self):
@@ -191,7 +182,7 @@ class AUVStateMachine:
                 rotation_current += 1
             else:
                 #  terminar a essa parte
-                self.motors.define_action({Actions.DOWN: 20})
+                self.thrusters.define_action({Actions.DOWN: 20})
                 rotation_current = 0
 
             self.search_objects()
@@ -205,25 +196,25 @@ class AUVStateMachine:
         Checks if objects were found. Found saved in target_object
         """
 
-        if self.ia.found_object():
-            self.target_object = self.ia.greater_confidence_object()
+        if self.yolo_ctrl.found_object():
+            self.target_object = self.yolo_ctrl.greater_confidence_object()
 
     def rotate(self, angle = 0.785398, error_angle = 0.174533, action = Actions.TURNLEFT):
-        gyro_current = self.pixhawk.get_gyro()
+        gyro_current = self.sensors.get_gyro()
         gyro_old = None
 
         rotated = 0
 
         while fabs(rotated) < angle - error_angle:
-            self.motors.define_action({action: 20})
+            self.thrusters.define_action({action: 20})
 
             gyro_old = gyro_current
-            gyro_current = self.pixhawk.get_gyro()
-            delta_time = self.pixhawk.current_time - self.pixhawk.old_time
+            gyro_current = self.sensors.get_gyro()
+            delta_time = self.sensors.current_time - self.sensors.old_time
 
             rotated += delta_time * (gyro_current[2] + gyro_old[2]) / 2
 
-        self.motors.define_action({action: 0})
+        self.thrusters.define_action({action: 0})
             
     def centering(self):
         """
@@ -236,21 +227,19 @@ class AUVStateMachine:
         
         lost_object = 0
 
-        if self.ia.found_object():
+        if self.yolo_ctrl.found_object():
             is_center = 0
             
             while not is_center:
                 # se o objeto deixar de ser identificado pela ia deve dar um break no while e em search tentar buscar o objeto novamente
-                xyxy = self.ia.get_xyxy(self.target_object)
+                xyxy = self.yolo_ctrl.get_xyxy(self.target_object)
 
                 if xyxy != None:
                     actions = center_object(xyxy)
 
                     # Mudar de dicionario para array (é mais rápido)
 
-                    print(f"{actions[1]}: {actions[2]}, {actions[3]}: {actions[4]}")
-
-                    self.motors.define_action({actions[1]: actions[2], actions[3]: actions[4]})
+                    self.thrusters.define_action({actions[1]: actions[2], actions[3]: actions[4]})
 
                     is_center = actions[0]
                 else:
@@ -273,15 +262,15 @@ class AUVStateMachine:
 
         advance = True
 
-        if self.ia.found_object():
+        if self.yolo_ctrl.found_object():
             while advance:
                 # se o objeto deixar de ser identificado pela ia deve dar um break no while e em search tentar buscar o objeto novamente
-                xyxy = self.ia.get_xyxy(self.target_object)
+                xyxy = self.yolo_ctrl.get_xyxy(self.target_object)
                 
                 self.distance = calculate_distance(self.target_object, xyxy)
                 action = advance_decision(self.distance)
 
-                self.motors.define_action({action[1]: action[2]})
+                self.thrusters.define_action({action[1]: action[2]})
 
                 advance = action[0]
             
@@ -298,13 +287,13 @@ class AUVStateMachine:
         is_stable = False
 
         while not is_stable:
-            velocity = self.pixhawk.get_vel()
+            velocity = self.sensors.get_vel()
 
             actions = stabilizes(velocity)
 
-            self.motors.define_action({actions[1]: actions[2]}) # x
+            self.thrusters.define_action({actions[1]: actions[2]}) # x
             sleep(.5)
-            self.motors.define_action({actions[3]: actions[4], actions[5]: actions[6]}) # y e z
+            self.thrusters.define_action({actions[3]: actions[4], actions[5]: actions[6]}) # y e z
             sleep(.5)
 
             is_stable = actions[0]
@@ -322,9 +311,9 @@ class AUVStateMachine:
 
         print("Stoping...")
 
-        self.ia.stop()
+        self.yolo_ctrl.stop()
 
-        self.motors.finish()
+        self.thrusters.finish()
     # END DEFINITION OF STATES
 
 def center(xyxy = None):
@@ -369,7 +358,7 @@ def stabilizes_set_power(velocity = None, del_time = None):
 
 def set_power(k_p = None, k_i = None, errors = None, del_time = None):
     """
-    Defines the power that motors execution the moviment
+    Defines the power that thrusters execution the moviment
     
     Multiplies the error by a constant to send the required power
 
@@ -399,25 +388,25 @@ def center_object(xyxy):
     :return: Movement that the AUV must take
     """
 
-    dir_h = ""
-    dir_v = ""
+    dir_h = None
+    dir_v = None
     power_h = 0
     power_v = 0
     xm, ym = center(xyxy)
 
     if(xm >= 0 and xm <= IMAGE_WIDTH and ym >= 0 and ym <= IMAGE_HEIGHT):
         if(xm < IMAGE_CENTER[0] - (ERROR_CENTER / 2)):
-            dir_h = "LEFT"
+            dir_h = Actions.LEFT
         elif(xm > IMAGE_CENTER[0] + (ERROR_CENTER / 2)):
-            dir_h = "RIGHT"
+            dir_h = Actions.RIGHT
         if(ym < IMAGE_CENTER[1] - (ERROR_CENTER / 2)):
-            dir_v = "UP"
+            dir_v = Actions.UP
         elif(ym > IMAGE_CENTER[1] + (ERROR_CENTER / 2)):
-            dir_v = "DOWN"
+            dir_v = Actions.DOWN
 
     power_h, power_v = set_power(bounding_box = xyxy)
 
-    return [0 if dir_h != "" or dir_v != "" else 1, dir_h, power_h, dir_v, power_v]
+    return [0 if dir_h is not None or dir_v is not None else 1, dir_h, power_h, dir_v, power_v]
 
 def calculate_distance(object_class, xyxy):
     """
@@ -432,7 +421,7 @@ def calculate_distance(object_class, xyxy):
     """
 
     # Actual width of the objects (in meters)
-    width_objects = {"obj1": 2, "obj2": 1.5} # Ex
+    width_objects = {"obj1": 2, "Cube": .055} # Ex
 
     # Initializes the variable with invalid value to indicates error
     object_distance = -1
@@ -448,6 +437,7 @@ def calculate_distance(object_class, xyxy):
         f = (d / 2) * (cos(a / 2) / sin(a / 2))
 
         object_distance = (f * width_objects[object_class]) / (xyxy[2] - xyxy[0])
+        print(f"Object distance: {object_distance}")
 
     return object_distance
 
