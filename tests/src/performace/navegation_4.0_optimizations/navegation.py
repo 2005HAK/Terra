@@ -1,3 +1,4 @@
+from memory_profiler import profile
 from enum import Enum, auto
 from math import acos, pi, sqrt, pow, cos, sin, fabs
 # import pixhawk as px
@@ -40,7 +41,7 @@ class AUVStateMachine:
     """
     **State machine implementation**
     """
-
+    
     def __init__(self):
         print("State machine creation...")
         # self.last_state = None # pode ser util
@@ -510,3 +511,11 @@ def defines_action(velocity, error_velocity, positive_action, negative_action):
         action = positive_action
     
     return action
+
+@profile
+def run():
+    auv = AUVStateMachine()
+    auv.run()
+
+if __name__ == "__main__":
+    run()
