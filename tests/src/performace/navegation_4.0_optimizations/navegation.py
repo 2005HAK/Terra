@@ -1,4 +1,4 @@
-from memory_profiler import profile
+from memory_profiler import profile, memory_usage
 from enum import Enum, auto
 from math import acos, pi, sqrt, pow, cos, sin, fabs
 # import pixhawk as px
@@ -512,10 +512,16 @@ def defines_action(velocity, error_velocity, positive_action, negative_action):
     
     return action
 
-@profile
+# @profile
 def run():
     auv = AUVStateMachine()
     auv.run()
 
 if __name__ == "__main__":
+    # mem_usage = memory_usage((run,), interval=.1)
+
+    # average_mem_usage = sum(mem_usage) / len(mem_usage)
+
+    # print(average_mem_usage)
+
     run()
