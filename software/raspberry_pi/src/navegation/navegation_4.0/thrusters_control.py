@@ -53,11 +53,11 @@ class ThrustersControl:
 
         self.thrusters = []
 
-        self.inicialize_pins()
+        self.initialize_pins()
 
         print("Engines thrusters")
 
-    def inicialize_pins(self):
+    def initialize_pins(self):
         for pin in PINS:
             if pin == 27 or pin == 22:
                 thruster = Thruster(pin, self.gpio, -14)
