@@ -1,6 +1,7 @@
 from pymavlink import mavutil
 from time import time
 import math as m
+from psutil import sensors_temperatures
 from AUVError import CollisionDetected, PixhawkHighTempError, RaspberryHighTempError
 
 # conferir as conversões
@@ -90,7 +91,7 @@ class Sensors:
         Updates system temperature data
         """
 
-        pass
+        self.temp_raspberry = sensors_temperatures()["coretemp"][0].current
 
     def collision_detect(self):
         """
