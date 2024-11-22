@@ -20,7 +20,7 @@ class Ia:
         while True:
             conn, addr = self.socket.accept()
             with conn:
-                print(f"Conectado a addr: {addr}")
+                # print(f"Conectado a addr: {addr}")
                 while True:
                     dct = conn.recv(2048)
                     if not dct:
@@ -44,7 +44,7 @@ class Ia:
                         self.last_time = self.current_time
                         self.current_time = time()
 
-                        print(self.identified_objects)
+                        # print(self.identified_objects)
 
                     except JSONDecodeError:
                         print("Erro ao decodificar JSON.")

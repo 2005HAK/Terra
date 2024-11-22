@@ -4,7 +4,6 @@ from math import acos, pi, sqrt, pow, cos, sin, fabs
 # import pixhawk as px
 import ia
 from control_motors import Actions, Motors
-# import control_motors as cm
 from threading import Thread
 from time import sleep
 from AUVError import *

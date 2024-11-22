@@ -1,10 +1,9 @@
-from memory_profiler import profile, memory_usage
+# from memory_profiler import profile, memory_usage
 from enum import Enum, auto
 from math import acos, pi, sqrt, pow, cos, sin, fabs
 # import pixhawk as px
 import ia
 from control_motors import Actions, Motors
-# import control_motors as cm
 from threading import Thread
 from time import sleep
 from AUVError import *
@@ -91,7 +90,6 @@ class AUVStateMachine:
             self.pixhawk.collision_detect()
             sleep(0.01)
 
-    @profile
     def run(self):
         """
         Initializes the state machine
