@@ -118,6 +118,8 @@ class AUVStateMachine:
         if isinstance(e, CollisionDetected):
             if self.state == State.SEARCH:
                 self.direction_correction(e.acceleration)
+        if isinstance(e, ImpossibleConnectThrusters):
+            exit(1)
 
     def direction_correction(self, acceleration):
         """

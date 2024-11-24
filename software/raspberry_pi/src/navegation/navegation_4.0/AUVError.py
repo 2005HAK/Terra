@@ -29,6 +29,14 @@ class CollisionDetected(AUVError):
         self.acceleration = acceleration
         super().__init__(time, type = f"Collision detected based in sensor data: {acceleration} m/s²", error_code = 301)
 
+class FailedConnectThrusters(AUVError):
+    def __init__(self, attempts = None, max_attempts = None, time = asctime()):
+        super().__init__(time, type = f"Failed to connect pigpio service {attempts}/{max_attempts}", error_code = 441)
+
+class ImpossibleConnectThrusters(AUVError):
+    def __init__(self, attempts = None, max_attempts = None, time = asctime()):
+        super().__init__(time, type = f"Impossible to connect pigpio service {attempts}/{max_attempts}", error_code = 451)
+
 class HighTempError(AUVError):
     """
     Generalization of temperature error or unidentified temperature problem

@@ -1,14 +1,15 @@
 from pigpio import pi, OUTPUT
 from time import sleep
 from enum import Enum, auto
+from AUVError import FailedConnectThrusters, ImpossibleConnectThrusters
 
 # Defines the power maximum that thrusters can receive (in %)
 POWER_MAX = 25
 
 FREQUENCY = 200
 
-# Pins thrusters !!!!IMPORTANT: SHOULD BE DEFINED!!!!
-PINS = [1, 2, 22, 27, 5, 6]
+# Pins thrusters
+PINS = [17, 18, 22, 23, 24, 27]
 # 0 - Front left 
 # 1 - Front right
 # 2 - Middle right
@@ -45,26 +46,44 @@ class Actions(Enum):
 class ThrustersControl:
     def __init__(self):
         print("Starting thrusters...")
-
-        self.gpio = pi()
-
-        # while(not pi.connect()):
-            # pi = pigpio.pi()
-
+        
         self.thrusters = []
-
-        self.initialize_pins()
+        self.gpio = self.__initialize_gpio()
+        self.__initialize_pins()
 
         print("Engines thrusters")
+    
+    def __initialize_gpio(self):
+        """
+        Attempts to initialize the Pigio service. If it fails, try reconnection until the limit of attempts is reached, and when the limit is reached the AUV stops as it is in a critical state
+        """
 
-    def initialize_pins(self):
+        attempts = 0
+        max_attempts = 5
+
+        while attempts < max_attempts:
+            try:
+                gpio = pi()
+
+                if not gpio.connected:
+                    raise FailedConnectThrusters(attempts, max_attempts)
+                
+                return gpio
+            except FailedConnectThrusters as e:
+                attempts += 1
+
+            sleep(2)
+        
+        raise ImpossibleConnectThrusters(attempts, max_attempts)
+
+    def __initialize_pins(self):
         for pin in PINS:
             if pin == 27 or pin == 22:
                 thruster = Thruster(pin, self.gpio, -14)
             else:
                 thruster = Thruster(pin, self.gpio, 0)
             self.thrusters.append(thruster)
-
+            
         sleep(7)
 
     def define_action(self, actions):
@@ -124,6 +143,7 @@ class ThrustersControl:
                 self.thrusters[3].move(0)
                 self.thrusters[4].move(0)
                 self.thrusters[5].move(0)
+            sleep(.035)
 
     def finish(self):
         """
