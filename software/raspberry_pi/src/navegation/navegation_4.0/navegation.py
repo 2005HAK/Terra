@@ -8,8 +8,8 @@ from time import sleep
 from AUVError import *
 
 # Width and height of the image seen by the camera
-IMAGE_WIDTH = 1280
-IMAGE_HEIGHT = 720
+IMAGE_WIDTH = 640
+IMAGE_HEIGHT = 480
 
 OBJECT_INITIALIZATION = "Cube"
 
@@ -118,7 +118,7 @@ class AUVStateMachine:
         if isinstance(e, CollisionDetected):
             if self.state == State.SEARCH:
                 self.direction_correction(e.acceleration)
-        if isinstance(e, ImpossibleConnectThrusters):
+        if isinstance(e, ImpossibleConnectThrusters) or isinstance(e, HighTempError):
             exit(1)
 
     def direction_correction(self, acceleration):
@@ -217,7 +217,8 @@ class AUVStateMachine:
             rotated += delta_time * (gyro_current[2] + gyro_old[2]) / 2
 
         self.thrusters.define_action({action: 0})
-            
+    
+    #testar
     def centering(self):
         """
         **This state defines the centralization procedure**
@@ -225,34 +226,32 @@ class AUVStateMachine:
 
         print("Centering...")
 
-        self.transition_to(State.SEARCH)
-        
         lost_object = 0
+        is_center = 0
+        
+        while not is_center:
+            xyxy = self.yolo_ctrl.get_xyxy(self.target_object)
 
-        if self.yolo_ctrl.found_object():
-            is_center = 0
+            if xyxy != None:
+                actions = center_object(xyxy)
+
+                # Mudar de dicionario para array (é mais rápido)
+
+                self.thrusters.define_action({actions[1]: actions[2], actions[3]: actions[4]})
+
+                is_center = actions[0]
+            else:
+                is_center = 1
+                lost_object = 1
+                print("Lost object!")
             
-            while not is_center:
-                # se o objeto deixar de ser identificado pela ia deve dar um break no while e em search tentar buscar o objeto novamente
-                xyxy = self.yolo_ctrl.get_xyxy(self.target_object)
-
-                if xyxy != None:
-                    actions = center_object(xyxy)
-
-                    # Mudar de dicionario para array (é mais rápido)
-
-                    self.thrusters.define_action({actions[1]: actions[2], actions[3]: actions[4]})
-
-                    is_center = actions[0]
-                else:
-                    is_center = 1
-                    lost_object = 1
-                    print("Lost object!")
-            
-            if not lost_object:            
-                self.next_state = State.ADVANCING
-                self.transition_to(State.STABILIZING)
+        if not lost_object:            
+            self.next_state = State.ADVANCING
+            self.transition_to(State.STABILIZING)
+        else:
+            self.transition_to(State.SEARCH)
     
+    #testar
     def advancing(self):
         """
         **This state difines the advancement procedure**
@@ -260,24 +259,29 @@ class AUVStateMachine:
 
         print("Advancing...")
 
-        self.transition_to(State.SEARCH)
+        lost_object = 0
+        advance = 1
 
-        advance = True
-
-        if self.yolo_ctrl.found_object():
-            while advance:
-                # se o objeto deixar de ser identificado pela ia deve dar um break no while e em search tentar buscar o objeto novamente
-                xyxy = self.yolo_ctrl.get_xyxy(self.target_object)
-                
+        while advance:
+            xyxy = self.yolo_ctrl.get_xyxy(self.target_object)
+            
+            if xyxy != None:
                 self.distance = calculate_distance(self.target_object, xyxy)
                 action = advance_decision(self.distance)
 
                 self.thrusters.define_action({action[1]: action[2]})
 
                 advance = action[0]
-            
+            else:
+                advance = 0
+                lost_object = 1
+                print("Lost object!")
+        
+        if not lost_object:
             self.next_state = State.STOP
             self.transition_to(State.STABILIZING)
+        else:
+            self.transition_to(State.SEARCH)
 
     def stabilizing(self):
         """
@@ -461,7 +465,7 @@ def advance_decision(object_distance):
 
         power = set_power(distance = object_distance)[0]
     
-    return [1 if action != "" else 0, action, power]
+    return [1 if action != None else 0, action, power]
 
 def stabilizes(velocity):
     """

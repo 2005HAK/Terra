@@ -1,0 +1,6 @@
+class Thrusters{
+    public:
+        Thrusters(){
+
+        }
+};

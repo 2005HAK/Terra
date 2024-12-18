@@ -12,9 +12,9 @@ CONV_TO_T = 1 / 10000000 # convert mgauss to Tesla
 # Acceleration limit to consider a collision
 ACC_LIMIT = 15
 
-# Critical temperatures
+# Critical temperatures - !!!Determinar quais são as temperaturas maximas!!!
 MAX_TEMP_PIXHAWK = 50
-MAX_TEMP_RASPBERRY = 85
+MAX_TEMP_RASPBERRY = 70
 MAX_TEMP_JETSON = 60
 
 class Sensors:
@@ -85,7 +85,7 @@ class Sensors:
 
                     is_global_position_int_valid = 1
 
-    # IMPLEMENTAR
+    # Terminar implementação
     def __update_data_temp(self):
         """
         Updates system temperature data

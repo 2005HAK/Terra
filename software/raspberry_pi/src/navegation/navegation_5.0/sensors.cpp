@@ -1,0 +1,6 @@
+class Sensors{
+    public:
+        Sensors(){
+            
+        }
+};

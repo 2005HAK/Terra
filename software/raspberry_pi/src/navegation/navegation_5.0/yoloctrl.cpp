@@ -1,0 +1,6 @@
+class YoloCtrl{
+    public:
+        YoloCtrl(){
+            
+        }
+};
