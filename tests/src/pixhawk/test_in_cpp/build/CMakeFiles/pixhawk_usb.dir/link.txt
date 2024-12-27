@@ -1,0 +1,1 @@
+/usr/lib/ccache/c++     CMakeFiles/pixhawk_usb.dir/pixhawk_usb.cpp.o  -o pixhawk_usb  /usr/lib/libmavsdk.so.1.4.16 -lMAVSDK::mavsdk_telemetry 

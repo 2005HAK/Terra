@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/hak/Documents/Terra/tests/src/pixhawk/test_in_cpp/pixhawk_usb.cpp
+mavsdk/mavsdk.h
+-
+mavsdk/plugins/telemetry/telemetry.h
+-
+iostream
+-
+thread
+-
+chrono
+-
+
