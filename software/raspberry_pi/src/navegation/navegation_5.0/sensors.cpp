@@ -1,7 +1,5 @@
 #include <array>
 #include <chrono>
-#include <mavsdk.lib/mavsdk.h>
-#include <mavsdk/plugins/telemetry/telemetry.h>
 
 using namespace std;
 using namespace chrono;
