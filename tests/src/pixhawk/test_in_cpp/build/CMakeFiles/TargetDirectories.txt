@@ -1,3 +1,0 @@
-/home/hak/Documents/Terra/tests/src/pixhawk/test_in_cpp/build/CMakeFiles/rebuild_cache.dir
-/home/hak/Documents/Terra/tests/src/pixhawk/test_in_cpp/build/CMakeFiles/edit_cache.dir
-/home/hak/Documents/Terra/tests/src/pixhawk/test_in_cpp/build/CMakeFiles/pixhawk_usb.dir
