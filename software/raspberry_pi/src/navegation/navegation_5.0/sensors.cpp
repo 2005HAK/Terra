@@ -122,7 +122,7 @@ class Sensors{
         void collisionDetect(){
             //preciso dos erros
             if(fabs(this->acc[0]) > ACC_LIMIT || fabs(this->acc[1]) > ACC_LIMIT || fabs(this->acc[2]) > ACC_LIMIT){
-
+                
             }
         }
 
