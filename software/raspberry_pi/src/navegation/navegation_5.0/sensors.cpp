@@ -5,6 +5,7 @@
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
 #include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
+#include "auv_error.cpp"
 
 using namespace std;
 using namespace chrono;
@@ -40,15 +41,15 @@ class Sensors{
 
     public:
         /**
-         * Initializes the Sensors class, establishing a connection to Pixhawk and setting initial values for acceleration, gyro, magnetometer, velocity, and temperature sensors.
+         * @brief Initializes the Sensors class, establishing a connection to Pixhawk and setting initial values for acceleration, gyro, magnetometer,
+         *  velocity, and temperature sensors.
          */
         Sensors(){
             Mavsdk mavsdk{Mavsdk::Configuration{Mavsdk::ComponentType::GroundStation}};
 
             ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyACM0:115200");
 
-            //Colocar isso em um código de erro
-            if (connection_result != ConnectionResult::Success){
+            if (connection_result != ConnectionResult::Success){ //Colocar isso em um código de erro
                 cout << "Failed to connect: " << connection_result << endl;
             } else cout << "Connected to Pixhawk" << endl;
 
@@ -56,7 +57,6 @@ class Sensors{
 
             auto systems = mavsdk.systems();
 
-            //Colocar isso em código de erro tbm
             if(!systems.empty()) {
                 auto system = mavsdk.systems().at(0);
                 
@@ -71,16 +71,13 @@ class Sensors{
                 }
     
                 std::cout << "System is ready!" << std::endl;
-            }else {
+            }else {//Colocar isso em código de erro tbm
                 std::cerr << "Failed to detect system." << std::endl;
             }
-
-            currentTime = steady_clock::now();
-            oldTime = currentTime;
         }
 
         /**
-         * Continuously updates sensor data, fetching new information from Pixhawk and ****temperature sensors (fazer essa parte)****
+         * @brief Continuously updates sensor data, fetching new information from Pixhawk and ****temperature sensors (fazer essa parte)****
          */
         void updateData(){
             cout << "Listening messages..." << endl;
@@ -117,20 +114,20 @@ class Sensors{
         }
 
         /**
-         * Detects whether the AUV has crashed based on acceleration data from Pixhawk
+         * @brief Detects whether the AUV has crashed based on acceleration data from Pixhawk
          */
         void collisionDetect(){
-            //preciso dos erros
             if(fabs(this->acc[0]) > ACC_LIMIT || fabs(this->acc[1]) > ACC_LIMIT || fabs(this->acc[2]) > ACC_LIMIT){
-                
+                throw CollisionDetected(acc);
             }
         }
 
         /**
-         * checks whether the systems temperature is safe **** Terminar!! ****
+         * @brief Checks whether the systems temperature is safe **** Terminar!! ****
          */
         void detectOverheat(){
-            //preciso dos erros
+            if(this->tempPixhawk > MAX_TEMP_PIXHAWK) throw PixhawkHighTemperature(tempPixhawk);
+            if(this->tempRaspberry > MAX_TEMP_RASPBERRY) throw RaspberryHighTemperature(tempRaspberry);
         }
 
         void finish(){
