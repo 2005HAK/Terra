@@ -1,5 +1,7 @@
-#include <vector>
+#include <iostream>
+#include <array>
 #include <string>
+#include <wiringPi.h>
 
 using namespace std;
 
@@ -15,6 +17,13 @@ enum class Action{
     STAY
 };
 
+/**
+ * @brief Converts the action name to string
+ * 
+ * @param action Action you want to convert to string
+ * 
+ * @return Action in string format
+ */
 string actionToString(Action action){
     switch (action){
         case Action::FORWARD:
@@ -41,8 +50,17 @@ string actionToString(Action action){
 }
 
 class ThrustersControl{
+    private:
+        array<Thruster, 6> thrusters;
+
     public:
         ThrustersControl(){
+            cout << "Starting thrusters..." << endl;
+            
+
+        }
+
+        void initializeThrusters(){
 
         }
 
@@ -68,5 +86,37 @@ class ThrustersControl{
                 case Action::STAY:
                     break;
             }
+        }
+
+        void finish(){
+
+        }
+};
+
+class Thruster{
+    private:
+        int pin;
+        double stablePower;
+        double currentPower;
+
+    public:
+        Thruster(){
+
+        }
+
+        void initThruster(){
+
+        }
+
+        void move(double value){
+
+        }
+
+        int convertValue(double value){
+
+        }
+
+        void finishesThruster(){
+
         }
 };
