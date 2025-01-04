@@ -130,11 +130,6 @@ class Sensors{
             if(this->tempRaspberry > MAX_TEMP_RASPBERRY) throw RaspberryHighTemperature(tempRaspberry);
         }
 
-        void finish(){
-            delete this->telemetry;
-            delete this->mavlink_passthrough;
-        }
-
         array<double, 3> getAcc(){
             return this->acc;
         }
@@ -149,5 +144,14 @@ class Sensors{
 
         array<double, 3> getVel(){
             return this->vel;
+        }
+
+        steady_clock::time_point deltaTime(){
+            return this->oldTime - this->currentTime;
+        }
+        
+        ~Sensors(){
+            delete this->telemetry;
+            delete this->mavlink_passthrough;
         }
 };

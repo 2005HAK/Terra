@@ -3,12 +3,14 @@
 #include "sensors.cpp"
 #include "yoloctrl.cpp"
 #include "thrusters_control.cpp"
+#include "auv_error.cpp"
 #include <string>
 #include <thread>
 #include <unistd.h>
 #include <math.h>
 
 using namespace std;
+using namespace this_thread;
 
 // Width and height of the image seen by the camera
 const int IMAGE_WIDTH = 640;
@@ -17,10 +19,13 @@ const int IMAGE_HEIGHT = 480;
 // Object used to initialization
 const string OBJECT_INITIALIZATION = "Cube";
 
-// Size of the zone that is considered the center of the image
+// Center of the image seen by the camera
+array<int, 2> IMAGE_CENTER = {IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2};
+
+// Size of the zone that is considered the center of the image (in px)
 const int ERROR_CENTER = 50;
 
-// Distance considered safe for the AUV to approach
+// Distance considered safe for the AUV to approach (in m)
 const float SAFE_DISTANCE = 1;
 
 enum class State{
@@ -54,6 +59,45 @@ string stateToString(State state){
     }
 }
 
+struct decision{
+    Action action;
+    int value;
+};
+
+/**
+ * @brief Calculates the centers of the object
+ * 
+ * @param xyxy x and y coordinates of the detected object
+ * 
+ * @return x and y coordinates as a array of center or [-1, -1] if xyxy is null
+ */
+array<int, 2> center(array<int, 4> xyxy){
+    array<int, 2> middle = {-1, -1};
+
+    if(xyxy != NULL){
+        middle[0] = (xyxy[0] + xyxy[2]) / 2;
+        middle[1] = (xyxy[1] + xyxy[3]) / 2;
+    }
+
+    return middle;
+}
+
+array<decision, 2> centerObject(array<int, 4> xyxy){
+    Action dirH, dirV;
+    int powerH, powerV;
+    array<int, 2> middle = center(xyxy);
+
+    if(middle[0] >= 0 && middle[0] <= IMAGE_WIDTH && middle[1] >= 0 && middle[1] < IMAGE_HEIGHT){
+        if(middle[0] < IMAGE_CENTER[0] - (ERROR_CENTER / 2)) dirH = Action::LEFT;
+        else if(middle[0] > IMAGE_CENTER[0] + (ERROR_CENTER / 2)) dirH = Action::RIGHT;
+
+        if(middle[1] < IMAGE_CENTER[1] - (ERROR_CENTER / 2)) dirH = Action::UP;
+        else if(middle[1] > IMAGE_CENTER[1] + (ERROR_CENTER / 2)) dirH = Action::DOWN;
+    }
+
+    //terminar
+}
+
 class AUVStateMachine{
     private:
         State lastState;
@@ -61,16 +105,16 @@ class AUVStateMachine{
         State nextState;
         string targetObject = "";
         float distance; // passar o calculo e armazenamento de distancia para a pix
-        Sensors sensors;
-        YoloCtrl yoloCtrl;
-        ThrustersControl thrusters;
+        Sensors *sensors;
+        YoloCtrl *yoloCtrl;
+        ThrustersControl *thrusters;
 
     public:
         AUVStateMachine(){
             cout << "State machine creation..." << endl;
             this->state = State::INIT;
-            sensors = Sensors();
-            yoloCtrl = YoloCtrl();
+            this->sensors = new Sensors();
+            this->yoloCtrl = new YoloCtrl();
 
             // Update sensors data and detection data in parallel with the state machine
             thread sensorThread(sensorsData);
@@ -85,19 +129,30 @@ class AUVStateMachine{
             yoloCtrl.updateData();
         }
 
+        /**
+         * @brief Checks for errors every **100 ms**
+         */
         void checksErrors(){
             while(1){
                 sensors.collisionDetect();
                 sensors.detectOverheat();
-                sleep(.1);
+                sleep_for(milliseconds(100));
             }
         }
-
+        /**
+         * @brief Transition between states
+         * 
+         * @param newState Next state of the state machine
+         */
         void transitionTo(State newState){
             cout << "Transitioning from " + stateToString(this->state) + "to " + stateToString(this->nextState) << endl;
+            this->lastState = this->state;
             this->state = newState;
         }
 
+        /**
+         * @brief Initializes the state machine
+         */
         void run(){
             try{
                 thread errorsThread(checksErrors);
@@ -123,12 +178,43 @@ class AUVStateMachine{
                         break;
                     }
                 }
-            } catch(exception e){
 
+                stop();
+            } catch(AUVError e){
+                errorHandling(e);
             }
         }
 
+        //ERRORS HANDLING
+        void errorHandling(AUVError e){
+            if(dynamic_cast<const CollisionDetected*>(&e)){
+                if(this->state == State::SEARCH) directionCorrection(e.acceleration);
+            }
+            if(dynamic_cast<const FailedConnectThrusters*>(&e) || dynamic_cast<const HighTemperatureError*>(&e)) exit(1); 
+        }
+
+        void directionCorrection(array<double, 3> acceleration){
+            cout << "Correcting direction..." << endl;
+
+            array<double, 3> positionCollision = {-acceleration[0], -acceleration[1], -acceleration[2]};
+
+            double angle = (acos(positionCollision[0] / sqrt(pow(positionCollision[0], 2) + pow(positionCollision[1], 2))) * M_PI) / 180;
+            double rotationAngle = M_PI - angle;
+
+            Action action = Action::TURNRIGHT;
+
+            if(positionCollision[1] > 0) action = Action::TURNLEFT;
+
+            rotate(angle=rotationAngle, action=action);
+
+            run();
+        }
+
         // DEFINITION OF STATES
+
+        /**
+         * @brief This state initializes the thrusters
+         */
         void init(){
             cout << "Searching for launcher..." << endl;
 
@@ -140,11 +226,16 @@ class AUVStateMachine{
             // this->targetObject = "";
 
             cout << "Initializing..." << endl;
-            this->thrusters = ThrustersControl();
+
+            this->thrusters = new ThrustersControl();
             transitionTo(State::SEARCH);
         }
 
+        /**
+         * @brief This state defines the search procedure
+         */
         void search(){
+            // 1/8 turns
             int rotationCurrent = 0;
 
             cout << "Searching..." << endl;
@@ -154,9 +245,11 @@ class AUVStateMachine{
                     rotate();
                     rotationCurrent++;
                 } else{
+                    // terminar essa parte
                     this->thrusters.defineAction(Action::DOWN, 20);
                     rotationCurrent = 0;
                 }
+
                 searchObjects();
             }
             // verificar qual objeto(os) encontrou e responder de acordo
@@ -164,23 +257,57 @@ class AUVStateMachine{
             transitionTo(State::CENTERING);
         }
 
+        /**
+         * @brief Checks if objects were found. Found saved in target_object
+         */
         void searchObjects(){
-            if(yoloCtrl.foundObject()){
-                this->targetObject = yoloCtrl.greaterConfidanceObject();
+            if(this->yoloCtrl->foundObject()) this->targetObject = this->yoloCtrl->greaterConfidanceObject();
+        }
+
+        // Testar
+        void rotate(double angle = 0.785398, double errorAngle = 0.174533, Action action = Action::TURNLEFT){
+            array<double, 3> gyroCurrent = this->sensors->getGyro(), gyroOld;
+            double rotated = 0;
+
+            while(abs(rotated) < angle - errorAngle){
+                this->thrusters->defineAction(action, 20);
+
+                gyroOld = gyroCurrent;
+                gyroCurrent = this->sensors->getGyro();
+                // Provalmente ta errado
+                steady_clock::time_point deltaTime = this->sensors->deltaTime();
+
+                rotated += deltaTime * (gyroCurrent[2] + gyroOld[2]) / 2;
+            }
+
+            this->thrusters->defineAction(action, 0);
+        }
+
+        // Testar
+        /**
+         * @brief This state defines the centralization procedure
+         */
+        void centering(){
+            cout << "Centering..." << endl;
+
+            int lostObject = 0, isCenter = 0;
+
+            while(!isCenter){
+                array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
+
+                if(xyxy != NULL){
+                    //terminar
+
+                    this->thrusters->defineAction()
+                } else{
+
+                }
             }
         }
 
-        void rotate(float angle = 0.785398, float errorAngle = 0.174533, Action action = Action::TURNLEFT){
-            float gyroCurrent = sensors.getGyro();
-            float gyroOld;
-            float rotated = 0;
-
-            while(abs(rotated) < angle - errorAngle){
-                thrusters.defineAction(action, 20);
-
-                gyroOld = gyroCurrent;
-                gyroCurrent = sensors.getGyro();
-                deltaTime
-            }
+        ~AUVStateMachine(){
+            delete this->sensors;
+            delete this->thrusters;
+            delete this->yoloCtrl;
         }
 };

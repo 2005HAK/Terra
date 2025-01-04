@@ -12,10 +12,10 @@ using namespace chrono;
 using namespace this_thread;
 
 // Defines the power maximum that thrusters can receive (in %)
-double POWER_MAX = 25;
+const double POWER_MAX = 25;
 
 //Frequency used for the PWM signal
-double FREQUENCY = 200;
+const double FREQUENCY = 200;
 
 /** Thrusters pins
  * 0 - Front left 
@@ -25,7 +25,7 @@ double FREQUENCY = 200;
  * 4 - Back right
  * 5 - Back left 
  */
-array<int, 6> PINS = {17, 18, 22, 23, 24, 27};
+const array<int, 6> PINS = {17, 18, 22, 23, 24, 27};
 
 /**
  * @brief Actions the AUV can perform
@@ -98,20 +98,38 @@ class Thruster{
             initThruster();
         }
 
+        /**
+         * @brief Initializes the thruster
+         * 
+         * Defines the the pin as output, defines the PWM mode as MS (mark:space), defines the clock divisor
+         *  (default clock 19.2MHz), defines the PWM value range and writes 0 in pin, which corresponds 1500us
+         */
         void initThruster(){
             pinMode(this->pin, PWM_OUTPUT);
             pwmSetMode(PWM_MODE_MS); // Entender e alterar se necessario
             pwmSetClock(19200000 / (FREQUENCY * this->pwmRange));
-            pwmSetRange(pwmRange); // Entender e alterar se necessario
+            pwmSetRange(pwmRange); // 
             pwmWrite(this->pin, convertValue(0));
         }
 
+        /**
+         * @brief Sets a PWM value into dutycycle value from a percentage value
+         * 
+         * @param value A percentage value from -100 to 100 
+         */
         void move(double value){
-            int pwmValue = convertValue(value);
+            int pwmValue = percentageToDutycycle(value);
             pwmWrite(pin, pwmValue);
         }
 
-        int convertValue(double value){
+        /**
+         * @brief Converts a percentage value in dutycycle value
+         * 
+         * @param value A percentage value from -100 to 100
+         * 
+         * @return Corresponding dutycycle value
+         */
+        int percentageToDutycycle(double value){
             // ENTENDER POR QUE ISSO SÓ FUNCIONOU COM DOUBLE !!!!!!!!!!!!!!
             int minPWMus = 1100, maxPWMus = 1900;
 
@@ -121,6 +139,11 @@ class Thruster{
             return (FREQUENCY / 1000000) * (minPWMus + ((maxPWMus - minPWMus) / 2) * (1 + (currentPower / 100))) * pwmRange;
         }
 
+        /**
+         * @brief Turns off the thruster
+         * 
+         * Defines the dutycycle to 0
+         */
         void finishesThruster(){
             pwmWrite(this->pin, 0);
         }
@@ -131,6 +154,11 @@ class ThrustersControl{
         vector<Thruster> thrusters;
 
     public:
+        /**
+         * @brief Initializes the thrusters control
+         * 
+         * Active the wiringPi service and initializes each thruster
+         */
         ThrustersControl(){
             cout << "Starting thrusters..." << endl;
             
@@ -141,6 +169,12 @@ class ThrustersControl{
             cout << "Engines thrusters" << endl;
         }
 
+        /**
+         * @brief Initializes each AUV thruster
+         * 
+         * Creates each AUV thruster, adds each one to the thrusters vector and waits 7 seconds for the
+         *  thrusters to start
+         */
         void initializeThrusters(){
             for(int i = 0; i < PINS.size(); i++){
                 if(PINS[i] == 27 || PINS[i] == 22) thrusters.emplace_back(PINS[i], -14);

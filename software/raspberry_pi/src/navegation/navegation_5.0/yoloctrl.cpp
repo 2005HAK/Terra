@@ -40,7 +40,7 @@ class YoloCtrl{
             return !(this->identifiedObjects.empty());
         }
 
-        array<int, 4> get_xyxy(string objectName){
+        array<int, 4> getXYXY(string objectName){
             array<int, 4> xyxy = {-1, -1, -1, -1};
 
             for(vector<Object>::iterator obj = identifiedObjects.begin(); obj != identifiedObjects.end(); obj++){
