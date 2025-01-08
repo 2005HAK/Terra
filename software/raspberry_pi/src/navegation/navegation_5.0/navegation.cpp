@@ -59,7 +59,7 @@ string stateToString(State state){
     }
 }
 
-struct decision{
+struct Decision{
     Action action;
     int value;
 };
@@ -82,17 +82,27 @@ array<int, 2> center(array<int, 4> xyxy){
     return middle;
 }
 
+// Implementação antiga por ainda não foi decidido como fazer o PID
+vector<double> setPower(array<int, 4> bounding_box = {-1, -1, -1, -1}){
+    int POWER_MAX = 25;
+
+    vector<double> powers;
+
+    if(bounding_box[0] != -1 && bounding_box[1] != -1 && bounding_box[2] != -1, bounding_box[3] != -1){
+        
+    }
+}
+
 array<decision, 2> centerObject(array<int, 4> xyxy){
-    Action dirH, dirV;
-    int powerH, powerV;
+    Decision hor, ver;
     array<int, 2> middle = center(xyxy);
 
     if(middle[0] >= 0 && middle[0] <= IMAGE_WIDTH && middle[1] >= 0 && middle[1] < IMAGE_HEIGHT){
-        if(middle[0] < IMAGE_CENTER[0] - (ERROR_CENTER / 2)) dirH = Action::LEFT;
-        else if(middle[0] > IMAGE_CENTER[0] + (ERROR_CENTER / 2)) dirH = Action::RIGHT;
+        if(middle[0] < IMAGE_CENTER[0] - (ERROR_CENTER / 2)) hor.action = Action::LEFT;
+        else if(middle[0] > IMAGE_CENTER[0] + (ERROR_CENTER / 2)) hor.action = Action::RIGHT;
 
-        if(middle[1] < IMAGE_CENTER[1] - (ERROR_CENTER / 2)) dirH = Action::UP;
-        else if(middle[1] > IMAGE_CENTER[1] + (ERROR_CENTER / 2)) dirH = Action::DOWN;
+        if(middle[1] < IMAGE_CENTER[1] - (ERROR_CENTER / 2)) ver.action = Action::UP;
+        else if(middle[1] > IMAGE_CENTER[1] + (ERROR_CENTER / 2)) ver.action = Action::DOWN;
     }
 
     //terminar
