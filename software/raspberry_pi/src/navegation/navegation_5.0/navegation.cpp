@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <iostream>
-#include "sensors.cpp"
+//#include "sensors.cpp"
 #include "yoloctrl.cpp"
-#include "thrusters_control.cpp"
+//#include "thrusters_control.cpp"
 #include "auv_error.cpp"
 #include <string>
 #include <thread>
@@ -71,10 +71,10 @@ struct Decision{
  * 
  * @return x and y coordinates as a array of center or [-1, -1] if xyxy is null
  */
-array<int, 2> center(array<int, 4> xyxy){
+array<int, 2> center(array<int, 4> xyxy = {-1, -1, -1, -1}){
     array<int, 2> middle = {-1, -1};
 
-    if(xyxy != NULL){
+    if(xyxy[0] != -1 && xyxy[1] != -1 && xyxy[2] != -1, xyxy[3] != -1){
         middle[0] = (xyxy[0] + xyxy[2]) / 2;
         middle[1] = (xyxy[1] + xyxy[3]) / 2;
     }
@@ -83,29 +83,41 @@ array<int, 2> center(array<int, 4> xyxy){
 }
 
 // Implementação antiga por ainda não foi decidido como fazer o PID
-vector<double> setPower(array<int, 4> bounding_box = {-1, -1, -1, -1}){
+void centerSetPower(array<Decision, 2> &decision, array<int, 4> bounding_box = {-1, -1, -1, -1}, array<int, 2> center = {-1, -1}){
     int POWER_MAX = 25;
 
-    vector<double> powers;
-
     if(bounding_box[0] != -1 && bounding_box[1] != -1 && bounding_box[2] != -1, bounding_box[3] != -1){
-        
+        if(center[0] != -1 && center[1] != -1){
+            double kpH = .5, kpV = .5;
+
+            int errorX = center[0] - IMAGE_CENTER[0], errorY = center[1] - IMAGE_CENTER[1];
+
+            decision[0].value = kpH * fabs(errorX);
+            decision[1].value = kpV * fabs(errorY);
+
+            decision[0].value = max(min(decision[0].value, POWER_MAX), 0);
+            decision[1].value = max(min(decision[1].value, POWER_MAX), 0);
+        }
     }
 }
 
-array<decision, 2> centerObject(array<int, 4> xyxy){
-    Decision hor, ver;
+/**
+ * @brief Decides which movement to take based on the position of the object in the image.
+ * 
+ * @param xyxy x and y coordinates of the detected object
+ */
+array<Decision, 2> centerObject(array<Decision, 2> decision, array<int, 4> xyxy){
     array<int, 2> middle = center(xyxy);
 
     if(middle[0] >= 0 && middle[0] <= IMAGE_WIDTH && middle[1] >= 0 && middle[1] < IMAGE_HEIGHT){
-        if(middle[0] < IMAGE_CENTER[0] - (ERROR_CENTER / 2)) hor.action = Action::LEFT;
-        else if(middle[0] > IMAGE_CENTER[0] + (ERROR_CENTER / 2)) hor.action = Action::RIGHT;
+        if(middle[0] < IMAGE_CENTER[0] - (ERROR_CENTER / 2)) decision[0].action = Action::LEFT;
+        else if(middle[0] > IMAGE_CENTER[0] + (ERROR_CENTER / 2)) decision[0].action = Action::RIGHT;
 
-        if(middle[1] < IMAGE_CENTER[1] - (ERROR_CENTER / 2)) ver.action = Action::UP;
-        else if(middle[1] > IMAGE_CENTER[1] + (ERROR_CENTER / 2)) ver.action = Action::DOWN;
+        if(middle[1] < IMAGE_CENTER[1] - (ERROR_CENTER / 2)) decision[1].action = Action::UP;
+        else if(middle[1] > IMAGE_CENTER[1] + (ERROR_CENTER / 2)) decision[1].action = Action::DOWN;
     }
 
-    //terminar
+    centerSetPower(decision, xyxy, middle);
 }
 
 class AUVStateMachine{
@@ -305,14 +317,30 @@ class AUVStateMachine{
             while(!isCenter){
                 array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
 
-                if(xyxy != NULL){
-                    //terminar
+                if(xyxy[0] != -1 && xyxy[1] != -1 && xyxy[2] != -1, xyxy[3] != -1){
+                    array<Decision, 2> decision;
 
-                    this->thrusters->defineAction()
-                } else{
+                    centerObject(decision, xyxy);
 
+                    this->thrusters->defineAction(decision[0].action, decision[0].value);
+                    this->thrusters->defineAction(decision[1].action, decision[1].value);
                 }
             }
+
+            this->nextState = State::ADVANCING;
+            this->transitionTo(State::STABILIZING);
+        }
+
+        void advancing(){
+
+        }
+
+        void stabilizing(){
+
+        }
+
+        void stop(){
+
         }
 
         ~AUVStateMachine(){
