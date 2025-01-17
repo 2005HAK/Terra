@@ -57,7 +57,8 @@ enum class Action{
     DOWN,
     TURNRIGHT,
     TURNLEFT,
-    STAY
+    STAY,
+    NONE
 };
 
 /**

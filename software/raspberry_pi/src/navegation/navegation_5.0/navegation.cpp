@@ -28,6 +28,9 @@ const int ERROR_CENTER = 50;
 // Distance considered safe for the AUV to approach (in m)
 const float SAFE_DISTANCE = 1;
 
+// Defines the power maximum that motors can receive (in %)
+const int POWER_MAX = 25;
+
 enum class State{
     INIT,
     SEARCH,
@@ -60,8 +63,8 @@ string stateToString(State state){
 }
 
 struct Decision{
-    Action action;
-    int value;
+    Action action = Action::NONE;
+    int value = -1;
 };
 
 /**
@@ -69,36 +72,52 @@ struct Decision{
  * 
  * @param xyxy x and y coordinates of the detected object
  * 
- * @return x and y coordinates as a array of center or [-1, -1] if xyxy is null
+ * @return x and y coordinates as a array of center or [-1, -1] if xyxy is invalid
  */
-array<int, 2> center(array<int, 4> xyxy = {-1, -1, -1, -1}){
-    array<int, 2> middle = {-1, -1};
-
-    if(xyxy[0] != -1 && xyxy[1] != -1 && xyxy[2] != -1, xyxy[3] != -1){
-        middle[0] = (xyxy[0] + xyxy[2]) / 2;
-        middle[1] = (xyxy[1] + xyxy[3]) / 2;
+array<int, 2> center(array<int, 4> xyxy){
+    if(xyxy[0] >= 0 && xyxy[0] <= IMAGE_WIDTH && xyxy[1] >= 0 && xyxy[1] <= IMAGE_HEIGHT &&
+       xyxy[2] >= 0 && xyxy[2] <= IMAGE_WIDTH && xyxy[3] >= 0 && xyxy[3] <= IMAGE_HEIGHT){
+        return {(xyxy[0] + xyxy[2]) / 2, (xyxy[1] + xyxy[3]) / 2};
     }
-
-    return middle;
+    return {-1, -1};
 }
 
 // Implementação antiga por ainda não foi decidido como fazer o PID
-void centerSetPower(array<Decision, 2> &decision, array<int, 4> bounding_box = {-1, -1, -1, -1}, array<int, 2> center = {-1, -1}){
-    int POWER_MAX = 25;
+array<int, 2> centerSetPower(array<int, 2> center){
+    double kpH = .5, kpV = .5;
 
-    if(bounding_box[0] != -1 && bounding_box[1] != -1 && bounding_box[2] != -1, bounding_box[3] != -1){
-        if(center[0] != -1 && center[1] != -1){
-            double kpH = .5, kpV = .5;
+    int errorH = center[0] - IMAGE_CENTER[0], errorV = center[1] - IMAGE_CENTER[1];
 
-            int errorX = center[0] - IMAGE_CENTER[0], errorY = center[1] - IMAGE_CENTER[1];
+    int powerH = kpH * fabs(errorH), powerV = kpV * fabs(errorV);
 
-            decision[0].value = kpH * fabs(errorX);
-            decision[1].value = kpV * fabs(errorY);
+    powerH = max(min(powerH, POWER_MAX), 0);
+    powerV = max(min(powerV, POWER_MAX), 0);
 
-            decision[0].value = max(min(decision[0].value, POWER_MAX), 0);
-            decision[1].value = max(min(decision[1].value, POWER_MAX), 0);
-        }
-    }
+    return {powerH, powerV};
+}
+
+int distanceSetPower(double distance){
+    double kpF = 4.5;
+    
+    int errorF = distance - SAFE_DISTANCE;
+
+    int powerF = kpF = fabs(errorF);
+
+    powerF = max(min(powerF, POWER_MAX), 0);
+
+    return powerF;
+}
+
+array<int, 3> velocitySetPower(array<double, 3> velocity){
+    double kpX = 1.5, kpY = 1.5, kpZ = 1.5;
+
+    int powerX = kpX * fabs(velocity[0]), powerY = kpY * fabs(velocity[1]), powerZ = kpZ = fabs(velocity[2]);
+
+    powerX = max(min(powerX, POWER_MAX), 0);
+    powerY = max(min(powerY, POWER_MAX), 0);
+    powerZ = max(min(powerZ, POWER_MAX), 0);
+
+    return {powerX, powerY, powerZ};
 }
 
 /**
@@ -106,7 +125,7 @@ void centerSetPower(array<Decision, 2> &decision, array<int, 4> bounding_box = {
  * 
  * @param xyxy x and y coordinates of the detected object
  */
-array<Decision, 2> centerObject(array<Decision, 2> decision, array<int, 4> xyxy){
+void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy){
     array<int, 2> middle = center(xyxy);
 
     if(middle[0] >= 0 && middle[0] <= IMAGE_WIDTH && middle[1] >= 0 && middle[1] < IMAGE_HEIGHT){
@@ -117,7 +136,22 @@ array<Decision, 2> centerObject(array<Decision, 2> decision, array<int, 4> xyxy)
         else if(middle[1] > IMAGE_CENTER[1] + (ERROR_CENTER / 2)) decision[1].action = Action::DOWN;
     }
 
-    centerSetPower(decision, xyxy, middle);
+    array<int, 2> powers = centerSetPower(middle);
+
+    decision[0].value = powers[0];
+    decision[1].value = powers[1];
+}
+
+/**
+ * @brief Calculates the distance berween AUV and object based on the object's actual width and image dimension
+ * 
+ * @param objectClass The class of the detected object
+ * @param xyxy Coordinates of the bounding box of the detected object
+ * 
+ * @return The distance between AUV and object (in meters)
+ */
+double calculateDistance(string objectClass, array<int, 4> xyxy){
+
 }
 
 class AUVStateMachine{
@@ -291,7 +325,7 @@ class AUVStateMachine{
             array<double, 3> gyroCurrent = this->sensors->getGyro(), gyroOld;
             double rotated = 0;
 
-            while(abs(rotated) < angle - errorAngle){
+            while(fabs(rotated) < angle - errorAngle){
                 this->thrusters->defineAction(action, 20);
 
                 gyroOld = gyroCurrent;
