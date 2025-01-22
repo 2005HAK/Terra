@@ -8,6 +8,7 @@
 #include <thread>
 #include <unistd.h>
 #include <math.h>
+#include <map>
 
 using namespace std;
 using namespace this_thread;
@@ -151,7 +152,29 @@ void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy){
  * @return The distance between AUV and object (in meters)
  */
 double calculateDistance(string objectClass, array<int, 4> xyxy){
+    // Actual width of the objects (in meters)
+    map<string, double> widthObjects{{"obj1", 2}, {"Cube", .055}};
 
+    // Inicializes the variable with invalid value to indicates error
+    double objectDistance = -1;
+
+    map<string, double>::iterator it = widthObjects.find(objectClass);
+
+    if(it != widthObjects.end() && (xyxy[2] - xyxy[0]) != 0){
+        // image diagonal (in pixels)
+        double d = sqrt(pow(IMAGE_WIDTH, 2) + pow(IMAGE_HEIGHT, 2));
+
+        // Diagonal field of view (in rad)
+        double a = (M_PI / 180) * 55;
+
+        // Focal distance
+        double f = (d / 2) * (cos(a / 2) / sin(a / 2));
+
+        objectDistance = (f * it->second) / (xyxy[2] - xyxy[0]);
+        cout << "Object distance: " << objectDistance << endl;
+    }
+
+    return objectDistance;
 }
 
 class AUVStateMachine{
