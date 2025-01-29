@@ -27,10 +27,10 @@ array<int, 2> IMAGE_CENTER = {IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2};
 const int ERROR_CENTER = 50;
 
 // Distance considered safe for the AUV to approach (in m)
-const float SAFE_DISTANCE = 1;
+const double SAFE_DISTANCE = 1;
 
 // Defines the power maximum that motors can receive (in %)
-const int POWER_MAX = 25;
+const double POWER_MAX = 25;
 
 enum class State{
     INIT,
@@ -65,7 +65,7 @@ string stateToString(State state){
 
 struct Decision{
     Action action = Action::NONE;
-    int value = -1;
+    double value = -1;
 };
 
 /**
@@ -77,53 +77,38 @@ struct Decision{
  */
 array<int, 2> center(array<int, 4> xyxy){
     if(xyxy[0] >= 0 && xyxy[0] <= IMAGE_WIDTH && xyxy[1] >= 0 && xyxy[1] <= IMAGE_HEIGHT &&
-       xyxy[2] >= 0 && xyxy[2] <= IMAGE_WIDTH && xyxy[3] >= 0 && xyxy[3] <= IMAGE_HEIGHT){
+        xyxy[2] >= 0 && xyxy[2] <= IMAGE_WIDTH && xyxy[3] >= 0 && xyxy[3] <= IMAGE_HEIGHT){
         return {(xyxy[0] + xyxy[2]) / 2, (xyxy[1] + xyxy[3]) / 2};
     }
     return {-1, -1};
 }
 
 // Implementação antiga por ainda não foi decidido como fazer o PID
-array<int, 2> centerSetPower(array<int, 2> center){
+void centerSetPower(array<Decision, 2> &decision, array<int, 2> center){
     double kpH = .5, kpV = .5;
 
-    int errorH = center[0] - IMAGE_CENTER[0], errorV = center[1] - IMAGE_CENTER[1];
-
-    int powerH = kpH * fabs(errorH), powerV = kpV * fabs(errorV);
-
-    powerH = max(min(powerH, POWER_MAX), 0);
-    powerV = max(min(powerV, POWER_MAX), 0);
-
-    return {powerH, powerV};
+    decision[0].value = max(min(kpH * fabs(center[0] - IMAGE_CENTER[0]), POWER_MAX), .0);
+    decision[1].value = max(min(kpV * fabs(center[1] - IMAGE_CENTER[1]), POWER_MAX), .0);
 }
 
-int distanceSetPower(double distance){
+void distanceSetPower(double &power, double distance){
     double kpF = 4.5;
-    
-    int errorF = distance - SAFE_DISTANCE;
 
-    int powerF = kpF = fabs(errorF);
-
-    powerF = max(min(powerF, POWER_MAX), 0);
-
-    return powerF;
+    power = max(min(kpF * fabs(distance - SAFE_DISTANCE), POWER_MAX), .0);
 }
 
-array<int, 3> velocitySetPower(array<double, 3> velocity){
+void velocitySetPower(array<Decision, 3> &decision, array<double, 3> velocity){
     double kpX = 1.5, kpY = 1.5, kpZ = 1.5;
 
-    int powerX = kpX * fabs(velocity[0]), powerY = kpY * fabs(velocity[1]), powerZ = kpZ = fabs(velocity[2]);
-
-    powerX = max(min(powerX, POWER_MAX), 0);
-    powerY = max(min(powerY, POWER_MAX), 0);
-    powerZ = max(min(powerZ, POWER_MAX), 0);
-
-    return {powerX, powerY, powerZ};
+    decision[0].value = max(min(kpX * fabs(velocity[0]), POWER_MAX), .0);
+    decision[1].value = max(min(kpY * fabs(velocity[1]), POWER_MAX), .0);
+    decision[2].value = max(min(kpZ * fabs(velocity[2]), POWER_MAX), .0);
 }
 
 /**
  * @brief Decides which movement to take based on the position of the object in the image.
  * 
+ * @param decision Array of struct where the move decision is stored
  * @param xyxy x and y coordinates of the detected object
  */
 void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy){
@@ -137,26 +122,22 @@ void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy){
         else if(middle[1] > IMAGE_CENTER[1] + (ERROR_CENTER / 2)) decision[1].action = Action::DOWN;
     }
 
-    array<int, 2> powers = centerSetPower(middle);
-
-    decision[0].value = powers[0];
-    decision[1].value = powers[1];
+    centerSetPower(decision, middle);
 }
 
 /**
  * @brief Calculates the distance berween AUV and object based on the object's actual width and image dimension
  * 
+ * @param objectDistance Variable where the distance between the AUV and the object is stored
  * @param objectClass The class of the detected object
  * @param xyxy Coordinates of the bounding box of the detected object
- * 
- * @return The distance between AUV and object (in meters)
  */
-double calculateDistance(string objectClass, array<int, 4> xyxy){
+void calculateDistance(double &objectDistance, string objectClass, array<int, 4> xyxy){
     // Actual width of the objects (in meters)
     map<string, double> widthObjects{{"obj1", 2}, {"Cube", .055}};
 
     // Inicializes the variable with invalid value to indicates error
-    double objectDistance = -1;
+    objectDistance = -1;
 
     map<string, double>::iterator it = widthObjects.find(objectClass);
 
@@ -173,8 +154,39 @@ double calculateDistance(string objectClass, array<int, 4> xyxy){
         objectDistance = (f * it->second) / (xyxy[2] - xyxy[0]);
         cout << "Object distance: " << objectDistance << endl;
     }
+}
 
-    return objectDistance;
+/**
+ * @brief Decides whether to advance to the object and the power that will be used
+ * 
+ * @param decision Struct where the move decision is stored
+ * @param objectDistance Distance between the AUV and the object
+ */
+void advanceDecision(Decision &decision, double objectDistance){
+    if(objectDistance > SAFE_DISTANCE){
+        decision.action = Action::FORWARD;
+        distanceSetPower(decision.value, objectDistance);
+    }
+}
+
+/**
+ * @brief Defines the actions to stabilize the AUV
+ * 
+ * @param decision Array of struct where the move decision is stored
+ * @param velocity Velocity values on the x, y and z axes, respectively
+ */
+void stabilizes(array<Decision,3> &decision, array<double, 3> velocity){
+    //acceptable error in the velocity
+    array<double, 3> errorVelocity = {.1, .1, .1};
+
+    definesAction(decision[0].action, velocity[0], errorVelocity[0], Action::FORWARD, Action::BACKWARD);
+    definesAction(decision[1].action, velocity[1], errorVelocity[0], Action::RIGHT, Action::LEFT);
+    definesAction(decision[2].action, velocity[2], errorVelocity[0], Action::DOWN, Action::UP);
+}
+
+void definesAction(Action &action, double velocity, double errorVelocity, Action positiveAction, Action negativeAction){
+    if(velocity > errorVelocity) action = negativeAction;
+    else if(velocity < 0 - errorVelocity) action = positiveAction;
 }
 
 class AUVStateMachine{
@@ -183,7 +195,7 @@ class AUVStateMachine{
         State state;
         State nextState;
         string targetObject = "";
-        float distance; // passar o calculo e armazenamento de distancia para a pix
+        float distance; // passar o calculo e armazenamento de distancia para a yolo
         Sensors *sensors;
         YoloCtrl *yoloCtrl;
         ThrustersControl *thrusters;
@@ -229,40 +241,6 @@ class AUVStateMachine{
             this->state = newState;
         }
 
-        /**
-         * @brief Initializes the state machine
-         */
-        void run(){
-            try{
-                thread errorsThread(checksErrors);
-
-                while (this->state != State::STOP){
-                    switch (this->state){
-                    case State::INIT:
-                        init();
-                        break;
-                    case State::SEARCH:
-                        search();
-                        break;
-                    case State::CENTERING:
-                        centering();
-                        break;
-                    case State::ADVANCING:
-                        advancing();
-                        break;
-                    case State::STABILIZING:
-                        stabilizing();
-                        break;
-                    default:
-                        break;
-                    }
-                }
-
-                stop();
-            } catch(AUVError e){
-                errorHandling(e);
-            }
-        }
 
         //ERRORS HANDLING
         void errorHandling(AUVError e){
@@ -290,7 +268,6 @@ class AUVStateMachine{
         }
 
         // DEFINITION OF STATES
-
         /**
          * @brief This state initializes the thrusters
          */
@@ -398,6 +375,41 @@ class AUVStateMachine{
 
         void stop(){
 
+        }
+
+        /**
+         * @brief Initializes the state machine
+         */
+        void run(){
+            try{
+                thread errorsThread(checksErrors);
+
+                while (this->state != State::STOP){
+                    switch (this->state){
+                    case State::INIT:
+                        init();
+                        break;
+                    case State::SEARCH:
+                        search();
+                        break;
+                    case State::CENTERING:
+                        centering();
+                        break;
+                    case State::ADVANCING:
+                        advancing();
+                        break;
+                    case State::STABILIZING:
+                        stabilizing();
+                        break;
+                    default:
+                        break;
+                    }
+                }
+
+                stop();
+            } catch(AUVError e){
+                errorHandling(e);
+            }
         }
 
         ~AUVStateMachine(){
