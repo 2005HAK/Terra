@@ -57,8 +57,12 @@ enum class Action{
     DOWN,
     TURNRIGHT,
     TURNLEFT,
-    STAY,
     NONE
+};
+
+struct Decision{
+    Action action = Action::NONE;
+    double value = -1;
 };
 
 /**
@@ -78,7 +82,6 @@ string actionToString(Action action){
         case Action::DOWN: return "DOWN";
         case Action::TURNRIGHT: return "TURNRIGHT";
         case Action::TURNLEFT: return "TURNLEFT";
-        case Action::STAY: return "STAY";
         default: return "UNKNOWN";
     }
 }
@@ -187,58 +190,57 @@ class ThrustersControl{
         /**
          * @brief Function that takes an argument with movement instruction and decides how the thrusters will be activated
          * 
-         * @param action action that the AUV must perform
-         * @param value value in percentage that the thrusters must perform
+         * @param decision struct with the action decision that will be executed by the AUV and with what power
          */
-        void defineAction(Action action, int value){
-            cout << "Action: " + actionToString(action) << ", Power: " + value << endl;
+        void defineAction(Decision decision){
+            cout << "Action: " + actionToString(decision.action) << ", Power: " + decision.value << endl;
 
-            switch (action){
+            switch (decision.action){
                 case Action::UP:
-                    thrusters[2].move(value);
-                    thrusters[5].move(value);
+                    thrusters[2].move(decision.value);
+                    thrusters[5].move(decision.value);
                     break;
                 case Action::DOWN:
-                    thrusters[2].move(-value);
-                    thrusters[5].move(-value);
+                    thrusters[2].move(-decision.value);
+                    thrusters[5].move(-decision.value);
                     break;
                 case Action::FORWARD:
-                    thrusters[0].move(-value);
-                    thrusters[1].move(-value);
-                    thrusters[3].move(value);
-                    thrusters[4].move(value);
+                    thrusters[0].move(-decision.value);
+                    thrusters[1].move(-decision.value);
+                    thrusters[3].move(decision.value);
+                    thrusters[4].move(decision.value);
                     break;
                 case Action::BACKWARD:
-                    thrusters[0].move(value);
-                    thrusters[1].move(value);
-                    thrusters[3].move(-value);
-                    thrusters[4].move(-value);
+                    thrusters[0].move(decision.value);
+                    thrusters[1].move(decision.value);
+                    thrusters[3].move(-decision.value);
+                    thrusters[4].move(-decision.value);
                     break;
                 case Action::RIGHT:
-                    thrusters[0].move(-value);
-                    thrusters[1].move(value);
-                    thrusters[3].move(value);
-                    thrusters[4].move(-value);
+                    thrusters[0].move(-decision.value);
+                    thrusters[1].move(decision.value);
+                    thrusters[3].move(decision.value);
+                    thrusters[4].move(-decision.value);
                     break;
                 case Action::LEFT:
-                    thrusters[0].move(value);
-                    thrusters[1].move(-value);
-                    thrusters[3].move(-value);
-                    thrusters[4].move(value);
+                    thrusters[0].move(decision.value);
+                    thrusters[1].move(-decision.value);
+                    thrusters[3].move(-decision.value);
+                    thrusters[4].move(decision.value);
                     break;
                 case Action::TURNRIGHT:
-                    thrusters[0].move(-value);
-                    thrusters[1].move(value);
-                    thrusters[3].move(-value);
-                    thrusters[4].move(value);
+                    thrusters[0].move(-decision.value);
+                    thrusters[1].move(decision.value);
+                    thrusters[3].move(-decision.value);
+                    thrusters[4].move(decision.value);
                     break;
                 case Action::TURNLEFT:
-                    thrusters[0].move(value);
-                    thrusters[1].move(-value);
-                    thrusters[3].move(value);
-                    thrusters[4].move(-value);
+                    thrusters[0].move(decision.value);
+                    thrusters[1].move(-decision.value);
+                    thrusters[3].move(decision.value);
+                    thrusters[4].move(-decision.value);
                     break;
-                case Action::STAY:
+                case default:
                     thrusters[0].move(0);
                     thrusters[1].move(0);
                     thrusters[3].move(0);

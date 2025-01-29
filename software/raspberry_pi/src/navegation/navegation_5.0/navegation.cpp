@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <iostream>
-//#include "sensors.cpp"
+#include "sensors.cpp"
 #include "yoloctrl.cpp"
-//#include "thrusters_control.cpp"
+#include "thrusters_control.cpp"
 #include "auv_error.cpp"
 #include <string>
 #include <thread>
@@ -39,34 +39,24 @@ enum class State{
     ADVANCING,
     PASS_GATE_WITH_STYLE,
     STABILIZING,
-    STOP
+    STOP,
+    NONE
 };
 
 string stateToString(State state){
-    switch (state){
-        case State::INIT:
-            return "INIT";
-        case State::SEARCH:
-            return "SEARCH";
-        case State::CENTERING:
-            return "CENTERING";
-        case State::ADVANCING:
-            return "ADVANCING";
-        case State::PASS_GATE_WITH_STYLE:
-            return "PASS_GATE_WITH_STYLE";
-        case State::STABILIZING:
-            return "STABILIZING";
-        case State::STOP:
-            return "STOP";
-        default:
-            return "UNKNOWN";
+    static unordered_map<State, string> stateNames = {
+        {State::INIT, "INIT"},
+        {State::SEARCH, "SEARCH"},
+        {State::CENTERING, "CENTERING"},
+        {State::ADVANCING, "ADVANCING"},
+        {State::PASS_GATE_WITH_STYLE, "PASS_GATE_WITH_STYLE"},
+        {State::STABILIZING, "STABILIZING"},
+        {State::STOP, "STOP"},
     }
+    
+    auto it = stateNames.find(state);
+    return (it != stateNames.end() ? it->second : "UNKNOWN")
 }
-
-struct Decision{
-    Action action = Action::NONE;
-    double value = -1;
-};
 
 /**
  * @brief Calculates the centers of the object
@@ -134,12 +124,12 @@ void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy){
  */
 void calculateDistance(double &objectDistance, string objectClass, array<int, 4> xyxy){
     // Actual width of the objects (in meters)
-    map<string, double> widthObjects{{"obj1", 2}, {"Cube", .055}};
+    static map<string, double> widthObjects{{"obj1", 2}, {"Cube", .055}};
 
     // Inicializes the variable with invalid value to indicates error
     objectDistance = -1;
 
-    map<string, double>::iterator it = widthObjects.find(objectClass);
+    auto it = widthObjects.find(objectClass);
 
     if(it != widthObjects.end() && (xyxy[2] - xyxy[0]) != 0){
         // image diagonal (in pixels)
@@ -191,9 +181,9 @@ void definesAction(Action &action, double velocity, double errorVelocity, Action
 
 class AUVStateMachine{
     private:
-        State lastState;
-        State state;
-        State nextState;
+        State lastState = State::NONE;
+        State state = State::NONE;
+        State nextState = State::NONE;
         string targetObject = "";
         float distance; // passar o calculo e armazenamento de distancia para a yolo
         Sensors *sensors;
@@ -208,8 +198,8 @@ class AUVStateMachine{
             this->yoloCtrl = new YoloCtrl();
 
             // Update sensors data and detection data in parallel with the state machine
-            thread sensorThread(sensorsData);
-            thread detectionThread(detectionData);
+            thread sensorThread(&AUVStateMachine::sensorsData, this);
+            thread detectionThread(&AUVStateMachine::detectionData, this);
         }
 
         void sensorsData(){
@@ -236,11 +226,10 @@ class AUVStateMachine{
          * @param newState Next state of the state machine
          */
         void transitionTo(State newState){
-            cout << "Transitioning from " + stateToString(this->state) + "to " + stateToString(this->nextState) << endl;
+            cout << "Transitioning from " + stateToString(this->state) + "to " + stateToString(newState) << endl;
             this->lastState = this->state;
             this->state = newState;
         }
-
 
         //ERRORS HANDLING
         void errorHandling(AUVError e){
@@ -331,7 +320,7 @@ class AUVStateMachine{
                 gyroOld = gyroCurrent;
                 gyroCurrent = this->sensors->getGyro();
                 // Provalmente ta errado
-                steady_clock::time_point deltaTime = this->sensors->deltaTime();
+                double deltaTime = duration_cast<duration<double>>(this->sensors->deltaTime()).count();
 
                 rotated += deltaTime * (gyroCurrent[2] + gyroOld[2]) / 2;
             }
@@ -365,17 +354,76 @@ class AUVStateMachine{
             this->transitionTo(State::STABILIZING);
         }
 
+        // Testar
+        /**
+         * @brief This state difines the advancement procedure
+         */
         void advancing(){
+            cout << "Advancing..." << endl;
 
+            int lostObject = 0;
+            int advance = 1;
+
+            while(advance){
+                array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
+
+                if(xyxy[0] != -1){
+                    Decision decision;
+
+                    calculateDistance(this->distance, this->targetObject, xyxy);
+                    advanceDecision(decision, this->distance);
+
+                    if(decision.action == Action::NONE) advance == 0;
+
+                    this->thrusters->defineAction(decision);
+                } else {
+                    advance = 0;
+                    lostObject = 1;
+                    cout << "Lost object!" << endl;
+                }
+            }
+
+            if(!lostObject){
+                this->nextState = State::STOP;
+                transitionTo(State::STABILIZING);
+            } else transitionTo(State::SEARCH);
         }
 
+        /**
+         * @brief This state stabilizes the AU
+         */
         void stabilizing(){
+            cout << "Stabilizing..." << endl;
 
+            int isStable = 0;
+
+            while(!isStable){
+                array<Decision, 3> decision;
+                stabilizes(decision, this->sensors->getVel(););
+
+                this->thrusters->defineAction(decision[0]);
+                sleep_for(.5);
+                this->thrusters->defineAction(decision[1]);
+                this->thrusters->defineAction(decision[2]);
+                sleep_for(.5);
+
+                if(decision[0].action == Action::NONE && decision[1].action == Action::NONE && decision[2].action == Action::NONE) isStable = 1;
+            }
+
+            transitionTo(this->nextState != State::NONE ? this->nextState : State::SEARCH);
+            this->nextState = State::NONE;
         }
 
+        /**
+         * @brief This state defines the stopping procedure
+         */
         void stop(){
+            cout << "Stoping..." << endl;
 
+            this->yoloCtrl->stop();
+            this->thrusters->finish();
         }
+        // END DEFINITION OF STATES
 
         /**
          * @brief Initializes the state machine
