@@ -5,7 +5,7 @@
 #include <thread>
 #include <chrono>
 #include <wiringPi.h>
-#include "auv_error.cpp"
+#include "auv_error.h"
 
 using namespace std;
 using namespace chrono;
@@ -113,7 +113,7 @@ class Thruster{
             pwmSetMode(PWM_MODE_MS); // Entender e alterar se necessario
             pwmSetClock(19200000 / (FREQUENCY * this->pwmRange));
             pwmSetRange(pwmRange); // 
-            pwmWrite(this->pin, convertValue(0));
+            pwmWrite(this->pin, percentageToDutycycle(0));
         }
 
         /**
@@ -193,7 +193,7 @@ class ThrustersControl{
          * @param decision struct with the action decision that will be executed by the AUV and with what power
          */
         void defineAction(Decision decision){
-            cout << "Action: " + actionToString(decision.action) << ", Power: " + decision.value << endl;
+            cout << "Action: " << actionToString(decision.action) << ", Power: " << decision.value << endl;
 
             switch (decision.action){
                 case Action::UP:
@@ -240,7 +240,7 @@ class ThrustersControl{
                     thrusters[3].move(decision.value);
                     thrusters[4].move(-decision.value);
                     break;
-                case default:
+                default:
                     thrusters[0].move(0);
                     thrusters[1].move(0);
                     thrusters[3].move(0);

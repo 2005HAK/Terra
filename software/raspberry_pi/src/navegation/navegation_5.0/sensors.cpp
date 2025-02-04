@@ -5,7 +5,7 @@
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
 #include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
-#include "auv_error.cpp"
+#include "auv_error.h"
 
 using namespace std;
 using namespace chrono;
@@ -45,7 +45,7 @@ class Sensors{
          *  velocity, and temperature sensors.
          */
         Sensors(){
-            Mavsdk mavsdk{Mavsdk::Configuration{Mavsdk::ComponentType::GroundStation}};
+            Mavsdk mavsdk{Mavsdk::Configuration(1, 1, true)};
 
             ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyACM0:115200");
 
@@ -146,8 +146,8 @@ class Sensors{
             return this->vel;
         }
 
-        steady_clock::time_point deltaTime(){
-            return this->oldTime - this->currentTime;
+        chrono::duration<double> deltaTime(){
+            return this->currentTime - this->oldTime;
         }
         
         ~Sensors(){

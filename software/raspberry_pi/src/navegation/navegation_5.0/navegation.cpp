@@ -3,7 +3,7 @@
 #include "sensors.cpp"
 #include "yoloctrl.cpp"
 #include "thrusters_control.cpp"
-#include "auv_error.cpp"
+#include "auv_error.h"
 #include <string>
 #include <thread>
 #include <unistd.h>
@@ -29,8 +29,8 @@ const int ERROR_CENTER = 50;
 // Distance considered safe for the AUV to approach (in m)
 const double SAFE_DISTANCE = 1;
 
-// Defines the power maximum that motors can receive (in %)
-const double POWER_MAX = 25;
+// Defines the power maximum that motors can receive (in %) ja existe em thrusters control
+// const double POWER_MAX = 25;
 
 enum class State{
     INIT,
@@ -51,11 +51,11 @@ string stateToString(State state){
         {State::ADVANCING, "ADVANCING"},
         {State::PASS_GATE_WITH_STYLE, "PASS_GATE_WITH_STYLE"},
         {State::STABILIZING, "STABILIZING"},
-        {State::STOP, "STOP"},
-    }
+        {State::STOP, "STOP"}
+    };
     
     auto it = stateNames.find(state);
-    return (it != stateNames.end() ? it->second : "UNKNOWN")
+    return (it != stateNames.end() ? it->second : "UNKNOWN");
 }
 
 /**
@@ -159,6 +159,10 @@ void advanceDecision(Decision &decision, double objectDistance){
     }
 }
 
+void definesAction(Action &action, double velocity, double errorVelocity, Action positiveAction, Action negativeAction){
+    if(velocity > errorVelocity) action = negativeAction;
+    else if(velocity < 0 - errorVelocity) action = positiveAction;
+}
 /**
  * @brief Defines the actions to stabilize the AUV
  * 
@@ -174,18 +178,13 @@ void stabilizes(array<Decision,3> &decision, array<double, 3> velocity){
     definesAction(decision[2].action, velocity[2], errorVelocity[0], Action::DOWN, Action::UP);
 }
 
-void definesAction(Action &action, double velocity, double errorVelocity, Action positiveAction, Action negativeAction){
-    if(velocity > errorVelocity) action = negativeAction;
-    else if(velocity < 0 - errorVelocity) action = positiveAction;
-}
-
 class AUVStateMachine{
     private:
         State lastState = State::NONE;
         State state = State::NONE;
         State nextState = State::NONE;
         string targetObject = "";
-        float distance; // passar o calculo e armazenamento de distancia para a yolo
+        double distance; // passar o calculo e armazenamento de distancia para a yolo
         Sensors *sensors;
         YoloCtrl *yoloCtrl;
         ThrustersControl *thrusters;
@@ -203,11 +202,11 @@ class AUVStateMachine{
         }
 
         void sensorsData(){
-            sensors.updateData();
+            sensors->updateData();
         }
 
         void detectionData(){
-            yoloCtrl.updateData();
+            yoloCtrl->updateData();
         }
 
         /**
@@ -215,8 +214,8 @@ class AUVStateMachine{
          */
         void checksErrors(){
             while(1){
-                sensors.collisionDetect();
-                sensors.detectOverheat();
+                sensors->collisionDetect();
+                sensors->detectOverheat();
                 sleep_for(milliseconds(100));
             }
         }
@@ -233,9 +232,11 @@ class AUVStateMachine{
 
         //ERRORS HANDLING
         void errorHandling(AUVError e){
-            if(dynamic_cast<const CollisionDetected*>(&e)){
-                if(this->state == State::SEARCH) directionCorrection(e.acceleration);
+            auto* error = dynamic_cast<CollisionDetected*>(&e);
+            if(error){
+                if(this->state == State::SEARCH) directionCorrection(error->getAcceleration());
             }
+            
             if(dynamic_cast<const FailedConnectThrusters*>(&e) || dynamic_cast<const HighTemperatureError*>(&e)) exit(1); 
         }
 
@@ -251,7 +252,7 @@ class AUVStateMachine{
 
             if(positionCollision[1] > 0) action = Action::TURNLEFT;
 
-            rotate(angle=rotationAngle, action=action);
+            rotate(rotationAngle, 0.174533, action);
 
             run();
         }
@@ -290,8 +291,8 @@ class AUVStateMachine{
                     rotate();
                     rotationCurrent++;
                 } else{
-                    // terminar essa parte
-                    this->thrusters.defineAction(Action::DOWN, 20);
+                    Decision decision = {Action::DOWN, 20};
+                    this->thrusters->defineAction(decision);
                     rotationCurrent = 0;
                 }
 
@@ -313,19 +314,21 @@ class AUVStateMachine{
         void rotate(double angle = 0.785398, double errorAngle = 0.174533, Action action = Action::TURNLEFT){
             array<double, 3> gyroCurrent = this->sensors->getGyro(), gyroOld;
             double rotated = 0;
-
+            Decision decision = {action, 20};
+            
             while(fabs(rotated) < angle - errorAngle){
-                this->thrusters->defineAction(action, 20);
+                this->thrusters->defineAction(decision);
 
                 gyroOld = gyroCurrent;
                 gyroCurrent = this->sensors->getGyro();
                 // Provalmente ta errado
-                double deltaTime = duration_cast<duration<double>>(this->sensors->deltaTime()).count();
+                double deltaTime = this->sensors->deltaTime().count();
 
                 rotated += deltaTime * (gyroCurrent[2] + gyroOld[2]) / 2;
             }
+            decision.value = 0;
 
-            this->thrusters->defineAction(action, 0);
+            this->thrusters->defineAction(decision);
         }
 
         // Testar
@@ -345,8 +348,8 @@ class AUVStateMachine{
 
                     centerObject(decision, xyxy);
 
-                    this->thrusters->defineAction(decision[0].action, decision[0].value);
-                    this->thrusters->defineAction(decision[1].action, decision[1].value);
+                    this->thrusters->defineAction(decision[0]);
+                    this->thrusters->defineAction(decision[1]);
                 }
             }
 
@@ -399,13 +402,13 @@ class AUVStateMachine{
 
             while(!isStable){
                 array<Decision, 3> decision;
-                stabilizes(decision, this->sensors->getVel(););
+                stabilizes(decision, this->sensors->getVel());
 
                 this->thrusters->defineAction(decision[0]);
-                sleep_for(.5);
+                sleep_for(milliseconds(500));
                 this->thrusters->defineAction(decision[1]);
                 this->thrusters->defineAction(decision[2]);
-                sleep_for(.5);
+                sleep_for(milliseconds(500));
 
                 if(decision[0].action == Action::NONE && decision[1].action == Action::NONE && decision[2].action == Action::NONE) isStable = 1;
             }
@@ -430,7 +433,7 @@ class AUVStateMachine{
          */
         void run(){
             try{
-                thread errorsThread(checksErrors);
+                thread errorsThread(&AUVStateMachine::checksErrors, this);
 
                 while (this->state != State::STOP){
                     switch (this->state){
@@ -466,3 +469,9 @@ class AUVStateMachine{
             delete this->yoloCtrl;
         }
 };
+
+int main(){
+    AUVStateMachine auv;
+    auv.init();
+    return 0;
+}
