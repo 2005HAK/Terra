@@ -1,0 +1,3 @@
+/home/equipeterra/Desktop/venv/Terra/tests/src/pixhawk/test_in_cpp/build/CMakeFiles/run_pix.dir
+/home/equipeterra/Desktop/venv/Terra/tests/src/pixhawk/test_in_cpp/build/CMakeFiles/edit_cache.dir
+/home/equipeterra/Desktop/venv/Terra/tests/src/pixhawk/test_in_cpp/build/CMakeFiles/rebuild_cache.dir

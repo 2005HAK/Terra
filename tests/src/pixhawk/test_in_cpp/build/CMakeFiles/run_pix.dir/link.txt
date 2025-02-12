@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/run_pix.dir/src/data_pix.cpp.o -o run_pix  /usr/lib/libmavsdk.so.3.0.0 -ldl 

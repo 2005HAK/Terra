@@ -44,7 +44,7 @@ class Sensors{
         Sensors(){
             Mavsdk mavsdk{Mavsdk::Configuration(1, 1, true)};
 
-            ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyS0:57600");
+            ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyACM0:57600");
 
             if (connection_result != ConnectionResult::Success){ //Colocar isso em um código de erro
                 cout << "Failed to connect: " << connection_result << endl;

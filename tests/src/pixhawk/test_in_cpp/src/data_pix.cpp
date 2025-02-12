@@ -13,7 +13,7 @@ using namespace chrono;
 
 
 int main() {
-    Mavsdk mavsdk{Mavsdk::Configuration{Mavsdk::ComponentType::GroundStation}};
+    Mavsdk mavsdk{Mavsdk::Configuration(1,1,true)};
 
     // Conexão com a Pixhawk via USB
     ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyACM0:115200");
