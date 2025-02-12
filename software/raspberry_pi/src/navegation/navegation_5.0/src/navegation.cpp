@@ -1,16 +1,14 @@
 #include <stdlib.h>
 #include <iostream>
-#include "sensors.cpp"
-#include "yoloctrl.cpp"
-#include "thrusters_control.cpp"
-#include "auv_error.h"
-#include <string>
 #include <thread>
 #include <unistd.h>
 #include <math.h>
 #include <map>
+#include "sensors.cpp"
+#include "yoloctrl.cpp"
+#include "thrusters_control.cpp"
+#include "auv_error.h"
 
-using namespace std;
 using namespace this_thread;
 
 // Width and height of the image seen by the camera
@@ -195,6 +193,7 @@ class AUVStateMachine{
             this->state = State::INIT;
             this->sensors = new Sensors();
             this->yoloCtrl = new YoloCtrl();
+            sleep_for(seconds(5));
 
             // Update sensors data and detection data in parallel with the state machine
             thread sensorThread(&AUVStateMachine::sensorsData, this);

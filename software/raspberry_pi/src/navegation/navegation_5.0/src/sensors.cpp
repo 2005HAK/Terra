@@ -1,30 +1,27 @@
 #include <array>
-#include <chrono>
 #include <thread>
 #include <iostream>
-#include <mavsdk/mavsdk.h>
-#include <mavsdk/plugins/telemetry/telemetry.h>
-#include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
+#include "mavsdk/mavsdk.h"
+#include "mavsdk/plugins/telemetry/telemetry.h"
+#include "mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h"
 #include "auv_error.h"
 
-using namespace std;
-using namespace chrono;
 using namespace mavsdk;
 using namespace this_thread;
 
 // Convertions
-double CONV_TO_MS = .01;       // convert cm/s to m/s 
-double CONV_TO_MS2 = 9806.65;  // convert mG to m/s²
-double CONV_TO_RAD = .001;     // convert mrad/s to rad/s
-double CONV_TO_µT = .1;        // convert mgauss to µT
+const double CONV_TO_MS = .01;       // convert cm/s to m/s 
+const double CONV_TO_MS2 = 9806.65;  // convert mG to m/s²
+const double CONV_TO_RAD = .001;     // convert mrad/s to rad/s
+const double CONV_TO_µT = .1;        // convert mgauss to µT
 
 //Acceleration limit consider a collision
-double ACC_LIMIT = 15;
+const double ACC_LIMIT = 15;
 
 // Critical temperatures - !!!Determinar quais são as temperaturas maximas!!!
-double MAX_TEMP_PIXHAWK = 60;
-double MAX_TEMP_RASPBERRY = 70;
-double MAX_TEMP_JETSON = 60;
+const double MAX_TEMP_PIXHAWK = 60;
+const double MAX_TEMP_RASPBERRY = 70;
+const double MAX_TEMP_JETSON = 60;
 
 class Sensors{
     private:
@@ -47,7 +44,7 @@ class Sensors{
         Sensors(){
             Mavsdk mavsdk{Mavsdk::Configuration(1, 1, true)};
 
-            ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyACM0:115200");
+            ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyS0:57600");
 
             if (connection_result != ConnectionResult::Success){ //Colocar isso em um código de erro
                 cout << "Failed to connect: " << connection_result << endl;

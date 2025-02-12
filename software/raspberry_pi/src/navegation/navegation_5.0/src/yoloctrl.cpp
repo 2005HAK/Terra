@@ -1,9 +1,7 @@
 #include <iostream>
-#include <string>
 #include <array>
 #include <vector>
-
-using namespace std;
+#include "utils.h"
 
 const int MAXDETECTIONS = 5;
 
