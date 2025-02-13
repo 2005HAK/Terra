@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
   "CMakeFiles/run_pix.dir/src/data_pix.cpp.o"
-  "CMakeFiles/run_pix.dir/src/data_pix.cpp.o.d"
   "run_pix"
   "run_pix.pdb"
 )
