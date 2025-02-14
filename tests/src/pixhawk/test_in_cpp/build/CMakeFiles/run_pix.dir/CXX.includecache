@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/hak/Documents/Terra/tests/src/pixhawk/test_in_cpp/src/data_pix.cpp
+/home/equipe/Terra/tests/src/pixhawk/test_in_cpp/src/data_pix.cpp
 mavsdk/mavsdk.h
 -
 mavsdk/plugins/telemetry/telemetry.h
