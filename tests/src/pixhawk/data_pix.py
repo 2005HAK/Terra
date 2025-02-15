@@ -2,7 +2,7 @@ import pixhawk as px
 from pymavlink import mavutil
 import time
 
-connection = mavutil.mavlink_connection('COM5', baud = 115200)
+connection = mavutil.mavlink_connection('/dev/ttyACM0', baud = 115200)
 i = 0
 # time1 = time.time()
 
