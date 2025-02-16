@@ -1,0 +1,71 @@
+*****************************************************************
+      SolidWorks Corporation - IGES Processor Status Report
+*****************************************************************
+=================================================================
+General Information
+=================================================================
+Sending System Product I.D.  : U2 Mini
+Receiving System Product I.D.: U2 Mini
+File Name                    : U2 Mini.igs
+Sending System               : DASSAULT SYSTEMES CATIA V5 R21 - www.3ds.com
+Preprocessor Version         : CATIA Version 5 Release 21 
+File Creation Date           : 20231115.001008
+Model Creation Date          : 20231115.001008
+Units                        : MM
+Model Space Scale            : 1
+Author                       : Administrator
+Organization                 : admin-PC
+
+
+=================================================================
+Entity Processing Information
+=================================================================
+ERROR:   DE#   207, TYPE   120: Unable to create a surface of revolution.
+ERROR:   DE#   383, TYPE   120: Unable to create a surface of revolution.
+ERROR:   DE#   413, TYPE   120: Unable to create a surface of revolution.
+ERROR:   DE#   589, TYPE   120: Unable to create a surface of revolution.
+
+
+=================================================================
+Precision analysis of IGES file:
+=================================================================
+  Most prevalent number of significant digits:              10
+  Highest number of significant digits:                     10
+  Average number of significant digits:                9.67137
+  Maximum distance to origin:                          347.338
+  Minimum distance to origin:                                0
+  Effective number of significant digits:                   10
+
+
+=================================================================
+Entity Summary
+=================================================================
+-----------------------------------------------------------------
+Type Name                                         Count Converted
+---- ----                                         ----- ---------
+100  Arc                                            913       913
+102  Composite curve                               1348      1348
+108  Plane                                          320       320
+110  Line                                          3737      3737
+120  Surface of revolution                          359       359
+124  Transformation matrix                          913       913
+126  Rational B-spline curve                       3282      3282
+128  Rational B-spline surface                      250       250
+142  Curve on a parametric surface                 1098      1098
+144  Trimmed parametric surface                    1036      1030
+406  Property                                         4         4
+_________________________________________________________________
+
+
+=================================================================
+Result Summary
+=================================================================
+SolidWorks Feature Type                Count
+-----------------------                -----
+Solid feature(s)                       2
+Surface feature(s)                     1
+Curve/Sketch feature(s)                0
+--------------------------------------------
+Start time: Sunday, February 16, 2025 10:56:23
+Finish time: Sunday, February 16, 2025 10:56:37
+Processing time: 0 days, 00 hours, 00 mins, 14 secs
