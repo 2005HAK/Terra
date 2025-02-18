@@ -18,17 +18,22 @@ sudo apt install -y \
 
 echo "Instalando WiringPi..."
 
-sudo apt-get -y purge wiringpi
-hash -r
-git clone --branch final_official_2.50 https://github.com/WiringPi/WiringPi.git ~/wiringpi
-cd ~/wiringPi
-./build
+sudo mkdir WiringPi
+sudo git clone https://github.com/WiringPi/WiringPi.git WiringPi
+cd WiringPi
+sudo ./build
+cd ..
 
 echo "Baixando e instalando MAVSDK..."
 
 wget https://github.com/mavlink/MAVSDK/releases/download/v3.0.0/libmavsdk-dev_3.0.0_debian12_arm64.deb
 sudo dpkg -i libmavsdk-dev_3.0.0_debian12_arm64.deb
 rm libmavsdk-dev_3.0.0_debian12_arm64.deb
+
+wget json.hpp https://github.com/nlohmann/json/releases/latest/download/json.hpp
+
+sudo mkdir /usr/include/nlohmann
+sudo mv json.hpp /usr/include/nlohmann
 
 echo "Instalação concluída!"
 
@@ -38,4 +43,4 @@ rm -rf build/*
 cd build
 cmake ..
 make
-./run_auv
+sudo ./run_auv
