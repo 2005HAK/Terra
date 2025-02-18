@@ -34,6 +34,16 @@ class AUVError : public exception{
         }
 };
 
+class FailedInitializationSensors : public AUVError{
+    public:
+        FailedInitializationSensors() : AUVError("Failed to create the sensors object", 151){}
+};
+
+class FailedInitializationYolo : public AUVError{
+    public:
+        FailedInitializationYolo() : AUVError("Failed to create the yolo object", 152){}
+};
+
 class CollisionDetected : public AUVError{
     private:
         array<double, 3> acceleration;
@@ -43,7 +53,7 @@ class CollisionDetected : public AUVError{
          * @brief Detects AUV collisions
          */
         CollisionDetected(array<double, 3> acceleration) : AUVError("Collision detected based in sensor data: {" + to_string(acceleration[0]) +
-                          ", " + to_string(acceleration[1]) + ", " + to_string(acceleration[2]) + "} m/s²", 301), acceleration(acceleration){}
+                        ", " + to_string(acceleration[1]) + ", " + to_string(acceleration[2]) + "} m/s²", 301), acceleration(acceleration){}
         
         array<double, 3> getAcceleration(){
             return this->acceleration;

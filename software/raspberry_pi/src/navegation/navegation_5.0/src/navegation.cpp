@@ -180,12 +180,13 @@ class AUVStateMachine{
         State nextState = State::NONE;
         string targetObject = "";
         double distance; // passar o calculo e armazenamento de distancia para a yolo
-        Sensors *sensors;
-        YoloCtrl *yoloCtrl;
-        ThrustersControl *thrusters;
+        Sensors *sensors = nullptr;
+        YoloCtrl *yoloCtrl = nullptr;
+        ThrustersControl *thrusters = nullptr;
         thread sensorThread;
         thread detectionThread;
         thread errorThread;
+        bool running = true;
 
     public:
         AUVStateMachine(){
@@ -196,25 +197,47 @@ class AUVStateMachine{
             sleep_for(seconds(5));
 
             // Update sensors data and detection data in parallel with the state machine
-            sensorThread = thread(&AUVStateMachine::sensorsData, this);
-            detectionThread = thread(&AUVStateMachine::detectionData, this);
+            if(sensors) sensorThread = thread(&AUVStateMachine::sensorsData, this);
+            else throw FailedInitializationSensors();
+
+            if(yoloCtrl) yoloCtrl = thread(&AUVStateMachine::detectionData, this);
+            else throw FailedInitializationYolo();
+        }
+
+        ~AUVStateMachine(){
+            running = false;
+            if (sensorThread.joinable()) sensorThread.join();
+            if (detectionThread.joinable()) detectionThread.join();
+            if (errorThread.joinable()) errorThread.join();
+
+            delete this->sensors;
+            delete this->thrusters;
+            delete this->yoloCtrl;
         }
 
         void sensorsData(){
-            sensors->updateData();
+            while(running){
+                sensors->updateData();
+                sleep_for(milliseconds(100));
+            } 
         }
 
         void detectionData(){
-            yoloCtrl->updateData();
+            while(running){
+                yoloCtrl->updateData();
+                sleep_for(milliseconds(100));
+            }
         }
 
         /**
          * @brief Checks for errors every **100 ms**
          */
         void checksErrors(){
-            while(1){
-                sensors->collisionDetect();
-                sensors->detectOverheat();
+            while(running){
+                if(sensors){
+                    sensors->collisionDetect();
+                    sensors->detectOverheat();
+                }
                 sleep_for(milliseconds(100));
             }
         }
@@ -273,7 +296,9 @@ class AUVStateMachine{
             cout << "Initializing..." << endl;
 
             this->thrusters = new ThrustersControl();
-            transitionTo(State::SEARCH);
+
+            if(thrusters) transitionTo(State::SEARCH);
+            else throw FailedConnectThrusters();
         }
 
         /**
@@ -375,7 +400,7 @@ class AUVStateMachine{
                     calculateDistance(this->distance, this->targetObject, xyxy);
                     advanceDecision(decision, this->distance);
 
-                    if(decision.action == Action::NONE) advance == 0;
+                    if(decision.action == Action::NONE) advance = 0;
 
                     this->thrusters->defineAction(decision);
                 } else {
@@ -461,20 +486,10 @@ class AUVStateMachine{
                 errorHandling(e);
             }
         }
-
-        ~AUVStateMachine(){
-            if (sensorThread.joinable()) sensorThread.join();
-            if (detectionThread.joinable()) detectionThread.join();
-            if (errorThread.joinable()) errorThread.join();
-
-            delete this->sensors;
-            delete this->thrusters;
-            delete this->yoloCtrl;
-        }
 };
 
 int main(){
     AUVStateMachine auv;
-    auv.init();
+    auv.run();
     return 0;
 }

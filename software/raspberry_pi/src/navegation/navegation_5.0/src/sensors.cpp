@@ -106,8 +106,6 @@ class Sensors{
 
                 this->tempPixhawk = imu_data.temperature / 100.0;
             });
-
-            while (1) sleep_for(milliseconds(100));
         }
 
         /**

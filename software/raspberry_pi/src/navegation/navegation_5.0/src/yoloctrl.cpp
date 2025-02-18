@@ -97,10 +97,7 @@ class YoloCtrl{
         }
 
         void updateData(){
-            while(1){
-                identifiedObjects = recv.receive();
-                sleep_for(milliseconds(350));
-            }
+            identifiedObjects = recv.receive();
         }
 
         bool foundObject(){
