@@ -2,12 +2,9 @@
 #include <array>
 #include <vector>
 #include <string>
-#include <thread>
 #include <chrono>
 #include <wiringPi.h>
 #include "auv_error.h"
-
-using namespace this_thread;
 
 // Defines the power maximum that thrusters can receive (in %)
 const double POWER_MAX = 25;

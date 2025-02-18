@@ -31,6 +31,7 @@ class YoloCtrl{
         void updateData(){
             while(1){
                 receive();
+                sleep_for(milliseconds(350));
             }
         }
 

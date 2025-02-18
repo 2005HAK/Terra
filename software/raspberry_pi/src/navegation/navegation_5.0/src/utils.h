@@ -3,9 +3,11 @@
 
 #include <string>
 #include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace chrono;
+using namespace this_thread;
 
 /**
  * @brief Actions the AUV can perform

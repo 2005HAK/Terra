@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <iostream>
-#include <thread>
 #include <unistd.h>
 #include <math.h>
 #include <map>
@@ -8,8 +7,6 @@
 #include "yoloctrl.cpp"
 #include "thrusters_control.cpp"
 #include "auv_error.h"
-
-using namespace this_thread;
 
 // Width and height of the image seen by the camera
 const int IMAGE_WIDTH = 640;
@@ -186,6 +183,9 @@ class AUVStateMachine{
         Sensors *sensors;
         YoloCtrl *yoloCtrl;
         ThrustersControl *thrusters;
+        thread sensorThread;
+        thread detectionThread;
+        thread errorThread;
 
     public:
         AUVStateMachine(){
@@ -196,8 +196,8 @@ class AUVStateMachine{
             sleep_for(seconds(5));
 
             // Update sensors data and detection data in parallel with the state machine
-            thread sensorThread(&AUVStateMachine::sensorsData, this);
-            thread detectionThread(&AUVStateMachine::detectionData, this);
+            sensorThread = thread(&AUVStateMachine::sensorsData, this);
+            detectionThread = thread(&AUVStateMachine::detectionData, this);
         }
 
         void sensorsData(){
@@ -432,7 +432,7 @@ class AUVStateMachine{
          */
         void run(){
             try{
-                thread errorsThread(&AUVStateMachine::checksErrors, this);
+                errorThread = thread(&AUVStateMachine::checksErrors, this);
 
                 while (this->state != State::STOP){
                     switch (this->state){
@@ -463,6 +463,10 @@ class AUVStateMachine{
         }
 
         ~AUVStateMachine(){
+            if (sensorThread.joinable()) sensorThread.join();
+            if (detectionThread.joinable()) detectionThread.join();
+            if (errorThread.joinable()) errorThread.join();
+
             delete this->sensors;
             delete this->thrusters;
             delete this->yoloCtrl;

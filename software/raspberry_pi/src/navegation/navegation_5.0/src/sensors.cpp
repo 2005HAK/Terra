@@ -1,5 +1,4 @@
 #include <array>
-#include <thread>
 #include <iostream>
 #include "mavsdk/mavsdk.h"
 #include "mavsdk/plugins/telemetry/telemetry.h"
@@ -7,7 +6,6 @@
 #include "auv_error.h"
 
 using namespace mavsdk;
-using namespace this_thread;
 
 // Convertions
 const double CONV_TO_MS = .01;       // convert cm/s to m/s 
