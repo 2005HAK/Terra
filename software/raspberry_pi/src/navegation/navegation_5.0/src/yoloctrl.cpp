@@ -19,9 +19,77 @@ struct Object{
     int objectId;
 };
 
+class Receiver {
+    public:
+        vector<Object> process_json(const json& received_json) {
+            vector<Object> results;
+            try {
+                if (received_json.count("data")) {  // 'contains' não existia antes do JSON 3.9.0
+                    for (const auto& obj : received_json["data"]) {
+                        if (obj.is_array() && obj.size() >= 6) {
+                            Object currentObject;
+                            currentObject.topLeftXY[0] = obj[0];
+                            currentObject.topLeftXY[0] = obj[1];
+                            currentObject.downRightXY[0] = obj[2];
+                            currentObject.downRightXY[0] = obj[2];
+                            currentObject.confidance = obj[4];
+                            currentObject.objectId = obj[5];
+                            currentObject.name = "Unknown";
+
+                            if (received_json.count("names") && received_json["names"].count(to_string(currentObject.objectId))) {
+                                currentObject.name = received_json["names"][to_string(currentObject.objectId)];
+                            }
+                            results.emplace_back(currentObject);
+                        }
+                    }
+                }
+            } catch (const json::exception& e) {
+                cerr << "Erro ao processar JSON: " << e.what() << endl;
+            }
+            return results;
+        }
+    
+        vector<Object> receive() {
+            vector<Object> results;
+    
+            try {
+                boost::asio::io_service io_service;  // io_context substituído por io_service
+                tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 65432));
+    
+                tcp::socket socket(io_service);
+                acceptor.accept(socket);
+    
+                boost::asio::streambuf buffer;
+                boost::system::error_code error;
+                boost::asio::read_until(socket, buffer, '\n', error);
+    
+                if (!error || error == boost::asio::error::eof) {  // EOF tratado corretamente
+                    istream is(&buffer);
+                    string received_data;
+                    getline(is, received_data);
+    
+                    try {
+                        json received_json = json::parse(received_data);
+    
+                        results = process_json(received_json);
+
+                    } catch (const json::parse_error& e) {
+                        cerr << "Erro ao interpretar JSON: " << e.what() << endl;
+                    }
+                }
+    
+            } catch (exception& e) {
+                cerr << "Erro: " << e.what() << endl;
+            }
+            return results;
+        }
+};
+
 class YoloCtrl{
     private:
         vector<Object> identifiedObjects;
+
+        Receiver recv;
 
     public:
         YoloCtrl(){
@@ -30,63 +98,8 @@ class YoloCtrl{
 
         void updateData(){
             while(1){
-                receive();
+                identifiedObjects = recv.receive();
                 sleep_for(milliseconds(350));
-            }
-        }
-
-        void process_json(const json& received_json) {
-            try{
-                if(received_json.contains("data")){
-                    for(const auto& obj : received_json["data"]){
-                        Object currentObject;
-
-                        if(obj.is_array() && obj.size() >= 6){
-                            currentObject.topLeftXY[0] = obj[0];
-                            currentObject.topLeftXY[1] = obj[1];
-                            currentObject.downRightXY[0] = obj[2];
-                            currentObject.downRightXY[1] = obj[3];
-                            currentObject.confidance = obj[4];
-                            currentObject.objectId = obj[5];
-                            currentObject.name = "Unknown";
-
-                            if(received_json.contains("names") && received_json["names"].contains(to_string(currentObject.objectId))) 
-                                currentObject.name = received_json["names"][to_string(currentObject.objectId)];
-
-                            identifiedObjects.emplace_back(currentObject);
-                        }
-                    }
-                }
-            }catch (const json::exception& e){
-                cerr << "Erro ao processar JSON: " << e.what() << endl;
-            }
-        }
-    
-        void receive(){  
-            try{
-                boost::asio::io_context io_context;
-                tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 65432));
-    
-                tcp::socket socket(io_context);
-                acceptor.accept(socket);
-
-                boost::asio::streambuf buffer;
-                boost::asio::read_until(socket, buffer, '\n');
-
-                istream is(&buffer);
-                string received_data;
-                getline(is, received_data);
-
-                try {
-                    json received_json = json::parse(received_data);
-                    
-                    process_json(received_json);
-                } catch (const json::parse_error& e) {
-                    cerr << "Erro ao interpretar JSON: " << e.what() << endl;
-                }
-                
-            } catch (exception& e) {
-                cerr << "Erro: " << e.what() << endl;
             }
         }
 
