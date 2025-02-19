@@ -130,7 +130,7 @@ AUVStateMachine::~AUVStateMachine(){
 void AUVStateMachine::sensorsData(){
     while(running){
         sensors->updateData();
-	sleep_for(milliseconds(100));
+	sleep_for(milliseconds(500));
     }
 }
 
