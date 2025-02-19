@@ -1,5 +1,5 @@
 #include <iostream>
-#include "/home/gustavo/PycharmProjects/Terra/software/jetson/src/Testes/CPP/reciveobj.h"
+#include "/home/equipeterra/Terra/software/jetson/src/Testes/CPP/reciveobj.h"
 using namespace std;
 
 int main()
