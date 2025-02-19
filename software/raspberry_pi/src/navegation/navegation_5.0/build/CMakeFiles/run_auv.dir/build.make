@@ -69,24 +69,10 @@ include CMakeFiles/run_auv.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/run_auv.dir/flags.make
 
-CMakeFiles/run_auv.dir/src/main_navegation.cpp.o: CMakeFiles/run_auv.dir/flags.make
-CMakeFiles/run_auv.dir/src/main_navegation.cpp.o: /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/main_navegation.cpp
-CMakeFiles/run_auv.dir/src/main_navegation.cpp.o: CMakeFiles/run_auv.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/run_auv.dir/src/main_navegation.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/run_auv.dir/src/main_navegation.cpp.o -MF CMakeFiles/run_auv.dir/src/main_navegation.cpp.o.d -o CMakeFiles/run_auv.dir/src/main_navegation.cpp.o -c /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/main_navegation.cpp
-
-CMakeFiles/run_auv.dir/src/main_navegation.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run_auv.dir/src/main_navegation.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/main_navegation.cpp > CMakeFiles/run_auv.dir/src/main_navegation.cpp.i
-
-CMakeFiles/run_auv.dir/src/main_navegation.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run_auv.dir/src/main_navegation.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/main_navegation.cpp -o CMakeFiles/run_auv.dir/src/main_navegation.cpp.s
-
 CMakeFiles/run_auv.dir/src/navegation.cpp.o: CMakeFiles/run_auv.dir/flags.make
 CMakeFiles/run_auv.dir/src/navegation.cpp.o: /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/navegation.cpp
 CMakeFiles/run_auv.dir/src/navegation.cpp.o: CMakeFiles/run_auv.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/run_auv.dir/src/navegation.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/run_auv.dir/src/navegation.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/run_auv.dir/src/navegation.cpp.o -MF CMakeFiles/run_auv.dir/src/navegation.cpp.o.d -o CMakeFiles/run_auv.dir/src/navegation.cpp.o -c /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/navegation.cpp
 
 CMakeFiles/run_auv.dir/src/navegation.cpp.i: cmake_force
@@ -100,7 +86,7 @@ CMakeFiles/run_auv.dir/src/navegation.cpp.s: cmake_force
 CMakeFiles/run_auv.dir/src/sensors.cpp.o: CMakeFiles/run_auv.dir/flags.make
 CMakeFiles/run_auv.dir/src/sensors.cpp.o: /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/sensors.cpp
 CMakeFiles/run_auv.dir/src/sensors.cpp.o: CMakeFiles/run_auv.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/run_auv.dir/src/sensors.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/run_auv.dir/src/sensors.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/run_auv.dir/src/sensors.cpp.o -MF CMakeFiles/run_auv.dir/src/sensors.cpp.o.d -o CMakeFiles/run_auv.dir/src/sensors.cpp.o -c /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/sensors.cpp
 
 CMakeFiles/run_auv.dir/src/sensors.cpp.i: cmake_force
@@ -114,7 +100,7 @@ CMakeFiles/run_auv.dir/src/sensors.cpp.s: cmake_force
 CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o: CMakeFiles/run_auv.dir/flags.make
 CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o: /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/thrustersctrl.cpp
 CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o: CMakeFiles/run_auv.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o -MF CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o.d -o CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o -c /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/thrustersctrl.cpp
 
 CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.i: cmake_force
@@ -128,7 +114,7 @@ CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.s: cmake_force
 CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o: CMakeFiles/run_auv.dir/flags.make
 CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o: /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/yoloctrl.cpp
 CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o: CMakeFiles/run_auv.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o -MF CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o.d -o CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o -c /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/yoloctrl.cpp
 
 CMakeFiles/run_auv.dir/src/yoloctrl.cpp.i: cmake_force
@@ -142,7 +128,7 @@ CMakeFiles/run_auv.dir/src/yoloctrl.cpp.s: cmake_force
 CMakeFiles/run_auv.dir/src/auverror.cpp.o: CMakeFiles/run_auv.dir/flags.make
 CMakeFiles/run_auv.dir/src/auverror.cpp.o: /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/auverror.cpp
 CMakeFiles/run_auv.dir/src/auverror.cpp.o: CMakeFiles/run_auv.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/run_auv.dir/src/auverror.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/run_auv.dir/src/auverror.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/run_auv.dir/src/auverror.cpp.o -MF CMakeFiles/run_auv.dir/src/auverror.cpp.o.d -o CMakeFiles/run_auv.dir/src/auverror.cpp.o -c /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/auverror.cpp
 
 CMakeFiles/run_auv.dir/src/auverror.cpp.i: cmake_force
@@ -156,7 +142,7 @@ CMakeFiles/run_auv.dir/src/auverror.cpp.s: cmake_force
 CMakeFiles/run_auv.dir/src/utils.cpp.o: CMakeFiles/run_auv.dir/flags.make
 CMakeFiles/run_auv.dir/src/utils.cpp.o: /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/utils.cpp
 CMakeFiles/run_auv.dir/src/utils.cpp.o: CMakeFiles/run_auv.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/run_auv.dir/src/utils.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/run_auv.dir/src/utils.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/run_auv.dir/src/utils.cpp.o -MF CMakeFiles/run_auv.dir/src/utils.cpp.o.d -o CMakeFiles/run_auv.dir/src/utils.cpp.o -c /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/utils.cpp
 
 CMakeFiles/run_auv.dir/src/utils.cpp.i: cmake_force
@@ -169,7 +155,6 @@ CMakeFiles/run_auv.dir/src/utils.cpp.s: cmake_force
 
 # Object files for target run_auv
 run_auv_OBJECTS = \
-"CMakeFiles/run_auv.dir/src/main_navegation.cpp.o" \
 "CMakeFiles/run_auv.dir/src/navegation.cpp.o" \
 "CMakeFiles/run_auv.dir/src/sensors.cpp.o" \
 "CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o" \
@@ -180,7 +165,6 @@ run_auv_OBJECTS = \
 # External object files for target run_auv
 run_auv_EXTERNAL_OBJECTS =
 
-run_auv: CMakeFiles/run_auv.dir/src/main_navegation.cpp.o
 run_auv: CMakeFiles/run_auv.dir/src/navegation.cpp.o
 run_auv: CMakeFiles/run_auv.dir/src/sensors.cpp.o
 run_auv: CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o
@@ -191,7 +175,7 @@ run_auv: CMakeFiles/run_auv.dir/build.make
 run_auv: /usr/lib/libmavsdk.so.3.0.0
 run_auv: /usr/local/lib/libwiringPi.so
 run_auv: CMakeFiles/run_auv.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable run_auv"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable run_auv"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/run_auv.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

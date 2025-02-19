@@ -235,7 +235,7 @@ void AUVStateMachine::searchObjects(){
 }
 
 // Testar
-void AUVStateMachine::rotate(double angle = 0.785398, double errorAngle = 0.174533, Action action = Action::TURNLEFT){
+void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
     array<double, 3> gyroCurrent = this->sensors->getGyro(), gyroOld;
     double rotated = 0;
     Decision decision = {action, 20};
@@ -373,4 +373,10 @@ void AUVStateMachine::run(){
     } catch(AUVError e){
         errorHandling(e);
     }
+}
+
+int main(){
+    AUVStateMachine auv;
+    auv.run();
+    return 0;
 }

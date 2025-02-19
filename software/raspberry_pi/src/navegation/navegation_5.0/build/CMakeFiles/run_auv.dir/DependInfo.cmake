@@ -9,7 +9,6 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/auverror.cpp" "CMakeFiles/run_auv.dir/src/auverror.cpp.o" "gcc" "CMakeFiles/run_auv.dir/src/auverror.cpp.o.d"
-  "/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/main_navegation.cpp" "CMakeFiles/run_auv.dir/src/main_navegation.cpp.o" "gcc" "CMakeFiles/run_auv.dir/src/main_navegation.cpp.o.d"
   "/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/navegation.cpp" "CMakeFiles/run_auv.dir/src/navegation.cpp.o" "gcc" "CMakeFiles/run_auv.dir/src/navegation.cpp.o.d"
   "/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/sensors.cpp" "CMakeFiles/run_auv.dir/src/sensors.cpp.o" "gcc" "CMakeFiles/run_auv.dir/src/sensors.cpp.o.d"
   "/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/thrustersctrl.cpp" "CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o" "gcc" "CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o.d"

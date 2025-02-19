@@ -1,6 +1,6 @@
 #include "utils.h"
 
-inline string getTime(){
+string getTime(){
     auto now = system_clock::now();
     time_t nowTime = system_clock::to_time_t(now);
     string strNowTime = ctime(&nowTime);
@@ -8,7 +8,7 @@ inline string getTime(){
     return strNowTime;
 }
 
-inline string actionToString(Action action){
+string actionToString(Action action){
     switch (action){
         case Action::FORWARD: return "FORWARD";
         case Action::BACKWARD: return "BACKWARD";

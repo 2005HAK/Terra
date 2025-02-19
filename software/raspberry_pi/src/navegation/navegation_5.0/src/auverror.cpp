@@ -1,6 +1,6 @@
 #include "auverror.h"
 
-AUVError::AUVError(string type = "Unidentidied error", int code = 95) : time(getTime()), type(type), code(code){
+AUVError::AUVError(string type, int code) : time(getTime()), type(type), code(code){
     logError();
 }
 
@@ -27,8 +27,8 @@ array<double, 3> CollisionDetected::getAcceleration(){
 
 FailedConnectThrusters::FailedConnectThrusters() : AUVError("Failed to connect thrusters", 441){}
 
-HighTemperatureError::HighTemperatureError(double temperature = -1, string type = "High temperature detected", int code = 95) : AUVError(type, code), temperature(temperature){}
+HighTemperatureError::HighTemperatureError(double temperature, string type, int code) : AUVError(type, code), temperature(temperature){}
 
-PixhawkHighTemperature::PixhawkHighTemperature(double temperature = -1) : HighTemperatureError(temperature, "Pixhawk temperature above threshold " + to_string(temperature) + "ºC", 332){}
+PixhawkHighTemperature::PixhawkHighTemperature(double temperature) : HighTemperatureError(temperature, "Pixhawk temperature above threshold " + to_string(temperature) + "ºC", 332){}
 
-RaspberryHighTemperature::RaspberryHighTemperature(double temperature = -1) : HighTemperatureError(temperature, "Raspberry temperature above threshold " + to_string(temperature) + "ºC", 141){}
+RaspberryHighTemperature::RaspberryHighTemperature(double temperature) : HighTemperatureError(temperature, "Raspberry temperature above threshold " + to_string(temperature) + "ºC", 141){}

@@ -47,7 +47,7 @@ enum class Action{
  * 
  * @return strNowTime
  */
-inline string getTime();
+string getTime();
 
 /**
  * @brief Converts the action name to string
@@ -56,6 +56,6 @@ inline string getTime();
  * 
  * @return Action in string format
  */
-inline string actionToString(Action action);
+string actionToString(Action action);
 
 #endif // UTILS_H

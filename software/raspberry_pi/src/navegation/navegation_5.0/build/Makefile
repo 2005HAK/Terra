@@ -153,30 +153,6 @@ src/auverror.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_auv.dir/build.make CMakeFiles/run_auv.dir/src/auverror.cpp.s
 .PHONY : src/auverror.cpp.s
 
-src/main_navegation.o: src/main_navegation.cpp.o
-.PHONY : src/main_navegation.o
-
-# target to build an object file
-src/main_navegation.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_auv.dir/build.make CMakeFiles/run_auv.dir/src/main_navegation.cpp.o
-.PHONY : src/main_navegation.cpp.o
-
-src/main_navegation.i: src/main_navegation.cpp.i
-.PHONY : src/main_navegation.i
-
-# target to preprocess a source file
-src/main_navegation.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_auv.dir/build.make CMakeFiles/run_auv.dir/src/main_navegation.cpp.i
-.PHONY : src/main_navegation.cpp.i
-
-src/main_navegation.s: src/main_navegation.cpp.s
-.PHONY : src/main_navegation.s
-
-# target to generate assembly for a file
-src/main_navegation.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_auv.dir/build.make CMakeFiles/run_auv.dir/src/main_navegation.cpp.s
-.PHONY : src/main_navegation.cpp.s
-
 src/navegation.o: src/navegation.cpp.o
 .PHONY : src/navegation.o
 
@@ -309,9 +285,6 @@ help:
 	@echo "... src/auverror.o"
 	@echo "... src/auverror.i"
 	@echo "... src/auverror.s"
-	@echo "... src/main_navegation.o"
-	@echo "... src/main_navegation.i"
-	@echo "... src/main_navegation.s"
 	@echo "... src/navegation.o"
 	@echo "... src/navegation.i"
 	@echo "... src/navegation.s"

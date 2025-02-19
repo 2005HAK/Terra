@@ -1,8 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/run_auv.dir/src/auverror.cpp.o"
   "CMakeFiles/run_auv.dir/src/auverror.cpp.o.d"
-  "CMakeFiles/run_auv.dir/src/main_navegation.cpp.o"
-  "CMakeFiles/run_auv.dir/src/main_navegation.cpp.o.d"
   "CMakeFiles/run_auv.dir/src/navegation.cpp.o"
   "CMakeFiles/run_auv.dir/src/navegation.cpp.o.d"
   "CMakeFiles/run_auv.dir/src/sensors.cpp.o"
