@@ -47,6 +47,8 @@ class Sensors{
         
         ~Sensors();
 
+        void initialize();
+
         /**
          * @brief Continuously updates sensor data, fetching new information from Pixhawk and ****temperature sensors (fazer essa parte)****
          */

@@ -39,7 +39,7 @@ Sensors::Sensors(){
 
 Sensors::~Sensors(){}
 
-void Sensors::updateData(){
+void Sensors::initialize(){
     cout << "Listening messages..." << endl;
     
     if(mavlink_passthrough){
@@ -71,8 +71,10 @@ void Sensors::updateData(){
             this->tempPixhawk = imu_data.temperature / 100.0;
         });
     }
+}
 
-    cout << "x: " << acc[0] << ", y: " << acc[1] << ", z: " << acc[2] << endl;
+void Sensors::updateData(){
+    cout << "accx: " << acc[0] << ", accy: " << acc[1] << ", accz: " << acc[2] << endl;
 
     oldTime = currentTime;
     currentTime = chrono::steady_clock::now();
