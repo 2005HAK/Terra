@@ -25,7 +25,7 @@ class IA:
         self.conf=.8
         self.HOST = '192.168.1.65'
         self.PORT = 65432
-        self.model=YOLO('yolo11n.pt')
+        self.model=YOLO('/home/hak/Documents/Terra/software/jetson/src/Testes/Treinos/modelos/TreinoCuboV2Para160px01.pt')
 
     def enviar_dicionario(self,dicio):
         try:
