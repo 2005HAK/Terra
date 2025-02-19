@@ -12,6 +12,12 @@ find_library(WIRINGPI_LIB wiringPi)
 
 set(SOURCES
 	src/main_navegation.cpp
+	src/navegation.cpp
+	src/sensors.cpp
+	src/thrustersctrl.cpp
+	src/yoloctrl.cpp
+	src/auverror.cpp
+	src/utils.cpp
 )
 
 add_executable(run_auv ${SOURCES})
