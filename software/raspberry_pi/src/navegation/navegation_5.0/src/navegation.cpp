@@ -47,7 +47,7 @@ void velocitySetPower(array<Decision, 3> &decision, array<double, 3> velocity){
 void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy){
     array<int, 2> middle = center(xyxy);
 
-    if(middle[0] >= 0 && middle[0] <= IMAGE_WIDTH && middle[1] >= 0 && middle[1] < IMAGE_HEIGHT){
+    if(middle[0] >= 0 && middle[0] <= IMAGE_WIDTH && middle[1] >= 0 && middle[1] <= IMAGE_HEIGHT){
         if(middle[0] < IMAGE_CENTER[0] - (ERROR_CENTER / 2)) decision[0].action = Action::LEFT;
         else if(middle[0] > IMAGE_CENTER[0] + (ERROR_CENTER / 2)) decision[0].action = Action::RIGHT;
 
@@ -259,7 +259,7 @@ void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
 void AUVStateMachine::centering(){
     cout << "Centering..." << endl;
 
-    int lostObject = 0, isCenter = 0;
+    bool lostObject = false, isCenter = false;
 
     while(!isCenter){
         array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
@@ -271,11 +271,20 @@ void AUVStateMachine::centering(){
 
             this->thrusters->defineAction(decision[0]);
             this->thrusters->defineAction(decision[1]);
+
+	    if(decision[0].action == Action::NONE && decision[1].action == Action::NONE) isCenter = true;
+        } else {
+	    isCenter = true;
+	    lostObject = true;
+	    cout << "Lost object!" << endl;
         }
     }
 
-    this->nextState = State::ADVANCING;
-    this->transitionTo(State::STABILIZING);
+    if(!lostObject){
+        this->nextState = State::ADVANCING;
+        this->transitionTo(State::STABILIZING);
+    } else
+	this->transitionTo(State::SEARCH);
 }
 
 // Testar

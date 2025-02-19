@@ -8,7 +8,7 @@
 #include <map>
 #include "sensors.h"
 #include "yoloctrl.h"
-#include "thrustersctrl.h" 
+#include "thrustersctrl.h"
 #include "auverror.h"
 
 // Width and height of the image seen by the camera
@@ -16,7 +16,7 @@ const int IMAGE_WIDTH = 640;
 const int IMAGE_HEIGHT = 480;
 
 // Object used to initialization
-const string OBJECT_INITIALIZATION = "person";
+const string OBJECT_INITIALIZATION = "Cube";
 
 // Center of the image seen by the camera
 array<int, 2> IMAGE_CENTER = {IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2};
