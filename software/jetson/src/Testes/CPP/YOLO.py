@@ -23,7 +23,7 @@ class IA:
         self.save=False
         self.max_det=1
         self.conf=.8
-        self.HOST = 'LOCALHOST'
+        self.HOST = '192.168.1.65'
         self.PORT = 65432
         self.model=YOLO('yolo11n.pt')
 
