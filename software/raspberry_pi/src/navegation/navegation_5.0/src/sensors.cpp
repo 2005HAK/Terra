@@ -1,9 +1,9 @@
 #include "sensors.h"
 
 Sensors::Sensors(){
-    Mavsdk mavsdk{Mavsdk::Configuration(1, 1, true)};
+    mavsdk = make_unique<Mavsdk>(Mavsdk::Configuration(1, 1, true));
     
-    ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyAMA0:115200");
+    ConnectionResult connection_result = mavsdk->add_any_connection("serial:///dev/ttyAMA0:115200");
     
     if (connection_result != ConnectionResult::Success){ //Colocar isso em um código de erro
         cout << "Failed to connect: " << connection_result << endl;
@@ -12,10 +12,10 @@ Sensors::Sensors(){
     sleep_for(seconds(3));
     cout << "Finding systems..." << endl;
     
-    auto systems = mavsdk.systems();
+    auto systems = mavsdk->systems();
     
     if(systems.size() > 0) {
-        auto system = mavsdk.systems().at(0);
+        auto system = mavsdk->systems().at(0);
         if(system->is_connected()){
             this->telemetry = make_unique<Telemetry>(system);
             this->mavlink_passthrough = make_unique<MavlinkPassthrough>(system);

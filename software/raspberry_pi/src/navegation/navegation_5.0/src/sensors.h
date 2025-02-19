@@ -30,12 +30,13 @@ class Sensors{
         array<double, 3> gyro = {0, 0, 0};      // {x, y, z}
         array<double, 3> mag = {0, 0, 0};       // {x, y, z}
         array<double, 3> vel = {0, 0, 0};       // {x, y, z}
-        double tempPixhawk;                     // ºC
-        double tempRaspberry;                   // ºC
+        double tempPixhawk = 0.0;               // ºC
+        double tempRaspberry = 0.0;             // ºC
         steady_clock::time_point currentTime;
         steady_clock::time_point oldTime;
         unique_ptr<Telemetry> telemetry;
         unique_ptr<MavlinkPassthrough> mavlink_passthrough;
+        unique_ptr<Mavsdk> mavsdk;
 
     public:
         /**
