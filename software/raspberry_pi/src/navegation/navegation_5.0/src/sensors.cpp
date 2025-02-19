@@ -1,3 +1,4 @@
+
 #include <array>
 #include <iostream>
 #include "mavsdk/mavsdk.h"
@@ -48,25 +49,25 @@ class Sensors{
                 cout << "Failed to connect: " << connection_result << endl;
             } else cout << "Connected to Pixhawk" << endl;
 
-            sleep_for(seconds(2));
-		
+            sleep_for(seconds(3));
             cout << "Finding systems..." << endl;
 
             auto systems = mavsdk.systems();
 
             if(!systems.empty()) {
                 auto system = mavsdk.systems().at(0);
-                
-                this->telemetry = new Telemetry{system};
-                this->mavlink_passthrough = new MavlinkPassthrough{system};
+                if(system->is_connected()){
+                    this->telemetry = new Telemetry{system};
+                    this->mavlink_passthrough = new MavlinkPassthrough{system};
 
-                while (!this->telemetry->health().is_accelerometer_calibration_ok ||
-                    !this->telemetry->health().is_gyrometer_calibration_ok || 
-                    !this->telemetry->health().is_magnetometer_calibration_ok) {
-                    std::cout << "Waiting for the system to be ready..." << std::endl;
-                    sleep_for(seconds(1));
+                    while (!this->telemetry->health().is_accelerometer_calibration_ok ||
+                        !this->telemetry->health().is_gyrometer_calibration_ok ||
+                        !this->telemetry->health().is_magnetometer_calibration_ok) {
+                        std::cout << "Waiting for the system to be ready..." << std::endl;
+                        sleep_for(seconds(1));
+                    }
                 }
-    
+
                 std::cout << "System is ready!" << std::endl;
             }else {//Colocar isso em código de erro tbm
                 std::cerr << "Failed to detect system." << std::endl;
@@ -78,34 +79,36 @@ class Sensors{
          */
         void updateData(){
             cout << "Listening messages..." << endl;
+             
+            if(mavlink_passthrough){
+                this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_GLOBAL_POSITION_INT, [this](const mavlink_message_t& message) {
+                    mavlink_global_position_int_t imu_data;
+                    mavlink_msg_global_position_int_decode(&message, &imu_data);
 
-            this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_GLOBAL_POSITION_INT, [this](const mavlink_message_t& message) {
-                mavlink_global_position_int_t imu_data;
-                mavlink_msg_global_position_int_decode(&message, &imu_data);
+                    this->vel[0] = imu_data.vx * CONV_TO_MS;
+                    this->vel[1] = imu_data.vy * CONV_TO_MS;
+                    this->vel[2] = imu_data.vz * CONV_TO_MS;
+                });
 
-                this->vel[0] = imu_data.vx * CONV_TO_MS;
-                this->vel[1] = imu_data.vy * CONV_TO_MS;
-                this->vel[2] = imu_data.vz * CONV_TO_MS;
-            });
+                this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_RAW_IMU, [this](const mavlink_message_t& message) {
+                    mavlink_raw_imu_t imu_data;
+                    mavlink_msg_raw_imu_decode(&message, &imu_data);
 
-            this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_RAW_IMU, [this](const mavlink_message_t& message) {
-                mavlink_raw_imu_t imu_data;
-                mavlink_msg_raw_imu_decode(&message, &imu_data);
+                    this->acc[0] = imu_data.xacc * CONV_TO_MS2;
+                    this->acc[1] = imu_data.yacc * CONV_TO_MS2;
+                    this->acc[2] = imu_data.zacc * CONV_TO_MS2;
 
-                this->acc[0] = imu_data.xacc * CONV_TO_MS2;
-                this->acc[1] = imu_data.yacc * CONV_TO_MS2;
-                this->acc[2] = imu_data.zacc * CONV_TO_MS2;
+                    this->gyro[0] = imu_data.xgyro * CONV_TO_RAD;
+                    this->gyro[1] = imu_data.ygyro * CONV_TO_RAD;
+                    this->gyro[2] = imu_data.zgyro * CONV_TO_RAD;
 
-                this->gyro[0] = imu_data.xgyro * CONV_TO_RAD;
-                this->gyro[1] = imu_data.ygyro * CONV_TO_RAD;
-                this->gyro[2] = imu_data.zgyro * CONV_TO_RAD;
+                    this->mag[0] = imu_data.xmag * CONV_TO_µT;
+                    this->mag[1] = imu_data.ymag * CONV_TO_µT;
+                    this->mag[2] = imu_data.zmag * CONV_TO_µT;
 
-                this->mag[0] = imu_data.xmag * CONV_TO_µT;
-                this->mag[1] = imu_data.ymag * CONV_TO_µT;
-                this->mag[2] = imu_data.zmag * CONV_TO_µT;
-
-                this->tempPixhawk = imu_data.temperature / 100.0;
-            });
+                    this->tempPixhawk = imu_data.temperature / 100.0;
+                });
+            }
         }
 
         /**

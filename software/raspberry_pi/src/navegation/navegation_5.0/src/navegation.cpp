@@ -196,11 +196,13 @@ class AUVStateMachine{
             this->yoloCtrl = new YoloCtrl();
             sleep_for(seconds(5));
 
+	    cout << "Threads initialization..." << endl;
+
             // Update sensors data and detection data in parallel with the state machine
             if(sensors) sensorThread = thread(&AUVStateMachine::sensorsData, this);
             else throw FailedInitializationSensors();
 
-            if(yoloCtrl) yoloCtrl = thread(&AUVStateMachine::detectionData, this);
+            if(yoloCtrl) detectionThread = thread(&AUVStateMachine::detectionData, this);
             else throw FailedInitializationYolo();
         }
 

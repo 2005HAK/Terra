@@ -1,0 +1,28 @@
+State machine creation...
+[34m[10:28:40|Info ] [0mMAVSDK version: v3.0.0 (mavsdk_impl.cpp:30)
+Connected to Pixhawk
+[32m[10:28:41|Debug] [0mNew system ID: 1 Comp ID: 1 (mavsdk_impl.cpp:730)
+[32m[10:28:41|Debug] [0mComponent Autopilot (1) added. (system_impl.cpp:377)
+[33m[10:28:41|Warn ] [0mVehicle type changed (new type: 12, old type: 0) (system_impl.cpp:217)
+[32m[10:28:41|Debug] [0mDiscovered 1 component(s) (system_impl.cpp:497)
+[32m[10:28:41|Debug] [0mRequest message 148 using REQUEST_MESSAGE (mavlink_request_message.cpp:78)
+[33m[10:28:42|Warn ] [0msending again after 0.55544 s, retries to do: 1  (512). (mavlink_command_sender.cpp:336)
+[33m[10:28:42|Warn ] [0mRequest was for msg ID: 148 (mavlink_command_sender.cpp:342)
+[33m[10:28:43|Warn ] [0mRetrying failed for REQUEST_MESSAGE command for message: 148, to (1/1) (mavlink_command_sender.cpp:375)
+[34m[10:28:43|Info ] [0mTry old command (mavlink_request_message.cpp:98)
+[33m[10:28:43|Warn ] [0mRequest message 148 again using REQUEST_AUTOPILOT_CAPABILITIES (retries: 1) (mavlink_request_message.cpp:171)
+[33m[10:28:43|Warn ] [0msending again after 0.506581 s, retries to do: 1  (520). (mavlink_command_sender.cpp:336)
+[33m[10:28:44|Warn ] [0mRetrying failed for command: 520) (mavlink_command_sender.cpp:380)
+[33m[10:28:44|Warn ] [0mRequest message 148 again using REQUEST_MESSAGE (retries: 2) (mavlink_request_message.cpp:75)
+Finding systems...
+Waiting for the system to be ready...
+[32m[10:28:44|Debug] [0mRequest message 242 using REQUEST_MESSAGE (mavlink_request_message.cpp:78)
+[33m[10:28:44|Warn ] [0msending again after 0.631294 s, retries to do: 1  (512). (mavlink_command_sender.cpp:336)
+[33m[10:28:44|Warn ] [0mRequest was for msg ID: 148 (mavlink_command_sender.cpp:342)
+System is ready!
+[33m[10:28:45|Warn ] [0mRetrying failed for REQUEST_MESSAGE command for message: 148, to (1/1) (mavlink_command_sender.cpp:375)
+Object YoloCtrl created
+Threads initialization...
+Listening messages...
+Searching for launcher...
+Listening messages...
