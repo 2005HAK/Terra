@@ -30,13 +30,15 @@ class Receiver {
 class YoloCtrl{
     private:
         vector<Object> identifiedObjects;
-
         Receiver recv;
+
+        vector<Object> process_json(const json& received_json);
 
     public:
         YoloCtrl();
 
         void updateData();
+
 
         bool foundObject();
 

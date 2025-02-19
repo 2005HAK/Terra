@@ -1,36 +1,12 @@
 #include "yoloctrl.h"
 
-vector<Object> Receiver::process_json(const json& received_json){
-    vector<Object> results;
-    try {
-        if (received_json.count("data")) {  // 'contains' não existia antes do JSON 3.9.0
-            for (const auto& obj : received_json["data"]) {
-                if (obj.is_array() && obj.size() >= 6) {
-                    Object currentObject;
-                    currentObject.topLeftXY[0] = obj[0];
-                    currentObject.topLeftXY[0] = obj[1];
-                    currentObject.downRightXY[0] = obj[2];
-                    currentObject.downRightXY[0] = obj[2];
-                    currentObject.confidance = obj[4];
-                    currentObject.objectId = obj[5];
-                    currentObject.name = "Unknown";
+// Init class YoloCtrl
 
-                    if (received_json.count("names") && received_json["names"].count(to_string(currentObject.objectId))) {
-                        currentObject.name = received_json["names"][to_string(currentObject.objectId)];
-                    }
-                    results.emplace_back(currentObject);
-                }
-            }
-        }
-    } catch (const json::exception& e) {
-        cerr << "Erro ao processar JSON: " << e.what() << endl;
-    }
-    return results;
+YoloCtrl::YoloCtrl(){
+    cout << "Object YoloCtrl created" << endl;
 }
-    
-vector<Object> Receiver::receive() {
-    vector<Object> results;
 
+void YoloCtrl::updateData(){
     try {
         boost::asio::io_service io_service;  // io_context substituído por io_service
         tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 65432));
@@ -50,7 +26,7 @@ vector<Object> Receiver::receive() {
             try {
                 json received_json = json::parse(received_data);
 
-                results = process_json(received_json);
+                identifiedObjects = process_json(received_json);
 
             } catch (const json::parse_error& e) {
                 cerr << "Erro ao interpretar JSON: " << e.what() << endl;
@@ -60,16 +36,41 @@ vector<Object> Receiver::receive() {
     } catch (exception& e) {
         cerr << "Erro: " << e.what() << endl;
     }
+}
+
+vector<Object> YoloCtrl::process_json(const json& received_json){
+    vector<Object> results;
+    try {
+        if (received_json.count("data")) {  // 'contains' não existia antes do JSON 3.9.0
+            for (const auto& obj : received_json["data"]) {
+                if (obj.is_array() && obj.size() >= 6) {
+                    Object currentObject;
+                    currentObject.topLeftXY[0] = obj[0];
+                    currentObject.topLeftXY[0] = obj[1];
+                    currentObject.downRightXY[0] = obj[2];
+                    currentObject.downRightXY[0] = obj[2];
+                    currentObject.confidance = obj[4];
+                    currentObject.objectId = obj[5];
+                    currentObject.name = "Unknown";
+
+                    if (received_json.count("names") && received_json["names"].count(to_string(currentObject.objectId))) {
+                        currentObject.name = received_json["names"][to_string(currentObject.objectId)];
+                    }
+                    results.emplace_back(currentObject);
+
+                    cout << "Name: " << currentObject.name << endl;
+                    cout << "Xmin: " << currentObject.topLeftXY[0] << endl;
+                    cout << "Ymin: " << currentObject.topLeftXY[1] << endl;
+                    cout << "Xmax: " << currentObject.downRightXY[0] << endl;
+                    cout << "Ymax: " << currentObject.downRightXY[1] << endl;
+                    cout << "Conf: " << currentObject.confidance << endl;
+                }
+            }
+        }
+    } catch (const json::exception& e) {
+        cerr << "Erro ao processar JSON: " << e.what() << endl;
+    }
     return results;
-}
-
-
-YoloCtrl::YoloCtrl(){
-    cout << "Object YoloCtrl created" << endl;
-}
-
-void YoloCtrl::updateData(){
-    identifiedObjects = recv.receive();
 }
 
 bool YoloCtrl::foundObject(){
@@ -111,3 +112,5 @@ string YoloCtrl::greaterConfidanceObject(){
 void YoloCtrl::stop(){
 
 }
+
+// End class ToloCtrl
