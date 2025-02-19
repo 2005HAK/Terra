@@ -7,6 +7,7 @@
 #include <variant>
 #include <vector>
 #include <tuple>
+#include <mutex>
 #include "utils.h"
 
 using boost::asio::ip::tcp;
@@ -20,17 +21,10 @@ struct Object{
     int objectId;
 };
 
-class Receiver {
-    public:
-        vector<Object> process_json(const json& received_json);
-    
-        vector<Object> receive();
-};
-
 class YoloCtrl{
     private:
         vector<Object> identifiedObjects;
-        Receiver recv;
+	mutex mutexIdentifiedObjects;
 
         vector<Object> process_json(const json& received_json);
 

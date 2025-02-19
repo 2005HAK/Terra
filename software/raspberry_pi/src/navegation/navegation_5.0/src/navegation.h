@@ -16,7 +16,7 @@ const int IMAGE_WIDTH = 640;
 const int IMAGE_HEIGHT = 480;
 
 // Object used to initialization
-const string OBJECT_INITIALIZATION = "Cube";
+const string OBJECT_INITIALIZATION = "person";
 
 // Center of the image seen by the camera
 array<int, 2> IMAGE_CENTER = {IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2};

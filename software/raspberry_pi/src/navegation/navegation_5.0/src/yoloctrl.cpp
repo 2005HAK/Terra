@@ -7,6 +7,8 @@ YoloCtrl::YoloCtrl(){
 }
 
 void YoloCtrl::updateData(){
+    lock_guard<mutex> lock(mutexIdentifiedObjects);
+
     try {
         boost::asio::io_service io_service;  // io_context substituído por io_service
         tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 65432));
@@ -58,12 +60,12 @@ vector<Object> YoloCtrl::process_json(const json& received_json){
                     }
                     results.emplace_back(currentObject);
 
-                    cout << "Name: " << currentObject.name << endl;
-                    cout << "Xmin: " << currentObject.topLeftXY[0] << endl;
-                    cout << "Ymin: " << currentObject.topLeftXY[1] << endl;
-                    cout << "Xmax: " << currentObject.downRightXY[0] << endl;
-                    cout << "Ymax: " << currentObject.downRightXY[1] << endl;
-                    cout << "Conf: " << currentObject.confidance << endl;
+                    // cout << "Name: " << currentObject.name << endl;
+                    // cout << "Xmin: " << currentObject.topLeftXY[0] << endl;
+                    // cout << "Ymin: " << currentObject.topLeftXY[1] << endl;
+                    // cout << "Xmax: " << currentObject.downRightXY[0] << endl;
+                    // cout << "Ymax: " << currentObject.downRightXY[1] << endl;
+                    // cout << "Conf: " << currentObject.confidance << endl;
                 }
             }
         }
@@ -95,18 +97,18 @@ array<int, 4> YoloCtrl::getXYXY(string objectName){
 
 // Colocar o objeto de maior confiança aqui e tirar a maquina de estados
 string YoloCtrl::greaterConfidanceObject(){
-    Object confidenceObject;
+    lock_guard<mutex> lock(mutexIdentifiedObjects);
 
-    if(foundObject()){
-        // trocar isso por um ordenamento de identifiedObjects, colocando o de maior confiança em 1º
-        confidenceObject = *(this->identifiedObjects.begin());
+    if(identifiedObjects.empty()) return "";
+    else{
+        Object confidenceObject = identifiedObjects[0];
 
-        for(vector<Object>::iterator obj = this->identifiedObjects.begin(); obj != this->identifiedObjects.end(); obj++)
-            if(obj->confidance > confidenceObject.confidance)
-                confidenceObject = *obj;
+        for(const auto& obj : identifiedObjects)
+            if(obj.confidance > confidenceObject.confidance)
+                confidenceObject = obj;
+
+        return confidenceObject.name;
     }
-
-    return confidenceObject.name;
 }
 
 void YoloCtrl::stop(){

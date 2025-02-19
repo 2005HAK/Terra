@@ -104,6 +104,7 @@ void ThrustersControl::defineAction(Decision decision){
             thrusters[4].move(0);
             break;
     }
+    sleep_for(milliseconds(350));
 }
 
 void ThrustersControl::finish(){
