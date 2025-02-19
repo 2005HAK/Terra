@@ -106,8 +106,8 @@ void stabilizes(array<Decision,3> &decision, array<double, 3> velocity){
 AUVStateMachine::AUVStateMachine(){
     cout << "State machine creation..." << endl;
     this->state = State::INIT;
-    this->sensors = new Sensors();
-    this->yoloCtrl = new YoloCtrl();
+    this->sensors = make_unique<Sensors>();
+    this->yoloCtrl = make_unique<YoloCtrl>();
     sleep_for(seconds(5));
 
     cout << "Threads initialization..." << endl;
@@ -125,10 +125,6 @@ AUVStateMachine::~AUVStateMachine(){
     if (sensorThread.joinable()) sensorThread.join();
     if (detectionThread.joinable()) detectionThread.join();
     if (errorThread.joinable()) errorThread.join();
-
-    delete this->sensors;
-    delete this->thrusters;
-    delete this->yoloCtrl;
 }
 
 void AUVStateMachine::sensorsData(){
@@ -201,7 +197,7 @@ void AUVStateMachine::init(){
 
     cout << "Initializing..." << endl;
 
-    this->thrusters = new ThrustersControl();
+    this->thrusters = make_unique<ThrustersControl>();
 
     if(thrusters) transitionTo(State::SEARCH);
     else throw FailedConnectThrusters();

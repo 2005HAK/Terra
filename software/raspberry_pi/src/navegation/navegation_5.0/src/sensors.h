@@ -34,8 +34,8 @@ class Sensors{
         double tempRaspberry;                   // ºC
         steady_clock::time_point currentTime;
         steady_clock::time_point oldTime;
-        Telemetry *telemetry;
-        MavlinkPassthrough *mavlink_passthrough;
+        unique_ptr<Telemetry> telemetry;
+        unique_ptr<MavlinkPassthrough> mavlink_passthrough;
 
     public:
         /**

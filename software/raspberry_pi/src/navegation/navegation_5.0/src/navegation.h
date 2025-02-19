@@ -101,9 +101,9 @@ class AUVStateMachine{
         State nextState = State::NONE;
         string targetObject = "";
         double distance; // passar o calculo e armazenamento de distancia para a yolo
-        Sensors *sensors = nullptr;
-        YoloCtrl *yoloCtrl = nullptr;
-        ThrustersControl *thrusters = nullptr;
+        unique_ptr<Sensors> sensors;
+        unique_ptr<YoloCtrl> yoloCtrl;
+        unique_ptr<ThrustersControl> thrusters;
         thread sensorThread;
         thread detectionThread;
         thread errorThread;

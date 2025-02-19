@@ -14,11 +14,11 @@ Sensors::Sensors(){
     
     auto systems = mavsdk.systems();
     
-    if(!systems.empty()) {
+    if(systems.size() > 0) {
         auto system = mavsdk.systems().at(0);
         if(system->is_connected()){
-            this->telemetry = new Telemetry{system};
-            this->mavlink_passthrough = new MavlinkPassthrough{system};
+            this->telemetry = make_unique<Telemetry>(system);
+            this->mavlink_passthrough = make_unique<MavlinkPassthrough>(system);
             
             while (!this->telemetry->health().is_accelerometer_calibration_ok ||
             !this->telemetry->health().is_gyrometer_calibration_ok ||
@@ -32,12 +32,12 @@ Sensors::Sensors(){
     }else {//Colocar isso em código de erro tbm
         std::cerr << "Failed to detect system." << std::endl;
     }
+
+    currentTime = chrono::steady_clock::now();
+    oldTime = currentTime;
 }
 
-Sensors::~Sensors(){
-    delete this->telemetry;
-    delete this->mavlink_passthrough;
-}
+Sensors::~Sensors(){}
 
 void Sensors::updateData(){
     cout << "Listening messages..." << endl;
@@ -71,6 +71,8 @@ void Sensors::updateData(){
             this->tempPixhawk = imu_data.temperature / 100.0;
         });
     }
+    oldTime = currentTime;
+    currentTime = chrono::steady_clock::now();
 }
 
 void Sensors::collisionDetect(){
