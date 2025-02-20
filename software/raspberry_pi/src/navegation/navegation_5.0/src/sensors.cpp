@@ -64,9 +64,9 @@ void Sensors::initialize(){
             this->gyro[1] = imu_data.ygyro * CONV_TO_RAD;
             this->gyro[2] = imu_data.zgyro * CONV_TO_RAD;
 
-            this->mag[0] = imu_data.xmag * CONV_TO_µT;
-            this->mag[1] = imu_data.ymag * CONV_TO_µT;
-            this->mag[2] = imu_data.zmag * CONV_TO_µT;
+            this->mag[0] = imu_data.xmag * CONV_TO_UT;
+            this->mag[1] = imu_data.ymag * CONV_TO_UT;
+            this->mag[2] = imu_data.zmag * CONV_TO_UT;
 
             this->tempPixhawk = imu_data.temperature / 100.0;
         });

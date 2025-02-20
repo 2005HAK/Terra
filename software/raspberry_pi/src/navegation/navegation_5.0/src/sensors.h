@@ -14,7 +14,7 @@ using namespace mavsdk;
 const double CONV_TO_MS = .01;       // convert cm/s to m/s 
 const double CONV_TO_MS2 = 0.00980665;  // convert mG to m/s²
 const double CONV_TO_RAD = .001;     // convert mrad/s to rad/s
-const double CONV_TO_µT = .1;        // convert mgauss to µT
+const double CONV_TO_UT = .1;        // convert mgauss to µT
 
 //Acceleration limit consider a collision
 const double ACC_LIMIT = 15;
