@@ -46,12 +46,11 @@ vector<Object> YoloCtrl::process_json(const json& received_json){
         if (received_json.count("data")) {  // 'contains' não existia antes do JSON 3.9.0
             for (const auto& obj : received_json["data"]) {
                 if (obj.is_array() && obj.size() >= 6) {
-		    cout << obj << endl;
                     Object currentObject;
                     currentObject.topLeftXY[0] = obj[0];
-                    currentObject.topLeftXY[0] = obj[1];
+                    currentObject.topLeftXY[1] = obj[1];
                     currentObject.downRightXY[0] = obj[2];
-                    currentObject.downRightXY[0] = obj[3];
+                    currentObject.downRightXY[1] = obj[3];
                     currentObject.confidance = obj[4];
                     currentObject.objectId = obj[5];
                     currentObject.name = "Unknown";
@@ -61,12 +60,12 @@ vector<Object> YoloCtrl::process_json(const json& received_json){
                     }
                     results.emplace_back(currentObject);
 
-                    cout << "Name: " << currentObject.name << endl;
-                    cout << "Xmin: " << currentObject.topLeftXY[0] << endl;
-                    cout << "Ymin: " << currentObject.topLeftXY[1] << endl;
-                    cout << "Xmax: " << currentObject.downRightXY[0] << endl;
-                    cout << "Ymax: " << currentObject.downRightXY[1] << endl;
-                    cout << "Conf: " << currentObject.confidance << endl;
+                    //cout << "Name: " << currentObject.name << endl;
+                    //cout << "Xmin: " << currentObject.topLeftXY[0] << endl;
+                    //cout << "Ymin: " << currentObject.topLeftXY[1] << endl;
+                    //cout << "Xmax: " << currentObject.downRightXY[0] << endl;
+                    //cout << "Ymax: " << currentObject.downRightXY[1] << endl;
+                    //cout << "Conf: " << currentObject.confidance << endl;
                 }
             }
         }

@@ -25,7 +25,7 @@ array<int, 2> IMAGE_CENTER = {IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2};
 const int ERROR_CENTER = 50;
 
 // Distance considered safe for the AUV to approach (in m)
-const double SAFE_DISTANCE = 1;
+const double SAFE_DISTANCE = .1;
 
 // Defines the power maximum that motors can receive (in %) ja existe em thrusters control
 // const double POWER_MAX = 25;
