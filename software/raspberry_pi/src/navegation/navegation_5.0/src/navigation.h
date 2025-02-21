@@ -48,6 +48,37 @@ enum class State{
 };
 
 /**
+ * @brief Struct representing a decision to be made by the AUV.
+ */
+struct StateTransition{
+    State currentState;
+    string targetObject;
+    State nextState;
+}
+
+/**
+ * @brief Vector representing the transitions between states.
+ */
+vector<StateTransition> stateTransitions = {
+    {State::INIT, "", State::SEARCH},
+    {State::SEARCH, "Gate", State::PASSGATE},
+    {State::PASSGATE, "PathMarker", State::ALIGNTOPATH},
+    {State::ALIGNTOPATH, "", State::SEARCH},
+    {State::SEARCH, "Slalom", State::NAVIGATE},
+    {State::NAVIGATE "Slalom", State::NAVIGATE},
+    {State::NAVIGATE, "PathMarker", State::ALIGNTOPATH},
+    {State::ALIGNTOPATH, "", State::SEARCH},
+    {State::SEARCH, "Bin", State::DROPMARKERS},
+    {State::DROPMARKERS, "PathMarker", State::ALIGNTOPATH},
+    {State::ALIGNTOPATH, "", State::SEARCH},
+    {State::SEARCH, "Torpedoes", State::TAGGING},
+    {State::TAGGING, "", State::SEARCH},
+    {State::SEARCH, "Octagon", State::CLEANUP},
+    {State::CLEANUP, "", State::RETURNING},
+    {State::RETURNING, "", State::STOP},
+}
+
+/**
  * @brief Transforms the state in enum to the state in string.
  * 
  * @param state A state in enum format.
@@ -168,6 +199,11 @@ class AUVStateMachine{
          * @brief Checks for errors every 100 ms.
          */
         void checksErrors();
+
+        /**
+         * @brief Checks if the state machine should transition to another state.
+         */
+        void checksTransition();
 
         /**
          * @brief Transition between states.

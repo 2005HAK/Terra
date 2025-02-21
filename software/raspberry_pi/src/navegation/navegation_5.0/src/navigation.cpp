@@ -113,7 +113,6 @@ AUVStateMachine::AUVStateMachine(){
     this->state = State::INIT;
     this->sensors = make_unique<Sensors>();
     this->yoloCtrl = make_unique<YoloCtrl>();
-    sleep_for(seconds(5));
 
     cout << "Threads initialization..." << endl;
 
@@ -133,6 +132,7 @@ AUVStateMachine::~AUVStateMachine(){
     if (sensorThread.joinable()) sensorThread.join();
     if (detectionThread.joinable()) detectionThread.join();
     if (errorThread.joinable()) errorThread.join();
+    if (transitionThread.joinable()) transitionThread.join();
 }
 
 // Init functions used by threads
@@ -167,8 +167,21 @@ void AUVStateMachine::checksErrors(){
 
 // End functions used by threads
 
+void AUVStateMachine::checksTransition(){
+    if(this->yoloCtrl->foundObject()) {
+        string foundObject = this->yoloCtrl->greaterConfidanceObject();
+        for(const auto& transition : stateTransitions){
+            if(transition.currentState == this->state && transition.targetObject == foundObject){
+                this->targetObject = foundObject;
+                transitionTo(transition.nextState);
+                break;
+            }
+        }
+    }
+}
+
 void AUVStateMachine::transitionTo(State newState){
-    cout << "Transitioning from " + stateToString(this->state) + "to " + stateToString(newState) << endl;
+    cout << "Transitioning from " + stateToString(this->state) + " to " + stateToString(newState) << endl;
     this->lastState = this->state;
     this->state = newState;
 }
@@ -201,21 +214,20 @@ void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
 }
 
 // DEFINITION OF STATES
+
 void AUVStateMachine::init(){
     cout << "Searching for launcher..." << endl;
 
     while(this->targetObject != OBJECT_INITIALIZATION){
         searchObjects();
+        sleep_for(milliseconds(100));
     }
-
-    // manter comentado para testes que somente 1 objeto é identificado
-    // this->targetObject = "";
 
     cout << "Initializing..." << endl;
 
     this->thrusters = make_unique<ThrustersControl>();
 
-    if(thrusters) transitionTo(State::SEARCH);
+    if(thrusters) cheksTransition();
     else throw FailedConnectThrusters();
 }
 
@@ -239,7 +251,7 @@ void AUVStateMachine::search(){
     }
     // verificar qual objeto(os) encontrou e responder de acordo
 
-    transitionTo(State::CENTERING);
+    checksTransition();
 }
 
 void AUVStateMachine::searchObjects(){
@@ -283,12 +295,12 @@ void AUVStateMachine::centering(){
 
             this->thrusters->defineAction(decision[0]);
             this->thrusters->defineAction(decision[1]);
-
-	    if(decision[0].action == Action::NONE && decision[1].action == Action::NONE) isCenter = true;
-        } else {
-	    isCenter = true;
-	    lostObject = true;
-	    cout << "Lost object!" << endl;
+            
+            if(decision[0].action == Action::NONE && decision[1].action == Action::NONE) isCenter = true;
+        }else{
+	        isCenter = true;
+	        lostObject = true;
+	        cout << "Lost object!" << endl;
         }
     }
 
