@@ -1,4 +1,4 @@
-#include "navegation.h"
+#include "navigation.h"
 
 string stateToString(State state){
     static unordered_map<State, string> stateNames = {
@@ -6,7 +6,13 @@ string stateToString(State state){
         {State::SEARCH, "SEARCH"},
         {State::CENTERING, "CENTERING"},
         {State::ADVANCING, "ADVANCING"},
-        {State::PASS_GATE_WITH_STYLE, "PASS_GATE_WITH_STYLE"},
+        {State::PASSGATE, "PASSGATE"},
+        {State::ALIGNTOPATH, "ALIGNTOPATH"},
+        {State::NAVIGATE, "NAVIGATE"},
+        {State::DROPMARKERS, "DROPMARKERS"},
+        {State::TAGGING, "TAGGING"},
+        {State::CLEANUP, "CLEANUP"},
+        {State::RETURNING, "RETURNING"},
         {State::STABILIZING, "STABILIZING"},
         {State::STOP, "STOP"}
     };
@@ -95,7 +101,6 @@ void definesAction(Action &action, double velocity, double errorVelocity, Action
 }
 
 void stabilizes(array<Decision,3> &decision, array<double, 3> velocity){
-    //acceptable error in the velocity
     array<double, 3> errorVelocity = {.1, .1, .1};
 
     definesAction(decision[0].action, velocity[0], errorVelocity[0], Action::FORWARD, Action::BACKWARD);
@@ -118,6 +123,9 @@ AUVStateMachine::AUVStateMachine(){
 
     if(yoloCtrl) detectionThread = thread(&AUVStateMachine::detectionData, this);
     else throw FailedInitializationYolo();
+
+    cout << "Threads initialized" << endl;
+    cout << "State Machine created" << endl;
 }
 
 AUVStateMachine::~AUVStateMachine(){
@@ -126,6 +134,8 @@ AUVStateMachine::~AUVStateMachine(){
     if (detectionThread.joinable()) detectionThread.join();
     if (errorThread.joinable()) errorThread.join();
 }
+
+// Init functions used by threads
 
 void AUVStateMachine::sensorsData(){
     sensors->initialize();
@@ -154,6 +164,8 @@ void AUVStateMachine::checksErrors(){
         sleep_for(milliseconds(100));
     }
 }
+
+// End functions used by threads
 
 void AUVStateMachine::transitionTo(State newState){
     cout << "Transitioning from " + stateToString(this->state) + "to " + stateToString(newState) << endl;

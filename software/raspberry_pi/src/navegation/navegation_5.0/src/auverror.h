@@ -6,6 +6,9 @@
 #include <array>
 #include "utils.h"
 
+/**
+ * @brief Class responsible for managing errors that may occur during the AUV operation.
+ */
 class AUVError : public exception{
     private:
         string time;
@@ -14,69 +17,115 @@ class AUVError : public exception{
 
     public:
         /**
-         * @brief Generalization of errors or errors that are not identified
+         * @brief Generalization of errors or errors that are not identified.
          * 
-         * @param type Type of error identified
+         * @param type Type of error identified.
+         * @param code Error code.
          */
         AUVError(string type = "Unidentidied error", int code = 95);
 
         /**
-         * @brief Saves errors to a log file for later checking
+         * @brief Saves errors to a log file for later checking.
          */
         void logError();
 };
 
+/**
+ * @brief Class representing errors that may occur during the initialization of the sensors.
+ */
 class FailedInitializationSensors : public AUVError{
     public:
+        /**
+         * @brief Constructor of the FailedInitializationSensors class.
+         */
         FailedInitializationSensors();
 };
 
+/**
+ * @brief Class representing errors that may occur during the initialization of the Yolo.
+ */
 class FailedInitializationYolo : public AUVError{
     public:
+        /**
+         * @brief Constructor of the FailedInitializationYolo class.
+         */
         FailedInitializationYolo();
 };
 
+/**
+ * @brief Class representing errors that may occur during the initialization of the thrusters.
+ */
 class CollisionDetected : public AUVError{
     private:
         array<double, 3> acceleration;
 
     public:
         /**
-         * @brief Detects AUV collisions
+         * @brief Constructor of the CollisionDetected class.
+         * 
+         * @param acceleration The acceleration values on the x, y, and z axes, respectively.
          */
         CollisionDetected(array<double, 3> acceleration);
         
+        /**
+         * @brief Gets the acceleration values that caused the collision.
+         * 
+         * @return The acceleration values on the x, y, and z axes, respectively.
+         */
         array<double, 3> getAcceleration();
 };
 
+/**
+ * @brief Class representing errors that may occur during the initialization of the thrusters.
+ */
 class FailedConnectThrusters : public AUVError{
     public:
+        /**
+         * @brief Constructor of the FailedConnectThrusters class.
+         */
         FailedConnectThrusters();
 };
 
+/**
+ * @brief Class representing errors that may occur during the initialization of the thrusters.
+ */
 class HighTemperatureError : public AUVError{
     private:
         double temperature;
 
     public:
         /**
-         * @brief Generalization of temperature error or unidentified temperature problem
+         * @brief Constructor of the HighTemperatureError class.
+         * 
+         * @param temperature Temperature value that caused the error.
+         * @param type Type of error identified.
+         * @param code Error code.
          */
         HighTemperatureError(double temperature = -1, string type = "High temperature detected", int code = 95);
 };
 
+/**
+ * @brief Class representing errors that may occur during the initialization of the thrusters.
+ */
 class PixhawkHighTemperature : public HighTemperatureError{
     public:
         /**
-         * @brief High temperature at Pixhawk
+         * @brief Constructor of the PixhawkHighTemperature class.
+         * 
+         * @param temperature Temperature value that caused the error.
          */
         PixhawkHighTemperature(double temperature = -1);
 };
 
+/**
+ * @brief Class representing errors that may occur during the initialization of the thrusters.
+ */
 class RaspberryHighTemperature : public HighTemperatureError{
     public:
         /**
-         * @brief High temperature at Raspberry
+         * @brief Constructor of the RaspberryHighTemperature class.
+         * 
+         * @param temperature Temperature value that caused the error.
          */
         RaspberryHighTemperature(double temperature = -1);
 };

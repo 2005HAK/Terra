@@ -11,7 +11,7 @@ find_package(MAVSDK REQUIRED)
 find_library(WIRINGPI_LIB wiringPi)
 
 set(SOURCES
-	src/navegation.cpp
+	src/navigation.cpp
 	src/sensors.cpp
 	src/thrustersctrl.cpp
 	src/yoloctrl.cpp
