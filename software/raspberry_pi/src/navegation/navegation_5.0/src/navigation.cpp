@@ -229,7 +229,56 @@ void AUVStateMachine::init(){
 
     if(thrusters) cheksTransition();
     else throw FailedConnectThrusters();
+}  
+
+void AUVStateMachine::passGate(){
+    cout << "Passing gate..." << endl;
+
+    if(centering()){
+        while(this->targetObject != INITIALCHOICE){
+            this->thrusters->defineAction({Action::FORWARD, 20});
+            searchObjects();
+            sleep_for(milliseconds(100));
+        }
+
+        this->thrusters->defineAction({Action::NONE, 0});
+
+        
+        if(centering()){
+            double currentDistance = 0, distance;
+
+            array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
+            calculateDistance(distance, this->targetObject, xyxy);
+
+            bool isAbove = false;
+            while(!isAbove){
+                array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
+                
+                if(xyxy[0] != -1 && xyxy[1] != -1 && xyxy[2] != -1 && xyxy[3] != -1){
+                    array<double, 2> centerObject = center(xyxy);
+                    
+                    if(xyxy[0] > (ERROR_CENTER / 2)) this->thrusters->defineAction({Action::DOWN, 20});
+                    else isAbove = true;
+                }
+            }
+            this->thrusters->defineAction({Action::NONE, 0});
+
+            while(currentDistance < distance){
+                this->thrusters->defineAction({Action::FORWARD, 20});
+
+                currentDistance += this->sensors->getVel()[0] * this->sensors->deltaTime().count(); // Verificar tamanho da defasagem
+            }
+
+            this->thrusters->defineAction({Action::NONE, 0});
+            // Continuar (entender como sera visualizado o path marker)
+        }
+        checksTransition();
+    } else{
+        // tratar questão de perda de objeto
+    }
 }
+
+//END DEFINITION OF STATES
 
 void AUVStateMachine::search(){
     // 1/8 turns
@@ -237,20 +286,22 @@ void AUVStateMachine::search(){
 
     cout << "Searching..." << endl;
 
-    while(targetObject == ""){
-        if(rotationCurrent < 8){
-            rotate();
-            rotationCurrent++;
-        } else{
-            Decision decision = {Action::DOWN, 20};
-            this->thrusters->defineAction(decision);
-            rotationCurrent = 0;
+    if(this->lastState == State::INIT){
+        this->thrusters->defineAction({Action::DOWN, 0});
+
+        while(targetObject == ""){
+            if(rotationCurrent < 1){
+                rotate();
+                rotationCurrent++;
+            } else if(rotationCurrent < 3){
+                rotate();
+                rotationCurrent++;
+            }
+
+            searchObjects();
         }
-
-        searchObjects();
+        checksTransition();
     }
-    // verificar qual objeto(os) encontrou e responder de acordo
-
     checksTransition();
 }
 
@@ -259,6 +310,7 @@ void AUVStateMachine::searchObjects(){
 }
 
 // Testar
+
 void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
     array<double, 3> gyroCurrent = this->sensors->getGyro(), gyroOld;
     double rotated = 0;
@@ -280,10 +332,11 @@ void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
 }
 
 // Testar
-void AUVStateMachine::centering(){
+
+bool AUVStateMachine::centering(){
     cout << "Centering..." << endl;
 
-    bool lostObject = false, isCenter = false;
+    bool isCenter = false;
 
     while(!isCenter){
         array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
@@ -297,18 +350,13 @@ void AUVStateMachine::centering(){
             this->thrusters->defineAction(decision[1]);
             
             if(decision[0].action == Action::NONE && decision[1].action == Action::NONE) isCenter = true;
-        }else{
+        } else{
 	        isCenter = true;
-	        lostObject = true;
 	        cout << "Lost object!" << endl;
         }
     }
 
-    if(!lostObject){
-        this->nextState = State::ADVANCING;
-        this->transitionTo(State::STABILIZING);
-    } else
-	this->transitionTo(State::SEARCH);
+    return isCenter;
 }
 
 // Testar

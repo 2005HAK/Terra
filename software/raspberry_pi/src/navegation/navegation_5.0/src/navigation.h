@@ -18,6 +18,9 @@ const int IMAGE_HEIGHT = 480;
 // Object used to initialization
 const string OBJECT_INITIALIZATION = "Cube";
 
+// Initial choice of the AUV
+const string INITIALCHOICE = "Reef Shark";
+
 // Center of the image seen by the camera
 array<int, 2> IMAGE_CENTER = {IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2};
 
@@ -169,7 +172,6 @@ class AUVStateMachine{
     private:
         State lastState = State::NONE;
         State state = State::NONE;
-        State nextState = State::NONE;
         string targetObject = "";
         double distance; // passar o calculo e armazenamento de distancia para a yolo
         unique_ptr<Sensors> sensors;
@@ -250,8 +252,8 @@ class AUVStateMachine{
         /**
          * @brief Rotates the AUV by a specified angle.
          * 
-         * @param angle The angle to rotate (default is 0.785398 radians).
-         * @param errorAngle The acceptable error in the angle (default is 0.174533 radians).
+         * @param angle The angle to rotate (default is 0.785398 radians or 45 degrees).
+         * @param errorAngle The acceptable error in the angle (default is 0.174533 radians or 10 degrees).
          * @param action The action to perform (default is Action::TURNLEFT).
          */
         void rotate(double angle = 0.785398, double errorAngle = 0.174533, Action action = Action::TURNLEFT);
@@ -259,7 +261,7 @@ class AUVStateMachine{
         /**
          * @brief This state defines the centralization procedure.
          */
-        void centering();
+        bool centering();
 
         /**
          * @brief This state difines the advancement procedure.
