@@ -205,7 +205,7 @@ class AUVStateMachine{
         /**
          * @brief Checks if the state machine should transition to another state.
          */
-        void checksTransition();
+        bool checksTransition();
 
         /**
          * @brief Transition between states.
@@ -233,6 +233,11 @@ class AUVStateMachine{
         // END ERRORS HANDLING
 
         // DEFINITION OF STATES
+        
+        /**
+         * @brief This state defines the search procedure.
+         */
+        void search();
 
         /**
          * @brief This state initializes the thrusters.
@@ -240,9 +245,16 @@ class AUVStateMachine{
         void init();
 
         /**
-         * @brief This state defines the search procedure.
+         * @brief This state defines the procedure for passing through the gate.
          */
-        void search();
+        void passGate();
+
+        /**
+         * @brief This state defines the procedure for aligning the AUV to the path.
+         */
+        void alignToPath();
+
+        // END DEFINITION OF STATES
 
         /**
          * @brief Checks if objects were found. Found objects are saved in the targetObject variable.
@@ -277,8 +289,6 @@ class AUVStateMachine{
          * @brief This state defines the stopping procedure.
          */
         void stop();
-
-        // END DEFINITION OF STATES
 
         /**
          * @brief Initializes the state machine.
