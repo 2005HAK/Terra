@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b4a5813-818e-42a5-971b-769efa51ab03" name="Changes" comment="instalador de dependencias" />
+    <list default="true" id="0b4a5813-818e-42a5-971b-769efa51ab03" name="Changes" comment="troca cam e exclude de img whatsapp" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -44,12 +44,23 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.InstallDependecies.executor": "Run",
+    "Python.TradeCamSend.executor": "Run",
     "Python.YOLO.executor": "Run",
+    "Python.testetrade.executor": "Run",
+    "Python.yolo0.executor": "Run",
+    "Python.yolo1.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/software/jetson/src" />
+      <recent name="$PROJECT_DIR$/software/jetson/src/programs" />
+      <recent name="$PROJECT_DIR$/software/jetson/src/Testes" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="YOLO" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Terra" />
@@ -111,12 +122,41 @@
       <option name="project" value="LOCAL" />
       <updated>1738942347151</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="new reciver">
+      <option name="closed" value="true" />
+      <created>1739660037463</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1739660037463</updated>
+    </task>
+    <task id="LOCAL-00004" summary="troca cam e exclude de img whatsapp">
+      <option name="closed" value="true" />
+      <created>1740428922430</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1740428922430</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Conversão para cpp" />
     <MESSAGE value="instalador de dependencias" />
-    <option name="LAST_COMMIT_MESSAGE" value="instalador de dependencias" />
+    <MESSAGE value="new reciver" />
+    <MESSAGE value="troca cam e exclude de img whatsapp" />
+    <option name="LAST_COMMIT_MESSAGE" value="troca cam e exclude de img whatsapp" />
   </component>
 </project>
