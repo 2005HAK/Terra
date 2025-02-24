@@ -167,17 +167,25 @@ void AUVStateMachine::checksErrors(){
 
 // End functions used by threads
 
-void AUVStateMachine::checksTransition(){
-    if(this->yoloCtrl->foundObject()) {
+bool AUVStateMachine::checksTransition(){
+    if(this->state == State::INIT){
+        this->targetObject = "";
+        transitionTo(State::SEARCH);
+
+        return true;
+
+    } else if(this->yoloCtrl->foundObject()) {
         string foundObject = this->yoloCtrl->greaterConfidanceObject();
         for(const auto& transition : stateTransitions){
             if(transition.currentState == this->state && transition.targetObject == foundObject){
                 this->targetObject = foundObject;
                 transitionTo(transition.nextState);
-                break;
+                return true;
             }
         }
-    }
+    }       
+
+    return false;
 }
 
 void AUVStateMachine::transitionTo(State newState){
@@ -214,6 +222,31 @@ void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
 }
 
 // DEFINITION OF STATES
+
+void AUVStateMachine::search(){
+    // 1/8 turns
+    int rotationCurrent = 0;
+
+    cout << "Searching..." << endl;
+
+    if(this->lastState == State::INIT){
+        this->thrusters->defineAction({Action::NONE, 0});
+
+        while(targetObject == ""){
+            if(rotationCurrent < 1){
+                rotate();
+                rotationCurrent++;
+            } else if(rotationCurrent < 3){
+                rotate();
+                rotationCurrent++;
+            }
+
+            searchObjects();
+        }
+
+        if(!checksTransition()) targetObject = "";
+    }
+}
 
 void AUVStateMachine::init(){
     cout << "Searching for launcher..." << endl;
@@ -263,6 +296,8 @@ void AUVStateMachine::passGate(){
             }
             this->thrusters->defineAction({Action::NONE, 0});
 
+            // Tratar questão de passar com estilo
+
             while(currentDistance < distance){
                 this->thrusters->defineAction({Action::FORWARD, 20});
 
@@ -272,38 +307,22 @@ void AUVStateMachine::passGate(){
             this->thrusters->defineAction({Action::NONE, 0});
             // Continuar (entender como sera visualizado o path marker)
         }
+
         checksTransition();
     } else{
         // tratar questão de perda de objeto
     }
 }
 
-//END DEFINITION OF STATES
+void AUVStateMachine::alignToPath(){
+    cout << "Aligning to path..." << endl;
 
-void AUVStateMachine::search(){
-    // 1/8 turns
-    int rotationCurrent = 0;
+    if(centering()){
 
-    cout << "Searching..." << endl;
-
-    if(this->lastState == State::INIT){
-        this->thrusters->defineAction({Action::DOWN, 0});
-
-        while(targetObject == ""){
-            if(rotationCurrent < 1){
-                rotate();
-                rotationCurrent++;
-            } else if(rotationCurrent < 3){
-                rotate();
-                rotationCurrent++;
-            }
-
-            searchObjects();
-        }
-        checksTransition();
     }
-    checksTransition();
 }
+
+//END DEFINITION OF STATES
 
 void AUVStateMachine::searchObjects(){
     if(this->yoloCtrl->foundObject()) this->targetObject = this->yoloCtrl->greaterConfidanceObject();
