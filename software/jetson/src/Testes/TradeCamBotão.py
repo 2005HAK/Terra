@@ -33,10 +33,14 @@ class IA:
             self.running = 0
 
     def run(self):
-        tk.Button(self.root,text='Trocar Camera',command= lambda:self.start()).pack(pady=60)
-        self.root.mainloop()
+        try:
+            tk.Button(self.root,text='Trocar Camera',command= lambda:self.start()).pack(pady=60)
+            self.root.mainloop()
+        except Exception:
+            self.finalizar_programa()
 
 if __name__ == '__main__':
     app = IA()
     app.run()
+    app.finalizar_programa()
 
