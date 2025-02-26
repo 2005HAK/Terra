@@ -54,6 +54,7 @@ enum class State{
  * @brief Struct representing a decision to be made by the AUV.
  */
 struct StateTransition{
+    State lastState;
     State currentState;
     string targetObject;
     State nextState;
@@ -63,22 +64,24 @@ struct StateTransition{
  * @brief Vector representing the transitions between states.
  */
 vector<StateTransition> stateTransitions = {
-    {State::INIT, "", State::SEARCH},
-    {State::SEARCH, "Gate", State::PASSGATE},
-    {State::PASSGATE, "PathMarker", State::ALIGNTOPATH},
-    {State::ALIGNTOPATH, "", State::SEARCH},
-    {State::SEARCH, "Slalom", State::NAVIGATE},
-    {State::NAVIGATE "Slalom", State::NAVIGATE},
-    {State::NAVIGATE, "PathMarker", State::ALIGNTOPATH},
-    {State::ALIGNTOPATH, "", State::SEARCH},
-    {State::SEARCH, "Bin", State::DROPMARKERS},
-    {State::DROPMARKERS, "PathMarker", State::ALIGNTOPATH},
-    {State::ALIGNTOPATH, "", State::SEARCH},
-    {State::SEARCH, "Torpedoes", State::TAGGING},
-    {State::TAGGING, "", State::SEARCH},
-    {State::SEARCH, "Octagon", State::CLEANUP},
-    {State::CLEANUP, "", State::RETURNING},
-    {State::RETURNING, "", State::STOP},
+    {State::NONE, State::INIT, "", State::SEARCH},
+    {State::INIT, State::SEARCH, "Gate", State::PASSGATE},
+    {State::SEARCH, State::PASSGATE, "", State::SEARCH},
+    {State::PASSGATE, State::SEARCH, "PathMarker", State::ALIGNTOPATH},
+    {State::SEARCH, State::ALIGNTOPATH, "", State::SEARCH},
+    {State::ALIGNTOPATH, State::SEARCH, "Slalom", State::NAVIGATE},
+    {State::SEARCH, State::NAVIGATE "Slalom", State::NAVIGATE},
+    {State::NAVIGATE, State::NAVIGATE "Slalom", State::NAVIGATE},
+    {State::NAVIGATE, State::NAVIGATE, "PathMarker", State::ALIGNTOPATH},
+    {State::NAVIGATE, State::ALIGNTOPATH, "", State::SEARCH},
+    {State::ALIGNTOPATH, State::SEARCH, "Bin", State::DROPMARKERS},
+    {State::SEARCH, State::DROPMARKERS, "PathMarker", State::ALIGNTOPATH},
+    {State::DROPMARKERS, State::ALIGNTOPATH, "", State::SEARCH},
+    {State::ALIGNTOPATH, State::SEARCH, "Torpedoes", State::TAGGING},
+    {State::SEARCH, State::TAGGING, "", State::SEARCH},
+    {State::TAGGING, State::SEARCH, "Octagon", State::CLEANUP},
+    {State::SEARCH, State::CLEANUP, "", State::RETURNING},
+    {State::CLEANUP, State::RETURNING, "", State::STOP},
 }
 
 /**
@@ -180,6 +183,7 @@ class AUVStateMachine{
         thread sensorThread;
         thread detectionThread;
         thread errorThread;
+        bool sideIsLeft = true;
         bool running = true;
 
     public:
@@ -259,7 +263,7 @@ class AUVStateMachine{
         /**
          * @brief Checks if objects were found. Found objects are saved in the targetObject variable.
          */
-        void searchObjects();
+        bool searchObjects(string object);
 
         /**
          * @brief Rotates the AUV by a specified angle.

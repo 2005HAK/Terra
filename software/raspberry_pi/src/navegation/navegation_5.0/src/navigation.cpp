@@ -168,23 +168,18 @@ void AUVStateMachine::checksErrors(){
 // End functions used by threads
 
 bool AUVStateMachine::checksTransition(){
-    if(this->state == State::INIT){
-        this->targetObject = "";
-        transitionTo(State::SEARCH);
-
-        return true;
-
-    } else if(this->yoloCtrl->foundObject()) {
-        string foundObject = this->yoloCtrl->greaterConfidanceObject();
+    if(this->yoloCtrl->foundObject()) {
         for(const auto& transition : stateTransitions){
-            if(transition.currentState == this->state && transition.targetObject == foundObject){
-                this->targetObject = foundObject;
-                transitionTo(transition.nextState);
-                return true;
+            if(transition.lastState == this->lastState && transition.currentState == this->state){
+                array<int, 4> xyxy = this->yoloCtrl->getXYXY(transition.targetObject);
+                if(xyxy[0] != -1 || transition.nextState == State::SEARCH){
+                    this->targetObject = transition.targetObject;
+                    transitionTo(transition.nextState);
+                    return true;
+                }               
             }
         }
     }       
-
     return false;
 }
 
@@ -224,7 +219,6 @@ void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
 // DEFINITION OF STATES
 
 void AUVStateMachine::search(){
-    // 1/8 turns
     int rotationCurrent = 0;
 
     cout << "Searching..." << endl;
@@ -232,19 +226,39 @@ void AUVStateMachine::search(){
     if(this->lastState == State::INIT){
         this->thrusters->defineAction({Action::NONE, 0});
 
-        while(targetObject == ""){
+        while(!searchObjects("Gate")){
             if(rotationCurrent < 1){
                 rotate();
                 rotationCurrent++;
             } else if(rotationCurrent < 3){
                 rotate();
                 rotationCurrent++;
+            } // tratar questão de não encontrar o gate so com esse procedimento
+            sleep_for(milliseconds(100));
+        }
+        // existe uma possibilidade de encontrar o objeto errado e não mudar de estado
+        checksTransition();
+    } else if(this->lastState == State::PASSGATE){
+        // trocar camera
+        sleep_for(seconds(3));
+
+        Action action = Action::NONE;
+
+        while(!searchObjects("PathMarker")){
+            if(action == Action::NONE){
+                if(sideIsLeft) action = Action::TURNRIGHT;
+                else action = Action::TURNLEFT;
+
+                rotate(M_PI / 2, 0.174533, action);
+
+                this->thrusters->defineAction({Action::NONE, 0});
+                this->thrusters->defineAction({Action::FORWARD, 20});
             }
 
-            searchObjects();
+            this->thrusters->defineAction({Action::FORWARD, 20});
+            sleep_for(milliseconds(100));
         }
-
-        if(!checksTransition()) targetObject = "";
+        checksTransition();
     }
 }
 
@@ -260,7 +274,7 @@ void AUVStateMachine::init(){
 
     this->thrusters = make_unique<ThrustersControl>();
 
-    if(thrusters) cheksTransition();
+    if(thrusters) checksTransition();
     else throw FailedConnectThrusters();
 }  
 
@@ -268,15 +282,18 @@ void AUVStateMachine::passGate(){
     cout << "Passing gate..." << endl;
 
     if(centering()){
-        while(this->targetObject != INITIALCHOICE){
+        while(!searchObjects(INITIALCHOICE)){
             this->thrusters->defineAction({Action::FORWARD, 20});
-            searchObjects();
             sleep_for(milliseconds(100));
         }
 
         this->thrusters->defineAction({Action::NONE, 0});
 
-        
+        array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
+
+        // Verifica de qual lado o objeto está
+        if(xyxy[0] > IMAGE_CENTER[0]) sideIsLeft = false;
+
         if(centering()){
             double currentDistance = 0, distance;
 
@@ -287,27 +304,28 @@ void AUVStateMachine::passGate(){
             while(!isAbove){
                 array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
                 
-                if(xyxy[0] != -1 && xyxy[1] != -1 && xyxy[2] != -1 && xyxy[3] != -1){
+                if(xyxy[0] != -1){
                     array<double, 2> centerObject = center(xyxy);
                     
-                    if(xyxy[0] > (ERROR_CENTER / 2)) this->thrusters->defineAction({Action::DOWN, 20});
+                    if(xyxy[1] > (ERROR_CENTER / 2)) this->thrusters->defineAction({Action::DOWN, 20});
                     else isAbove = true;
                 }
             }
             this->thrusters->defineAction({Action::NONE, 0});
 
-            // Tratar questão de passar com estilo
-
-            while(currentDistance < distance){
+            while(currentDistance < distance + .5){
                 this->thrusters->defineAction({Action::FORWARD, 20});
 
                 currentDistance += this->sensors->getVel()[0] * this->sensors->deltaTime().count(); // Verificar tamanho da defasagem
             }
 
             this->thrusters->defineAction({Action::NONE, 0});
-            // Continuar (entender como sera visualizado o path marker)
-        }
 
+            // Gira após passar pelo gate
+            rotate(2 * M_PI, 0.174533, Action::TURNRIGHT);
+            sleep_for(milliseconds(500));
+            rotate(2 * M_PI, 0.174533, Action::TURNRIGHT);
+        }
         checksTransition();
     } else{
         // tratar questão de perda de objeto
@@ -344,15 +362,23 @@ void AUVStateMachine::alignToPath(){
             if(switchs > 5) isAlign = true;
         }
 
-        this->targetObject = "";
+        // Troca de camera
+        sleep_for(seconds(3));
+
         checksTransition();
     }
 }
 
 //END DEFINITION OF STATES
 
-void AUVStateMachine::searchObjects(){
-    if(this->yoloCtrl->foundObject()) this->targetObject = this->yoloCtrl->greaterConfidanceObject();
+bool AUVStateMachine::searchObjects(string object){
+    if(this->yoloCtrl->foundObject()){
+        if(this->yoloCtrl->getXYXY(object)[0] != -1){
+            this->targetObject = object;
+            return true;
+        }
+    } 
+    return false;
 }
 
 // Testar
