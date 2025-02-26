@@ -314,11 +314,38 @@ void AUVStateMachine::passGate(){
     }
 }
 
+// Testar
+
 void AUVStateMachine::alignToPath(){
     cout << "Aligning to path..." << endl;
 
     if(centering()){
+        array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
+        bool isAlign = false;
 
+        double currentDiference = xyxy[2] - xyxy[0], lastDiference = currentDiference;       
+        Decision decision = {Action::TURNRIGHT, 20};
+        int switchs = 0;
+        
+        while(!isAlign){
+            
+            if(currentDiference > lastDiference){
+                if(decision.action == Action::TURNRIGHT) decision.action = Action::TURNLEFT;
+                else decision.action = Action::TURNRIGHT;
+                switchs++;
+            }
+
+            this->thrusters->defineAction(decision);
+
+            lastDiference = currentDiference;
+            xyxy = this->yoloCtrl->getXYXY(this->targetObject);
+            currentDiference = xyxy[2] - xyxy[0];
+
+            if(switchs > 5) isAlign = true;
+        }
+
+        this->targetObject = "";
+        checksTransition();
     }
 }
 
@@ -379,9 +406,7 @@ bool AUVStateMachine::centering(){
 }
 
 // Testar
-/**
- * @brief This state difines the advancement procedure
- */
+
 void AUVStateMachine::advancing(){
     cout << "Advancing..." << endl;
 
