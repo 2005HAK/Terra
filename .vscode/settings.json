@@ -16,7 +16,8 @@
         "variant": "cpp",
         "vector": "cpp",
         "iosfwd": "cpp",
-        "iterator": "cpp"
+        "iterator": "cpp",
+        "stdexcept": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

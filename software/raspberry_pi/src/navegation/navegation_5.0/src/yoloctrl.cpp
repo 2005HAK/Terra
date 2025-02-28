@@ -3,7 +3,25 @@
 // Init class YoloCtrl
 
 YoloCtrl::YoloCtrl(){
-    cout << "Object YoloCtrl created" << endl;
+    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd == 0) throw ErrorCreatingSocket();
+
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
+
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) throw ErrorBindingSocket();
+
+    if (listen(server_fd, 3) < 0) throw ErrorListening();
+
+    std::cout << "Server waiting for connection..." << std::endl;
+    new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
+    if (new_socket < 0) throw ErrorAcceptingConnection();
+
+    std::cout << "Connection established." << std::endl;
+    cout << "Object YoloCtrl created." << endl;
 }
 
 void YoloCtrl::updateData(){
@@ -27,16 +45,32 @@ void YoloCtrl::updateData(){
 
             try {
                 json received_json = json::parse(received_data);
-
                 identifiedObjects = process_json(received_json);
-
             } catch (const json::parse_error& e) {
                 cerr << "Erro ao interpretar JSON: " << e.what() << endl;
             }
         }
-
     } catch (exception& e) {
         cerr << "Erro: " << e.what() << endl;
+    }
+}
+
+void YoloCtrl::switchCam(){
+    data = !data;
+    std::cout << "Value changed to: " << (data ? "Front camera" : "Bottom camera") << std::endl;
+    
+    try{
+        // Mudar para uma verificação se a camera foi trocada usando o dado que a jetson enviar
+        for(int i = 0; i < 5; i++){
+            ssize_t bytes_sent = send(new_socket, &data, sizeof(data), 0);
+            if (bytes_sent == -1) {
+                cerr << "Error sending data: " << strerror(errno) << endl;
+                break;
+            }
+            sleep_for(milliseconds(100));
+        }
+    } catch(const exception& e){
+        cerr << "Error: " << e.what() << endl;
     }
 }
 
@@ -59,13 +93,6 @@ vector<Object> YoloCtrl::process_json(const json& received_json){
                         currentObject.name = received_json["names"][to_string(currentObject.objectId)];
                     }
                     results.emplace_back(currentObject);
-
-                    //cout << "Name: " << currentObject.name << endl;
-                    //cout << "Xmin: " << currentObject.topLeftXY[0] << endl;
-                    //cout << "Ymin: " << currentObject.topLeftXY[1] << endl;
-                    //cout << "Xmax: " << currentObject.downRightXY[0] << endl;
-                    //cout << "Ymax: " << currentObject.downRightXY[1] << endl;
-                    //cout << "Conf: " << currentObject.confidance << endl;
                 }
             }
         }
@@ -82,7 +109,7 @@ bool YoloCtrl::foundObject(){
 array<int, 4> YoloCtrl::getXYXY(string objectName){
     array<int, 4> xyxy = {-1, -1, -1, -1};
 
-    for(vector<Object>::iterator obj = identifiedObjects.begin(); obj != identifiedObjects.end(); obj++){
+    for(const auto& obj : identifiedObjects){
         if(obj->name == objectName){
             xyxy[0] = obj->topLeftXY[0];
             xyxy[1] = obj->topLeftXY[1];
@@ -91,7 +118,6 @@ array<int, 4> YoloCtrl::getXYXY(string objectName){
             break;
         }
     }
-
     return xyxy;
 }
 
@@ -100,19 +126,16 @@ string YoloCtrl::greaterConfidanceObject(){
     lock_guard<mutex> lock(mutexIdentifiedObjects);
 
     if(identifiedObjects.empty()) return "";
-    else{
-        Object confidenceObject = identifiedObjects[0];
 
-        for(const auto& obj : identifiedObjects)
-            if(obj.confidance > confidenceObject.confidance)
-                confidenceObject = obj;
+    Object confidenceObject = identifiedObjects[0];
+    for(const auto& obj : identifiedObjects) if(obj.confidance > confidenceObject.confidance) confidenceObject = obj;
 
-        return confidenceObject.name;
-    }
+    return confidenceObject.name;
 }
 
 void YoloCtrl::stop(){
-
+    close(new_socket);
+    close(server_fd);
 }
 
 // End class ToloCtrl

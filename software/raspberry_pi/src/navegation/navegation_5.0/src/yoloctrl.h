@@ -4,11 +4,13 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include <nlohmann/json.hpp>
-#include <variant>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
 #include <vector>
 #include <tuple>
 #include <mutex>
-#include "utils.h"
+#include "auverror.h"
 
 using boost::asio::ip::tcp;
 using json = nlohmann::json;
@@ -29,8 +31,14 @@ struct Object{
  */
 class YoloCtrl{
     private:
+        int server_fd, new_socket;
+        struct sockaddr_in address;
+        int opt = 1;
+        int addrlen = sizeof(address);
+        bool data = true;
+
         vector<Object> identifiedObjects;
-	mutex mutexIdentifiedObjects;
+        mutex mutexIdentifiedObjects;
 
         /**
          * @brief Processes the received JSON data and extracts identified objects.
@@ -50,6 +58,11 @@ class YoloCtrl{
          * @brief Updates the data by fetching new information from the YOLO detection system.
          */
         void updateData();
+
+        /**
+         * @brief Switches the camera.
+         */
+        void switchCam();
 
         /**
          * @brief Checks if any object has been found.

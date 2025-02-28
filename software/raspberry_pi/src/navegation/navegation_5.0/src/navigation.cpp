@@ -239,8 +239,8 @@ void AUVStateMachine::search(){
         // existe uma possibilidade de encontrar o objeto errado e não mudar de estado
         checksTransition();
     } else if(this->lastState == State::PASSGATE){
-        // trocar camera
-        sleep_for(seconds(3));
+        this->yoloCtrl->switchCam();
+        sleep_for(seconds(2));
 
         Action action = Action::NONE;
 
@@ -361,9 +361,8 @@ void AUVStateMachine::alignToPath(){
 
             if(switchs > 5) isAlign = true;
         }
-
-        // Troca de camera
-        sleep_for(seconds(3));
+        this->yoloCtrl->switchCam();
+        sleep_for(seconds(2));
 
         checksTransition();
     }

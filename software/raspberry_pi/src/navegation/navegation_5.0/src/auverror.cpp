@@ -10,13 +10,25 @@ void AUVError::logError(){
         logFile << "[" << this->time << "]" << " (Error " << this->code << "): " << this->type << endl;
         logFile.close();
     } else {
-        cout << "Failed to open log file" << endl;
+        cout << "Failed to open log file: auv_errors.log" << endl;
     }
 }
 
-FailedInitializationSensors::FailedInitializationSensors() : AUVError("Failed to create the sensors object", 151){}
+FailedInitializationSensors::FailedInitializationSensors() : AUVError("Failed to create the sensors object.", 151){}
 
-FailedInitializationYolo ::FailedInitializationYolo() : AUVError("Failed to create the yolo object", 152){}
+// YOLOCTRL
+
+FailedInitializationYolo ::FailedInitializationYolo(string type, int code) : AUVError(type, code){}
+
+ErrorCreatingSocket::ErrorCreatingSocket() : FailedInitializationYolo("Failed to create the socket.", 252){}
+
+ErrorBindingSocket::ErrorBindingSocket() : FailedInitializationYolo("Failed to bind the socket.", 253){}
+
+ErrorListening::ErrorListening() : FailedInitializationYolo("Failed to listen to the socket.", 254){}
+
+ErrorAcceptingConnection::ErrorAcceptingConnection() : FailedInitializationYolo("Failed to accept the connection.", 255){}
+
+// END YOLOCTRL
 
 CollisionDetected::CollisionDetected(array<double, 3> acceleration) : AUVError("Collision detected based in sensor data: {" + to_string(acceleration[0]) +
                 ", " + to_string(acceleration[1]) + ", " + to_string(acceleration[2]) + "} m/s²", 301), acceleration(acceleration){}

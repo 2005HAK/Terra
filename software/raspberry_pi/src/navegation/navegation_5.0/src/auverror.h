@@ -41,6 +41,8 @@ class FailedInitializationSensors : public AUVError{
         FailedInitializationSensors();
 };
 
+// YOLOCTRL
+
 /**
  * @brief Class representing errors that may occur during the initialization of the Yolo.
  */
@@ -48,9 +50,58 @@ class FailedInitializationYolo : public AUVError{
     public:
         /**
          * @brief Constructor of the FailedInitializationYolo class.
+         * 
+         * @param type Type of error identified.
+         * @param code Error code.
          */
-        FailedInitializationYolo();
+        FailedInitializationYolo(string type = "Failed to create the yolo object.", int code = 251);
 };
+
+/**
+ * @brief Class representing errors that may occur during the creation of a socket.
+ */
+class ErrorCreatingSocket : public FailedInitializationYolo{
+    public:
+        /**
+         * @brief Constructor of the ErrorCreatingSocket class.
+         */
+        ErrorCreatingSocket();
+};
+
+/**
+ * @brief Class representing errors that may occur during the binding of a socket.
+ */
+class ErrorBindingSocket : public FailedInitializationYolo{
+    public:
+        /**
+         * @brief Constructor of the ErrorBindingSocket class.
+         */
+        ErrorBindingSocket();
+};
+
+/**
+ * @brief Class representing errors that may occur during the listening of a socket.
+ */
+class ErrorListening : public FailedInitializationYolo{
+    public:
+        /**
+         * @brief Constructor of the ErrorListening class.
+         */
+        ErrorListening();
+};
+
+/**
+ * @brief Class representing errors that may occur during the accepting of a connection.
+ */
+class ErrorAcceptingConnection : public FailedInitializationYolo{
+    public:
+        /**
+         * @brief Constructor of the ErrorAcceptingConnection class.
+         */
+        ErrorAcceptingConnection();
+};
+
+// END YOLOCTRL
 
 /**
  * @brief Class representing errors that may occur during the initialization of the thrusters.
