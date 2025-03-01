@@ -135,7 +135,7 @@ AUVStateMachine::~AUVStateMachine(){
     if (transitionThread.joinable()) transitionThread.join();
 }
 
-// Init functions used by threads
+// FUNCTIONS USED BY THREADS
 
 void AUVStateMachine::sensorsData(){
     sensors->initialize();
@@ -165,7 +165,9 @@ void AUVStateMachine::checksErrors(){
     }
 }
 
-// End functions used by threads
+// END FUNCTIONS USED BY THREADS
+
+// TRANSITION FUNCTIONS
 
 bool AUVStateMachine::checksTransition(){
     if(this->yoloCtrl->foundObject()) {
@@ -189,7 +191,10 @@ void AUVStateMachine::transitionTo(State newState){
     this->state = newState;
 }
 
-//ERRORS HANDLING
+// END TRANSITION FUNCTIONS
+
+// ERRORS HANDLING
+
 void AUVStateMachine::errorHandling(AUVError e){
     auto* error = dynamic_cast<CollisionDetected*>(&e);
     if(error){
@@ -215,6 +220,8 @@ void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
 
     run();
 }
+
+// END ERRORS HANDLING
 
 // DEFINITION OF STATES
 
@@ -254,10 +261,19 @@ void AUVStateMachine::search(){
                 this->thrusters->defineAction({Action::NONE, 0});
                 this->thrusters->defineAction({Action::FORWARD, 20});
             }
-
             this->thrusters->defineAction({Action::FORWARD, 20});
             sleep_for(milliseconds(100));
         }
+        this->thrusters->defineAction({Action::NONE, 0});
+
+        checksTransition();
+    } else if(this->lastState == State::ALIGNTOPATH){
+        while(!searchObjects("SlalomR") && !searchObjects("SlalomW")){
+            this->thrusters->defineAction({Action::FORWARD, 20});
+            sleep_for(milliseconds(100));
+        }
+        this->thrusters->defineAction({Action::NONE, 0});
+
         checksTransition();
     }
 }
@@ -365,6 +381,23 @@ void AUVStateMachine::alignToPath(){
         sleep_for(seconds(2));
 
         checksTransition();
+    }
+}
+
+void AUVStateMachine::navigate(){
+    cout << "Navigating..." << endl;
+
+    bool finished = false;
+
+    while(!finished){
+        array<int, 4> pipeWhite = this->yoloCtrl->getXYXY("SlalomWhite");
+        array<int, 4> pipeRed = this->yoloCtrl->getXYXY("SlalomRed");
+
+        if(pipeWhite[0] != -1) {
+
+        }else if(pipeRed[0] != -1) {
+
+        }
     }
 }
 
@@ -491,7 +524,8 @@ void AUVStateMachine::stop(){
     this->yoloCtrl->stop();
     this->thrusters->finish();
 }
-// END DEFINITION OF STATES
+
+// RUN STATE MACHINE
 
 void AUVStateMachine::run(){
     try{
@@ -524,6 +558,8 @@ void AUVStateMachine::run(){
         errorHandling(e);
     }
 }
+
+// END RUN STATE MACHINE
 
 int main(){
     AUVStateMachine auv;

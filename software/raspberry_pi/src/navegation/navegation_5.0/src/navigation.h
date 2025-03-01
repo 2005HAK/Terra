@@ -69,10 +69,9 @@ vector<StateTransition> stateTransitions = {
     {State::SEARCH, State::PASSGATE, "", State::SEARCH},
     {State::PASSGATE, State::SEARCH, "PathMarker", State::ALIGNTOPATH},
     {State::SEARCH, State::ALIGNTOPATH, "", State::SEARCH},
-    {State::ALIGNTOPATH, State::SEARCH, "Slalom", State::NAVIGATE},
-    {State::SEARCH, State::NAVIGATE "Slalom", State::NAVIGATE},
-    {State::NAVIGATE, State::NAVIGATE "Slalom", State::NAVIGATE},
-    {State::NAVIGATE, State::NAVIGATE, "PathMarker", State::ALIGNTOPATH},
+    {State::ALIGNTOPATH, State::SEARCH, "SlalomRed", State::NAVIGATE},
+    {State::ALIGNTOPATH, State::SEARCH, "SlalomWhite", State::NAVIGATE},
+    {State::SEARCH, State::NAVIGATE, "PathMarker", State::ALIGNTOPATH},
     {State::NAVIGATE, State::ALIGNTOPATH, "", State::SEARCH},
     {State::ALIGNTOPATH, State::SEARCH, "Bin", State::DROPMARKERS},
     {State::SEARCH, State::DROPMARKERS, "PathMarker", State::ALIGNTOPATH},
@@ -257,6 +256,9 @@ class AUVStateMachine{
          * @brief This state defines the procedure for aligning the AUV to the path.
          */
         void alignToPath();
+
+
+        void navigate();
 
         // END DEFINITION OF STATES
 
