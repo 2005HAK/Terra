@@ -387,18 +387,58 @@ void AUVStateMachine::alignToPath(){
 void AUVStateMachine::navigate(){
     cout << "Navigating..." << endl;
 
+    int safeRange = 100;
+    int count = 0;
     bool finished = false;
 
     while(!finished){
         array<int, 4> pipeWhite = this->yoloCtrl->getXYXY("SlalomWhite");
         array<int, 4> pipeRed = this->yoloCtrl->getXYXY("SlalomRed");
 
-        if(pipeWhite[0] != -1) {
+        Decision decision = {Action::NONE, 0};
+        
+        if(pipeWhite[0] != -1 && pipeRed[0] != -1){
+            int middlePipes = pipeWhite[2] + ((pipeRed[0] - pipeWhite[2]) / 2);
 
-        }else if(pipeRed[0] != -1) {
+            if(middlePipes < IMAGE_CENTER[0] - (ERROR_CENTER / 2)){
+                decision.action = Action::TURNLEFT;
+                //Definir com o controle PID
+                decision.value = 20; 
+            } else if(middlePipes > IMAGE_CENTER[0] + (ERROR_CENTER / 2)){
+                desision.action = Action::TURNRIGHT;
+                //Definir com o controle PID
+                decision.value = 20; 
+            }
+        }else if(pipeWhite[2] > IMAGE_CENTER[0] - safeRange){
+            decision.action = Action::TURNRIGHT;
+            //Definir com o controle PID
+            decision.value = 20; 
+        } else if(pipeRed[2] < IMAGE_CENTER[0] + safeRange){
+            decision.action = Action::TURNLEFT;
+            //Definir com o controle PID
+            decision.value = 20; 
+        } 
 
+        if(decision.action != Action::NONE){
+            count = 0;
+            this->thrusters->defineAction(decision);
+            sleep_for(milliseconds(100));
+            this->thrusters->defineAction({Action::FORWARD, 20});
+        } else{
+            this->thrusters->defineAction({Action::FORWARD, 20});
+            count++;
         }
+
+        if(count > 5) finished = true;
+
+        sleep_for(milliseconds(100));
     }
+    // Tratar caso de não haver o pathmarker abaixo do auv neste momento
+    this->thrusters->defineAction({Action::NONE, 0});
+
+    this->yoloCtrl->switchCam();
+    sleep_for(seconds(2));  
+    checksTransition();
 }
 
 //END DEFINITION OF STATES
@@ -436,7 +476,7 @@ void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
 }
 
 // Testar
-
+// Atualizar para que faça a movimentação correta quando estiver usando a camera de baixo
 bool AUVStateMachine::centering(){
     cout << "Centering..." << endl;
 
@@ -533,23 +573,34 @@ void AUVStateMachine::run(){
 
         while (this->state != State::STOP){
             switch (this->state){
-            case State::INIT:
-                init();
-                break;
-            case State::SEARCH:
-                search();
-                break;
-            case State::CENTERING:
-                centering();
-                break;
-            case State::ADVANCING:
-                advancing();
-                break;
-            case State::STABILIZING:
-                stabilizing();
-                break;
-            default:
-                break;
+                case State::INIT:
+                    init();
+                    break;
+                case State::SEARCH:
+                    search();
+                    break;
+                case State::PASSGATE:
+                    passGate();
+                    break;
+                case State::ALIGNTOPATH:
+                    alignToPath();
+                    break;
+                case State::NAVIGATE:
+                    navigate();
+                    break;
+
+                //verificar se ainda serão usados
+                case State::CENTERING:
+                    centering();
+                    break;
+                case State::ADVANCING:
+                    advancing();
+                    break;
+                case State::STABILIZING:
+                    stabilizing();
+                    break;
+                default:
+                    break;
             }
         }
 
