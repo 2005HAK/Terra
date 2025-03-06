@@ -230,6 +230,8 @@ void AUVStateMachine::search(){
 
     cout << "Searching..." << endl;
 
+    // Provavelmente as o modo de encontrar os objetos para fazer as transições sera mudado para ser mais especifico para cada caso
+
     if(this->lastState == State::INIT){
         this->thrusters->defineAction({Action::NONE, 0});
 
@@ -268,13 +270,32 @@ void AUVStateMachine::search(){
 
         checksTransition();
     } else if(this->lastState == State::ALIGNTOPATH){
-        while(!searchObjects("SlalomR") && !searchObjects("SlalomW")){
+        while(!searchObjects("SlalomR") && !searchObjects("SlalomW") && !searchObjects("Bin") && !searchObjects("Torpedoes")){
             this->thrusters->defineAction({Action::FORWARD, 20});
             sleep_for(milliseconds(100));
         }
         this->thrusters->defineAction({Action::NONE, 0});
 
         checksTransition();
+    } else if(this->lastState == State::NAVIGATE || this->lastState == State::DROPMARKERS){
+        this->yoloCtrl->switchCam();
+        sleep_for(seconds(2));
+
+        int time = 100, count = 0;
+
+        while(!searchObjects("PathMarker")){
+            rotate(M_PI / 2, 0.174533, Action::TURNRIGHT);
+            this->thrusters->defineAction({Action::FORWARD, 20});
+            sleep_for(milliseconds(time));
+            count++;
+
+            // Revisar esse procedimento de procura pelo pathMarker, não é o suficiente
+
+            if(count == 4){
+                time += 100;
+                count = 0;
+            }
+        }
     }
 }
 
@@ -307,7 +328,7 @@ void AUVStateMachine::passGate(){
 
         array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
 
-        // Verifica de qual lado o objeto está
+        // Check which side the object is on
         if(xyxy[0] > IMAGE_CENTER[0]) sideIsLeft = false;
 
         if(centering()){
@@ -337,7 +358,7 @@ void AUVStateMachine::passGate(){
 
             this->thrusters->defineAction({Action::NONE, 0});
 
-            // Gira após passar pelo gate
+            // Rotate after passing through the gate
             rotate(2 * M_PI, 0.174533, Action::TURNRIGHT);
             sleep_for(milliseconds(500));
             rotate(2 * M_PI, 0.174533, Action::TURNRIGHT);
@@ -383,6 +404,8 @@ void AUVStateMachine::alignToPath(){
         checksTransition();
     }
 }
+
+// Testar
 
 void AUVStateMachine::navigate(){
     cout << "Navigating..." << endl;
@@ -441,6 +464,52 @@ void AUVStateMachine::navigate(){
     checksTransition();
 }
 
+// Testar
+
+void AUVStateMachine::dropMarkers(){
+    cout << "Dropping markers..." << endl;
+
+    while(searchObjects("Bin")){
+        this->thrusters->defineAction({Action::FORWARD, 20});
+        sleep_for(milliseconds(100));
+    }
+
+    this->thrusters->defineAction({Action::NONE, 0});
+
+    this->yoloCtrl->switchCam();
+    sleep_for(seconds(2));
+
+    // Provavelmete terá uma diferenca de profundidade minima para dropar os marcadores, 
+    // tratar isso quando tiver mais detalhes
+    
+    int count = 0, time = 100;
+    while(!searchObjects("Bin")){
+        rotate(M_PI / 2, 0.174533, Action::TURNRIGHT);
+        this->thrusters->defineAction({Action::FORWARD, 20});
+        sleep_for(milliseconds(time));
+        count++;
+
+        // Revisar esse procedimento de procura pelo pathMarker, não é o suficiente
+
+        if(count == 4){
+            time += 100;
+            count = 0;
+        }
+    }
+
+    this->thrusters->defineAction({Action::NONE, 0});
+
+    centering();
+    // Estabilizar continuamente em um thread separado
+    dropping();
+
+    checksTransition();
+}
+
+void AUVStateMachine::tagging(){
+
+}
+
 //END DEFINITION OF STATES
 
 bool AUVStateMachine::searchObjects(string object){
@@ -477,6 +546,7 @@ void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
 
 // Testar
 // Atualizar para que faça a movimentação correta quando estiver usando a camera de baixo
+
 bool AUVStateMachine::centering(){
     cout << "Centering..." << endl;
 
@@ -501,6 +571,12 @@ bool AUVStateMachine::centering(){
     }
 
     return isCenter;
+}
+
+// Falta definir como fazer isso, ainda não temos a garra que segura os markers
+
+void AUVStateMachine::dropping(){
+
 }
 
 // Testar
@@ -587,6 +663,12 @@ void AUVStateMachine::run(){
                     break;
                 case State::NAVIGATE:
                     navigate();
+                    break;
+                case State::DROPMARKERS:
+                    dropMarkers();
+                    break;
+                case State::TAGGING:
+                    //tagging();
                     break;
 
                 //verificar se ainda serão usados

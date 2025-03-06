@@ -55,6 +55,8 @@ void YoloCtrl::updateData(){
     }
 }
 
+// Atualizar para receber qual camera é a desejada
+
 void YoloCtrl::switchCam(){
     data = !data;
     std::cout << "Value changed to: " << (data ? "Front camera" : "Bottom camera") << std::endl;

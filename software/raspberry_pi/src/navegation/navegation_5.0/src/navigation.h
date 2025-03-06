@@ -74,7 +74,8 @@ vector<StateTransition> stateTransitions = {
     {State::SEARCH, State::NAVIGATE, "PathMarker", State::ALIGNTOPATH},
     {State::NAVIGATE, State::ALIGNTOPATH, "", State::SEARCH},
     {State::ALIGNTOPATH, State::SEARCH, "Bin", State::DROPMARKERS},
-    {State::SEARCH, State::DROPMARKERS, "PathMarker", State::ALIGNTOPATH},
+    {State::SEARCH, State::DROPMARKERS, "", State::SEARCH},
+    {State::DROPMARKERS, State::SEARCH, "PathMarker", State::ALIGNTOPATH},
     {State::DROPMARKERS, State::ALIGNTOPATH, "", State::SEARCH},
     {State::ALIGNTOPATH, State::SEARCH, "Torpedoes", State::TAGGING},
     {State::SEARCH, State::TAGGING, "", State::SEARCH},
@@ -257,8 +258,17 @@ class AUVStateMachine{
          */
         void alignToPath();
 
-
+        /**
+         * @brief This state defines the navigation through the slalom procedure.
+         */
         void navigate();
+
+        /**
+         * @brief This state defines the procedure for dropping markers.
+         */
+        void dropMarkers();
+
+        void tagging();
 
         // END DEFINITION OF STATES
 
@@ -280,6 +290,8 @@ class AUVStateMachine{
          * @brief This state defines the centralization procedure.
          */
         bool centering();
+        
+        void dropping();
 
         /**
          * @brief This state difines the advancement procedure.
