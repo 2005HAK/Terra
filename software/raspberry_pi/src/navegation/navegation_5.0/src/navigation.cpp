@@ -245,8 +245,6 @@ void AUVStateMachine::search(){
             } // tratar questão de não encontrar o gate so com esse procedimento
             sleep_for(milliseconds(100));
         }
-        // existe uma possibilidade de encontrar o objeto errado e não mudar de estado
-        checksTransition();
     } else if(this->lastState == State::PASSGATE){
         this->yoloCtrl->switchCam();
         sleep_for(seconds(2));
@@ -266,17 +264,11 @@ void AUVStateMachine::search(){
             this->thrusters->defineAction({Action::FORWARD, 20});
             sleep_for(milliseconds(100));
         }
-        this->thrusters->defineAction({Action::NONE, 0});
-
-        checksTransition();
     } else if(this->lastState == State::ALIGNTOPATH){
-        while(!searchObjects("SlalomR") && !searchObjects("SlalomW") && !searchObjects("Bin") && !searchObjects("Torpedoes")){
+        while(!searchObjects("SlalomRed") && !searchObjects("SlalomWhite") && !searchObjects("Bin") && !searchObjects("Torpedoes")){
             this->thrusters->defineAction({Action::FORWARD, 20});
             sleep_for(milliseconds(100));
         }
-        this->thrusters->defineAction({Action::NONE, 0});
-
-        checksTransition();
     } else if(this->lastState == State::NAVIGATE || this->lastState == State::DROPMARKERS){
         this->yoloCtrl->switchCam();
         sleep_for(seconds(2));
@@ -297,6 +289,9 @@ void AUVStateMachine::search(){
             }
         }
     }
+
+    this->thrusters->defineAction({Action::NONE, 0});
+    checksTransition();
 }
 
 void AUVStateMachine::init(){
@@ -420,37 +415,43 @@ void AUVStateMachine::navigate(){
 
         Decision decision = {Action::NONE, 0};
         
-        if(pipeWhite[0] != -1 && pipeRed[0] != -1){
-            int middlePipes = pipeWhite[2] + ((pipeRed[0] - pipeWhite[2]) / 2);
+        if(pipeWhite[0] != -1 || pipeRed[0] != -1){
+            if(pipeWhite[0] != -1 && pipeRed[0] != -1){
+                int middlePipes = pipeWhite[2] + ((pipeRed[0] - pipeWhite[2]) / 2);
 
-            if(middlePipes < IMAGE_CENTER[0] - (ERROR_CENTER / 2)){
+                if(middlePipes < IMAGE_CENTER[0] - (ERROR_CENTER / 2)){
+                    decision.action = Action::TURNLEFT;
+                    //Definir com o controle PID
+                    decision.value = 20; 
+                } else if(middlePipes > IMAGE_CENTER[0] + (ERROR_CENTER / 2)){
+                    desision.action = Action::TURNRIGHT;
+                    //Definir com o controle PID
+                    decision.value = 20; 
+                } else {
+                    decision.action = Action::FORWARD;
+                    //Definir com o controle PID
+                    decision.value = 20;
+                }
+            }else if(pipeWhite[2] > IMAGE_CENTER[0] - safeRange){
+                decision.action = Action::TURNRIGHT;
+                //Definir com o controle PID
+                decision.value = 20; 
+            } else if(pipeRed[2] < IMAGE_CENTER[0] + safeRange){
                 decision.action = Action::TURNLEFT;
                 //Definir com o controle PID
                 decision.value = 20; 
-            } else if(middlePipes > IMAGE_CENTER[0] + (ERROR_CENTER / 2)){
-                desision.action = Action::TURNRIGHT;
+            } else{
+                decision.action = Action::FORWARD;
                 //Definir com o controle PID
-                decision.value = 20; 
+                decision.value = 20;
             }
-        }else if(pipeWhite[2] > IMAGE_CENTER[0] - safeRange){
-            decision.action = Action::TURNRIGHT;
-            //Definir com o controle PID
-            decision.value = 20; 
-        } else if(pipeRed[2] < IMAGE_CENTER[0] + safeRange){
-            decision.action = Action::TURNLEFT;
-            //Definir com o controle PID
-            decision.value = 20; 
-        } 
+        } else count++;
 
         if(decision.action != Action::NONE){
             count = 0;
             this->thrusters->defineAction(decision);
             sleep_for(milliseconds(100));
-            this->thrusters->defineAction({Action::FORWARD, 20});
-        } else{
-            this->thrusters->defineAction({Action::FORWARD, 20});
-            count++;
-        }
+        } else this->thrusters->defineAction({Action::FORWARD, 20});
 
         if(count > 5) finished = true;
 
@@ -459,8 +460,6 @@ void AUVStateMachine::navigate(){
     // Tratar caso de não haver o pathmarker abaixo do auv neste momento
     this->thrusters->defineAction({Action::NONE, 0});
 
-    this->yoloCtrl->switchCam();
-    sleep_for(seconds(2));  
     checksTransition();
 }
 
@@ -500,6 +499,10 @@ void AUVStateMachine::dropMarkers(){
     this->thrusters->defineAction({Action::NONE, 0});
 
     centering();
+
+    // Com base em testes avançar um pouco, ja que a camera fica mais a frente do que o mecanismo que segura 
+    // os marcadores
+
     // Estabilizar continuamente em um thread separado
     dropping();
 
