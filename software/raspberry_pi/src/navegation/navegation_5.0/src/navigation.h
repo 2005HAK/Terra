@@ -208,11 +208,6 @@ class AUVStateMachine{
         void checksErrors();
 
         /**
-         * @brief Listen the pinger of octagon.
-         */
-        void listening();
-
-        /**
          * @brief Checks if the state machine should transition to another state.
          */
         bool checksTransition();

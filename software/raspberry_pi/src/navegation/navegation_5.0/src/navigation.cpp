@@ -165,10 +165,6 @@ void AUVStateMachine::checksErrors(){
     }
 }
 
-void AUVStateMachine::listening(){
-    // Quando tivermos o hidrofone entender os dados e como usa-los para se mover procurando o pinger
-}
-
 // END FUNCTIONS USED BY THREADS
 
 // TRANSITION FUNCTIONS
@@ -293,12 +289,10 @@ void AUVStateMachine::search(){
             }
         }
     } else if (this->lastState == State::TAGGING){
-        thread listeningThread = thread(&AUVStateMachine::listening, this);
-
-        // terminar de implementar
+        // Quando tivermos o hidrofone entender os dados e como usa-los para se mover procurando o pinger
 
         while(!searchObjects("Octagon")){
-            this->thrusters->defineAction({Action::FORWARD, 20});
+            // Implementar movimentação para encontrar o pinger baseado no hidrofone
             sleep_for(milliseconds(100));
         }
     }
@@ -525,6 +519,8 @@ void AUVStateMachine::dropMarkers(){
 // Implementar
 
 void AUVStateMachine::tagging(){
+    cout << "Tagging..." << endl;
+
     // In meters
     double minDistance = 1;
 
