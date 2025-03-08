@@ -165,6 +165,10 @@ void AUVStateMachine::checksErrors(){
     }
 }
 
+void AUVStateMachine::listening(){
+    // Quando tivermos o hidrofone entender os dados e como usa-los para se mover procurando o pinger
+}
+
 // END FUNCTIONS USED BY THREADS
 
 // TRANSITION FUNCTIONS
@@ -287,6 +291,15 @@ void AUVStateMachine::search(){
                 time += 100;
                 count = 0;
             }
+        }
+    } else if (this->lastState == State::TAGGING){
+        thread listeningThread = thread(&AUVStateMachine::listening, this);
+
+        // terminar de implementar
+
+        while(!searchObjects("Octagon")){
+            this->thrusters->defineAction({Action::FORWARD, 20});
+            sleep_for(milliseconds(100));
         }
     }
 
@@ -509,7 +522,55 @@ void AUVStateMachine::dropMarkers(){
     checksTransition();
 }
 
+// Implementar
+
 void AUVStateMachine::tagging(){
+    // In meters
+    double minDistance = 1;
+
+    if(centering()){
+        double currentDistance, tolerance = .05;
+        bool isOk = false;
+        // Essa função não precisa do terceiro argumento
+        calculateDistance(currentDistance, this->targetObject, this->yoloCtrl->getXYXY(this->targetObject));
+
+        while(!isOk){
+            if(currentDistance > minDistance + tolerance){
+                this->thrusters->defineAction({Action::FORWARD, 20});
+                sleep_for(milliseconds(100));
+            } else if(currentDistance < minDistance - tolerance){
+                this->thrusters->defineAction({Action::BACKWARD, 20});
+                sleep_for(milliseconds(100));
+            } else isOk = true;
+
+            calculateDistance(currentDistance, this->targetObject, this->yoloCtrl->getXYXY(this->targetObject));
+        }
+
+        bool ready = false;
+
+        /** Terminar o ajuste do AUV e disparo do torpedo, que pode ser feito de 2 maneiras:
+         * 1 - Ajustar o AUV com base em testes (mais simples)
+         * 2 - Com base na força de disparo, distancia ao alvo, resistencia da agua e local onde o disparador
+         *     esta localizado no AUV, calcular onde o AUV dece estar para que o torpedo atinja o alvo (mais 
+         *     complexo)
+         */
+
+        if(ready) shoot();
+        else throw FailedFiringTorpedo();
+
+        checksTransition();
+    }
+}
+
+// Implementar
+
+void AUVStateMachine::cleanup(){
+
+}
+
+// Implementar
+
+void AUVStateMachine::returning(){
 
 }
 
@@ -549,6 +610,8 @@ void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
 
 // Testar
 // Atualizar para que faça a movimentação correta quando estiver usando a camera de baixo
+// Atualizar para que identifique se o objeto esta de lado, se tiver as dimensoes dos objetos da para 
+// usar proporção
 
 bool AUVStateMachine::centering(){
     cout << "Centering..." << endl;

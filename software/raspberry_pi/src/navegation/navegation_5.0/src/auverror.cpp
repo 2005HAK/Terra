@@ -44,3 +44,5 @@ HighTemperatureError::HighTemperatureError(double temperature, string type, int 
 PixhawkHighTemperature::PixhawkHighTemperature(double temperature) : HighTemperatureError(temperature, "Pixhawk temperature above threshold " + to_string(temperature) + "ºC", 332){}
 
 RaspberryHighTemperature::RaspberryHighTemperature(double temperature) : HighTemperatureError(temperature, "Raspberry temperature above threshold " + to_string(temperature) + "ºC", 141){}
+
+FailedFiringTorpedo::FailedFiringTorpedo() : AUVError("Failed to fire torpedo", 820){}

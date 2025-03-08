@@ -78,7 +78,7 @@ vector<StateTransition> stateTransitions = {
     {State::SEARCH, State::DROPMARKERS, "", State::SEARCH},
     {State::DROPMARKERS, State::SEARCH, "PathMarker", State::ALIGNTOPATH},
     {State::DROPMARKERS, State::ALIGNTOPATH, "", State::SEARCH},
-    {State::ALIGNTOPATH, State::SEARCH, "Torpedoes", State::TAGGING},
+    {State::ALIGNTOPATH, State::SEARCH, INITIALCHOICE, State::TAGGING},
     {State::SEARCH, State::TAGGING, "", State::SEARCH},
     {State::TAGGING, State::SEARCH, "Octagon", State::CLEANUP},
     {State::SEARCH, State::CLEANUP, "", State::RETURNING},
@@ -208,6 +208,11 @@ class AUVStateMachine{
         void checksErrors();
 
         /**
+         * @brief Listen the pinger of octagon.
+         */
+        void listening();
+
+        /**
          * @brief Checks if the state machine should transition to another state.
          */
         bool checksTransition();
@@ -270,6 +275,10 @@ class AUVStateMachine{
         void dropMarkers();
 
         void tagging();
+
+        void cleanup();
+
+        void returning();
 
         // END DEFINITION OF STATES
 

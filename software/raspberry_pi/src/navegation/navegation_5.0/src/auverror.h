@@ -181,4 +181,18 @@ class RaspberryHighTemperature : public HighTemperatureError{
         RaspberryHighTemperature(double temperature = -1);
 };
 
+/**
+ * @brief Class representing errors that may occur during the firing of a torpedo.
+ */
+class FailedFiringTorpedo : public AUVError{
+    public:
+        /**
+         * @brief Constructor of the FailedFiringTorpedo class.
+         * 
+         * @param type Type of error identified.
+         * @param code Error code.
+         */
+        FailedFiringTorpedo();
+};
+
 #endif //AUVERROR_H
