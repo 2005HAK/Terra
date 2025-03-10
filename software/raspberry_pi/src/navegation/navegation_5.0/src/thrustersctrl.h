@@ -88,6 +88,7 @@ class Thruster{
 class ThrustersControl{
     private:
         vector<Thruster> thrusters;
+        bool stabilizeVert = true, stabilizeHori = true;
 
     public:
         /**
@@ -111,6 +112,11 @@ class ThrustersControl{
          * @param decision Struct with the action decision that will be executed by the AUV and with what power.
          */
         void defineAction(Decision decision);
+
+        
+        void getStabilizeVert();
+
+        void getStabilizeHori();
 
         /**
          * @brief Finish the thrusters.

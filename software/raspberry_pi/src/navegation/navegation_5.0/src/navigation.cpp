@@ -100,13 +100,6 @@ void definesAction(Action &action, double velocity, double errorVelocity, Action
     else if(velocity < 0 - errorVelocity) action = positiveAction;
 }
 
-void stabilizes(array<Decision,3> &decision, array<double, 3> velocity){
-    array<double, 3> errorVelocity = {.1, .1, .1};
-
-    definesAction(decision[0].action, velocity[0], errorVelocity[0], Action::FORWARD, Action::BACKWARD);
-    definesAction(decision[1].action, velocity[1], errorVelocity[0], Action::RIGHT, Action::LEFT);
-    definesAction(decision[2].action, velocity[2], errorVelocity[0], Action::DOWN, Action::UP);
-}
 
 AUVStateMachine::AUVStateMachine(){
     cout << "State machine creation..." << endl;
@@ -162,6 +155,27 @@ void AUVStateMachine::checksErrors(){
             sensors->detectOverheat();
         }
         sleep_for(milliseconds(100));
+    }
+}
+
+void AUVStateMachine::stabilizes(){
+    while(running){
+        array<Decision, 3> decision;
+        array<double, 3> errorVelocity = {.1, .1, .1};
+    
+        definesAction(decision[0].action, this->sensors->getVel[0], errorVelocity[0], Action::FORWARD, Action::BACKWARD);
+        definesAction(decision[1].action, this->sensors->getVel[1], errorVelocity[1], Action::RIGHT, Action::LEFT);
+        definesAction(decision[2].action, this->sensors->getVel[2], errorVelocity[2], Action::DOWN, Action::UP);
+
+        if(this->thrusters->getStabilizeVert()){
+            this->thrusters->defineAction(decision[0]);
+            sleep_for(milliseconds(500));
+        }
+        if(this->thrusters->getStabilizeHori()){
+            this->thrusters->defineAction(decision[1]);
+            this->thrusters->defineAction(decision[2]);
+            sleep_for(milliseconds(500));
+        }
     }
 }
 
@@ -313,7 +327,10 @@ void AUVStateMachine::init(){
 
     this->thrusters = make_unique<ThrustersControl>();
 
-    if(thrusters) checksTransition();
+    if(thrusters){
+        stabilizesThread = thread(&AUVStateMachine::stabilizes, this);
+        checksTransition();
+    }
     else throw FailedConnectThrusters();
 }  
 
@@ -672,28 +689,6 @@ void AUVStateMachine::advancing(){
         this->nextState = State::STOP;
         transitionTo(State::STABILIZING);
     } else transitionTo(State::SEARCH);
-}
-
-void AUVStateMachine::stabilizing(){
-    cout << "Stabilizing..." << endl;
-
-    int isStable = 0;
-
-    while(!isStable){
-        array<Decision, 3> decision;
-        stabilizes(decision, this->sensors->getVel());
-
-        this->thrusters->defineAction(decision[0]);
-        sleep_for(milliseconds(500));
-        this->thrusters->defineAction(decision[1]);
-        this->thrusters->defineAction(decision[2]);
-        sleep_for(milliseconds(500));
-
-        if(decision[0].action == Action::NONE && decision[1].action == Action::NONE && decision[2].action == Action::NONE) isStable = 1;
-    }
-
-    transitionTo(this->nextState != State::NONE ? this->nextState : State::SEARCH);
-    this->nextState = State::NONE;
 }
 
 void AUVStateMachine::stop(){

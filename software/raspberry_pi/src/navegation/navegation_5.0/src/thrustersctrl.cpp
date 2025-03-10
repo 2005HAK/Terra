@@ -51,47 +51,57 @@ void ThrustersControl::initializeThrusters(){
 
 void ThrustersControl::defineAction(Decision decision){
     cout << "Action: " << actionToString(decision.action) << ", Power: " << decision.value << endl;
+    stabilizeHori = true;
+    stabilizeVert = true;
 
     switch (decision.action){
         case Action::UP:
+            stabilizeVert = false;
             thrusters[2].move(decision.value);
             thrusters[5].move(decision.value);
             break;
         case Action::DOWN:
+            stabilizeVert = false;
             thrusters[2].move(-decision.value);
             thrusters[5].move(-decision.value);
             break;
         case Action::FORWARD:
+            stabilizeHori = false
             thrusters[0].move(-decision.value);
             thrusters[1].move(-decision.value);
             thrusters[3].move(decision.value);
             thrusters[4].move(decision.value);
             break;
         case Action::BACKWARD:
+            stabilizeHori = false;
             thrusters[0].move(decision.value);
             thrusters[1].move(decision.value);
             thrusters[3].move(-decision.value);
             thrusters[4].move(-decision.value);
             break;
         case Action::RIGHT:
+            stabilizeHori = false;
             thrusters[0].move(-decision.value);
             thrusters[1].move(decision.value);
             thrusters[3].move(decision.value);
             thrusters[4].move(-decision.value);
             break;
         case Action::LEFT:
+            stabilizeHori = false;
             thrusters[0].move(decision.value);
             thrusters[1].move(-decision.value);
             thrusters[3].move(-decision.value);
             thrusters[4].move(decision.value);
             break;
         case Action::TURNRIGHT:
+            stabilizeHori = false;
             thrusters[0].move(-decision.value);
             thrusters[1].move(decision.value);
             thrusters[3].move(-decision.value);
             thrusters[4].move(decision.value);
             break;
         case Action::TURNLEFT:
+            stabilizeHori = false;
             thrusters[0].move(decision.value);
             thrusters[1].move(-decision.value);
             thrusters[3].move(decision.value);
@@ -105,6 +115,14 @@ void ThrustersControl::defineAction(Decision decision){
             break;
     }
     sleep_for(milliseconds(350));
+}
+
+bool ThrustersControl::getStabilizeVert(){
+    return stabilizeVert;
+}
+
+bool ThrustersControl::getStabilizeHori(){
+    return stabilizeHori;
 }
 
 void ThrustersControl::finish(){

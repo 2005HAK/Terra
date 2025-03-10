@@ -162,14 +162,6 @@ void advanceDecision(Decision &decision, double objectDistance);
 void definesAction(Action &action, double velocity, double errorVelocity, Action positiveAction, Action negativeAction);
 
 /**
- * @brief Defines the actions to stabilize the AUV.
- * 
- * @param decision Array of struct where the move decision is stored.
- * @param velocity Velocity values on the x, y, and z axes, respectively.
- */
-void stabilizes(array<Decision,3> &decision, array<double, 3> velocity);
-
-/**
  * @brief Class representing the state machine of the AUV.
  */
 class AUVStateMachine{
@@ -184,6 +176,7 @@ class AUVStateMachine{
         thread sensorThread;
         thread detectionThread;
         thread errorThread;
+        thread stabilizesThread;
         bool sideIsLeft = true;
         bool running = true;
 
@@ -206,6 +199,11 @@ class AUVStateMachine{
          * @brief Checks for errors every 100 ms.
          */
         void checksErrors();
+
+        /**
+         * @brief This state stabilizes the AUV.
+         */
+        void stabilizes();
 
         /**
          * @brief Checks if the state machine should transition to another state.
@@ -302,11 +300,6 @@ class AUVStateMachine{
          * @brief This state difines the advancement procedure.
          */
         void advancing();
-
-        /**
-         * @brief This state stabilizes the AUV.
-         */
-        void stabilizing();
 
         /**
          * @brief This state defines the stopping procedure.
