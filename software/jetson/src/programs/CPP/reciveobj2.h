@@ -17,12 +17,12 @@ using VarType = std::variant<double, int, std::string>;
 
 class Receiver {
 public:
-    vector<tuple<double, double, double, double, double, int, string>> process_json(const json& received_json) {
-        vector<tuple<double, double, double, double, double, int, string>> results;
+    vector<tuple<double, double, double, double, double, int, string,int>> process_json(const json& received_json) {
+        vector<tuple<double, double, double, double, double, int, string,int>> results;
         try {
             if (received_json.count("data")) {  // 'contains' não existia antes do JSON 3.9.0
                 for (const auto& obj : received_json["data"]) {
-                    if (obj.is_array() && obj.size() >= 6) {
+                    if (obj.is_array() && obj.size() >= 7) {
                         double x_min = obj[0];
                         double y_min = obj[1];
                         double x_max = obj[2];
@@ -30,11 +30,12 @@ public:
                         double confidence = obj[4];
                         int class_id = obj[5];
                         string class_name = "Unknown";
+                        int cam = obj[6];
 
                         if (received_json.count("names") && received_json["names"].count(to_string(class_id))) {
                             class_name = received_json["names"][to_string(class_id)];
                         }
-                        results.emplace_back(x_min, y_min, x_max, y_max, confidence, class_id, class_name);
+                        results.emplace_back(x_min, y_min, x_max, y_max, confidence, class_id, class_name,cam);
                     }
                 }
             }
@@ -66,9 +67,9 @@ public:
                 try {
                     json received_json = json::parse(received_data);
 
-                    vector<tuple<double, double, double, double, double, int, string>> results = process_json(received_json);
+                    vector<tuple<double, double, double, double, double, int, string,int>> results = process_json(received_json);
 
-                    for (const auto& [x_min, y_min, x_max, y_max, confidence, class_id, class_name] : results) {
+                    for (const auto& [x_min, y_min, x_max, y_max, confidence, class_id, class_name,cam] : results) {
                         final_results.push_back(x_min);
                         final_results.push_back(y_min);
                         final_results.push_back(x_max);
@@ -76,6 +77,8 @@ public:
                         final_results.push_back(confidence);
                         final_results.push_back(class_id);
                         final_results.push_back(class_name);
+                        final_results.push_back(cam);
+
                     }
                 } catch (const json::parse_error& e) {
                     cerr << "Erro ao interpretar JSON: " << e.what() << endl;
@@ -103,4 +106,5 @@ Os valores serão escritos no final_results da seguinte maneira:
 [4] Double confidence
 [5] int class_id
 [6] string class_name
+[7] int cam
 */
