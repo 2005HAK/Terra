@@ -64,7 +64,7 @@ if __name__ == '__main__':
     if sys.argv[1] == "--0":
         cam_index = 0
     elif sys.argv[1] == "--1":
-        cam_index = 2
+        cam_index = 1
     else:
         print("Opção inválida! Use --0 para câmera 0 ou --1 para câmera 1")
         sys.exit(1)
