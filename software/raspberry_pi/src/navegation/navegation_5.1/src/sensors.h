@@ -37,8 +37,10 @@ class Sensors{
         double tempPixhawk = 0.0;               // Temperature of Pixhawk ºC
         double tempRaspberry = 0.0;             // Temperature of Raspberry ºC
         double tempJetson = 0.0;                // Temperature of Jetson ºC
-        steady_clock::time_point currentTime;
-        steady_clock::time_point oldTime;
+        uint32_t oldTimeV = 0;                   // Time of the last update ms
+        uint32_t currentTimeV = 0;               // Time of the current update ms
+        uint32_t oldTimeA = 0;                   // Time of the last update us
+        uint32_t currentTimeA = 0;               // Time of the current update us
         unique_ptr<Telemetry> telemetry;
         unique_ptr<MavlinkPassthrough> mavlink_passthrough;
         unique_ptr<Mavsdk> mavsdk;
@@ -104,12 +106,9 @@ class Sensors{
          */
         array<double, 3> getVel();
 
-        /**
-         * @brief Gets the time elapsed between the last two calls to updateData.
-         * 
-         * @return The time elapsed between the last two calls to updateData.
-         */
-        chrono::duration<double> deltaTime();
+        uint32_t deltaTimeV();
+
+        uint32_t deltaTimeA();
 };
 
 #endif //SENSORS_H

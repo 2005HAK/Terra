@@ -47,6 +47,8 @@ void Sensors::initialize(){
             mavlink_global_position_int_t imu_data;
             mavlink_msg_global_position_int_decode(&message, &imu_data);
 
+            this->oldTimeV = this->currentTimeV;
+            this->currentTimeV = imu_data.time_boot_ms;
             this->vel[0] = imu_data.vx * CONV_TO_MS;
             this->vel[1] = imu_data.vy * CONV_TO_MS;
             this->vel[2] = imu_data.vz * CONV_TO_MS;
@@ -55,6 +57,9 @@ void Sensors::initialize(){
         this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_RAW_IMU, [this](const mavlink_message_t& message) {
             mavlink_raw_imu_t imu_data;
             mavlink_msg_raw_imu_decode(&message, &imu_data);
+
+            this->oldTimeA = this->currentTimeA;
+            this->currentTimeA = imu_data.time_usec;
 
             this->acc[0] = imu_data.xacc * CONV_TO_MS2;
             this->acc[1] = imu_data.yacc * CONV_TO_MS2;
@@ -78,8 +83,9 @@ void Sensors::updateData(){
 
     // Fazer a atualização do array position com os dados do IMU
 
-    oldTime = currentTime;
-    currentTime = chrono::steady_clock::now();
+    double confA = 1, confV = .6;
+
+    this->position[0] += this->deltaTimeV();
 }
 
 void Sensors::collisionDetect(){
@@ -109,6 +115,11 @@ array<double, 3> Sensors::getVel(){
     return this->vel;
 }
 
-chrono::duration<double> Sensors::deltaTime(){
-    return this->currentTime - this->oldTime;
+// Mudar no código principal depois, vou mudar o retorno
+uint32_t Sensors::deltaTimeV(){
+    return this->currentTimeV - this->oldTimeV;
+}
+
+uint32_t Sensors::deltaTimeA(){
+    return this->currentTimeA - this->oldTimeA;
 }
