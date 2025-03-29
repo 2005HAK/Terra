@@ -159,13 +159,6 @@ class ThrustersControl{
         void pidYaw();
 
         /**
-         * @brief Defines the action for the thrusters based on the given decision.
-         * 
-         * @param decision Struct with the action decision that will be executed by the AUV and with what power.
-         */
-        void defineAction(Decision decision);
-
-        /**
          * @brief Finish the thrusters.
          */
         void finish();

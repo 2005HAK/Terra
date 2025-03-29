@@ -21,6 +21,7 @@ string stateToString(State state){
     return (it != stateNames.end() ? it->second : "UNKNOWN");
 }
 
+//logica não precisou ser mudada
 array<int, 2> center(array<int, 4> xyxy){
     if(xyxy[0] >= 0 && xyxy[0] <= IMAGE_WIDTH && xyxy[1] >= 0 && xyxy[1] <= IMAGE_HEIGHT &&
         xyxy[2] >= 0 && xyxy[2] <= IMAGE_WIDTH && xyxy[3] >= 0 && xyxy[3] <= IMAGE_HEIGHT){
@@ -50,18 +51,17 @@ void velocitySetPower(array<Decision, 3> &decision, array<double, 3> velocity){
     decision[2].value = max(min(kpZ * fabs(velocity[2]), POWER_MAX), .0);
 }
 
-void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy){
+// ja segue a nova logica de movimentação
+void centerObject(array<double, 2> &decision, array<int, 4> xyxy){
     array<int, 2> middle = center(xyxy);
 
     if(middle[0] >= 0 && middle[0] <= IMAGE_WIDTH && middle[1] >= 0 && middle[1] <= IMAGE_HEIGHT){
-        if(middle[0] < IMAGE_CENTER[0] - (ERROR_CENTER / 2)) decision[0].action = Action::LEFT;
-        else if(middle[0] > IMAGE_CENTER[0] + (ERROR_CENTER / 2)) decision[0].action = Action::RIGHT;
+        if(middle[0] < IMAGE_CENTER[0] - (ERROR_CENTER / 2)) decision[0] = (1 / (IMAGE_CENTER[0] / 2)) * (middle[0] - IMAGE_CENTER[0]);
+        else if(middle[0] > IMAGE_CENTER[0] + (ERROR_CENTER / 2)) decision[0] = (1 / (IMAGE_CENTER[0] / 2)) * (middle[0] - IMAGE_CENTER[0]);
 
-        if(middle[1] < IMAGE_CENTER[1] - (ERROR_CENTER / 2)) decision[1].action = Action::UP;
-        else if(middle[1] > IMAGE_CENTER[1] + (ERROR_CENTER / 2)) decision[1].action = Action::DOWN;
+        if(middle[1] < IMAGE_CENTER[1] - (ERROR_CENTER / 2)) decision[1] = (1 / (IMAGE_CENTER[1] / 2)) * (middle[1] - IMAGE_CENTER[1]);
+        else if(middle[1] > IMAGE_CENTER[1] + (ERROR_CENTER / 2)) decision[1] = (1 / (IMAGE_CENTER[1] / 2)) * (middle[1] - IMAGE_CENTER[1]);
     }
-
-    centerSetPower(decision, middle);
 }
 
 void calculateDistance(double &objectDistance, string objectClass, array<int, 4> xyxy){
@@ -122,6 +122,7 @@ AUVStateMachine::~AUVStateMachine(){
     if (transitionThread.joinable()) transitionThread.join();
 }
 
+// ja segue a nova logica de movimentação
 // FUNCTIONS USED BY THREADS
 
 void AUVStateMachine::sensorsData(){
@@ -153,7 +154,7 @@ void AUVStateMachine::checksErrors(){
 // END FUNCTIONS USED BY THREADS
 
 // TRANSITION FUNCTIONS
-
+// não precisou mudar a logica
 bool AUVStateMachine::checksTransition(){
     if(this->yoloCtrl->foundObject()) {
         for(const auto& transition : stateTransitions){
@@ -169,7 +170,7 @@ bool AUVStateMachine::checksTransition(){
     }       
     return false;
 }
-
+/// não precisou mudar a logica
 void AUVStateMachine::transitionTo(State newState){
     cout << "Transitioning from " + stateToString(this->state) + " to " + stateToString(newState) << endl;
     this->lastState = this->state;
@@ -179,7 +180,7 @@ void AUVStateMachine::transitionTo(State newState){
 // END TRANSITION FUNCTIONS
 
 // ERRORS HANDLING
-
+// arrumar logica por conta da movimentação que foi mudada
 void AUVStateMachine::errorHandling(AUVError e){
     auto* error = dynamic_cast<CollisionDetected*>(&e);
     if(error){
@@ -189,6 +190,7 @@ void AUVStateMachine::errorHandling(AUVError e){
     if(dynamic_cast<const FailedConnectThrusters*>(&e) || dynamic_cast<const HighTemperatureError*>(&e)) exit(1); 
 }
 
+// arrumar logica por conta da movimentação que foi mudada
 void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
     cout << "Correcting direction..." << endl;
 
@@ -209,7 +211,7 @@ void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
 // END ERRORS HANDLING
 
 // DEFINITION OF STATES
-
+// arrumar logica por conta da movimentação que foi mudada
 void AUVStateMachine::search(){
     int rotationCurrent = 0;
 
@@ -218,20 +220,15 @@ void AUVStateMachine::search(){
     // Provavelmente as o modo de encontrar os objetos para fazer as transições sera mudado para ser mais especifico para cada caso
 
     if(this->lastState == State::INIT){
-        this->thrusters->defineAction({Action::NONE, 0});
-
         while(!searchObjects("Gate")){
-            if(rotationCurrent < 1){
-                rotate();
-                rotationCurrent++;
-            } else if(rotationCurrent < 3){
-                rotate();
-                rotationCurrent++;
-            } // tratar questão de não encontrar o gate so com esse procedimento
-            sleep_for(milliseconds(100));
+            double rotationAngleInit = this->sensors->getPosition()[4];
+            this->thrusters->rotateYaw(.785398); // 45 degrees
+            while(this->sensors->getPosition()[4] - rotationAngleInit < .785398 - ERROR_ANGLE){
+                sleep_for(milliseconds(100));
+            }
         }
     } else if(this->lastState == State::PASSGATE){
-        this->yoloCtrl->switchCam();
+        this->yoloCtrl->switchCam(1);
         sleep_for(seconds(2));
 
         Action action = Action::NONE;
@@ -255,7 +252,7 @@ void AUVStateMachine::search(){
             sleep_for(milliseconds(100));
         }
     } else if(this->lastState == State::NAVIGATE || this->lastState == State::DROPMARKERS){
-        this->yoloCtrl->switchCam();
+        this->yoloCtrl->switchCam(1);
         sleep_for(seconds(2));
 
         int time = 100, count = 0;
@@ -282,13 +279,14 @@ void AUVStateMachine::search(){
         }
     }
 
-    this->thrusters->defineAction({Action::NONE, 0});
     checksTransition();
 }
 
+// ja segue a nova logica de movimentação
 void AUVStateMachine::init(){
     cout << "Searching for launcher..." << endl;
 
+    // implementar logica do sensor de agua
     while(this->targetObject != OBJECT_INITIALIZATION){
         searchObjects();
         sleep_for(milliseconds(100));
@@ -299,21 +297,24 @@ void AUVStateMachine::init(){
     this->thrusters = make_unique<ThrustersControl>();
 
     if(thrusters){
+        this->thrusters->moveZ(1.5);
         checksTransition();
     }
     else throw FailedConnectThrusters();
 }  
 
+// ja segue a nova logica de movimentação TESTAR
 void AUVStateMachine::passGate(){
     cout << "Passing gate..." << endl;
 
     if(centering()){
         while(!searchObjects(INITIALCHOICE)){
-            this->thrusters->defineAction({Action::FORWARD, 20});
-            sleep_for(milliseconds(100));
+            double positionInit = this->sensors->getPosition()[0];
+            this->thrusters->moveX(.2);
+            while(this->sensors->getPosition()[0] - positionInit < .2 - ERROR_DISTANCE){
+                sleep_for(milliseconds(100));
+            }
         }
-
-        this->thrusters->defineAction({Action::NONE, 0});
 
         array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
 
@@ -326,32 +327,25 @@ void AUVStateMachine::passGate(){
             array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
             calculateDistance(distance, this->targetObject, xyxy);
 
-            bool isAbove = false;
-            while(!isAbove){
-                array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
-                
-                if(xyxy[0] != -1){
-                    array<double, 2> centerObject = center(xyxy);
-                    
-                    if(xyxy[1] > (ERROR_CENTER / 2)) this->thrusters->defineAction({Action::DOWN, 20});
-                    else isAbove = true;
-                }
-            }
-            this->thrusters->defineAction({Action::NONE, 0});
-
-            while(currentDistance < distance + .5){
-                this->thrusters->defineAction({Action::FORWARD, 20});
-
-                currentDistance += this->sensors->getVel()[0] * this->sensors->deltaTime().count(); // Verificar tamanho da defasagem
+            double positionInit = this->sensors->getPosition()[0];
+            this->thrusters->moveZ(.5);
+            while(this->sensors->getPosition()[2] - positionInit < .5 - ERROR_DISTANCE){
+                sleep_for(milliseconds(100));
             }
 
-            this->thrusters->defineAction({Action::NONE, 0});
+            positionInit = this->sensors->getPosition()[0];
+            this->thrusters->moveX(distance + .5);
+
+            while(this->sensors->getPosition()[0] - positionInit < distance + .5 - ERROR_DISTANCE){
+                sleep_for(milliseconds(100));
+            }
 
             // Rotate after passing through the gate
-            rotate(2 * M_PI, 0.174533, Action::TURNRIGHT);
+            this->thrusters->rotateYaw(2 * M_PI);
             sleep_for(milliseconds(500));
-            rotate(2 * M_PI, 0.174533, Action::TURNRIGHT);
+            this->thrusters->rotateYaw(2 * M_PI);
         }
+
         checksTransition();
     } else{
         // tratar questão de perda de objeto
@@ -387,7 +381,7 @@ void AUVStateMachine::alignToPath(){
 
             if(switchs > 5) isAlign = true;
         }
-        this->yoloCtrl->switchCam();
+        this->yoloCtrl->switchCam(0);
         sleep_for(seconds(2));
 
         checksTransition();
@@ -469,7 +463,7 @@ void AUVStateMachine::dropMarkers(){
 
     this->thrusters->defineAction({Action::NONE, 0});
 
-    this->yoloCtrl->switchCam();
+    this->yoloCtrl->switchCam(1);
     sleep_for(seconds(2));
 
     // Provavelmete terá uma diferenca de profundidade minima para dropar os marcadores, 
@@ -605,20 +599,20 @@ bool AUVStateMachine::centering(){
         array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
 
         if(xyxy[0] != -1 && xyxy[1] != -1 && xyxy[2] != -1, xyxy[3] != -1){
-            array<Decision, 2> decision;
+            array<double, 2> decision = {0, 0};
 
             centerObject(decision, xyxy);
 
-            this->thrusters->defineAction(decision[0]);
-            this->thrusters->defineAction(decision[1]);
-            
-            if(decision[0].action == Action::NONE && decision[1].action == Action::NONE) isCenter = true;
+            this->thrusters->moveY(decicion[0]);
+            this->thrusters->moveZ(decision[1]);
+
+            if(decision[0] == 0 && decision[1] == 0) isCenter = true;
         } else{
-	        isCenter = true;
-	        cout << "Lost object!" << endl;
+            isCenter = true;
+            cout << "Lost object!" << endl;
         }
     }
-
+    // esse retorno é problematico, pois o AUV pode ter perdido o objeto
     return isCenter;
 }
 

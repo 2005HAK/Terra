@@ -127,6 +127,10 @@ array<double, 3> Sensors::getVel(){
     return this->vel;
 }
 
+array<double, 5> Sensors::getPosition(){
+    return this->position;
+}
+
 // Mudar no código principal depois, vou mudar o retorno
 uint32_t Sensors::deltaTimeV(){
     return this->currentTimeV - this->oldTimeV;

@@ -20,13 +20,13 @@ FailedInitializationSensors::FailedInitializationSensors() : AUVError("Failed to
 
 FailedInitializationYolo ::FailedInitializationYolo(string type, int code) : AUVError(type, code){}
 
-ErrorCreatingSocket::ErrorCreatingSocket() : FailedInitializationYolo("Failed to create the socket.", 252){}
+ErrorCreatingSocket::ErrorCreatingSocket() : FailedInitializationYolo("Failed to create the socket.", 251){}
 
-ErrorBindingSocket::ErrorBindingSocket() : FailedInitializationYolo("Failed to bind the socket.", 253){}
+ErrorToConnect::ErrorToConnect() : FailedInitializationYolo("Failed to connect to the server.", 252){}
 
-ErrorListening::ErrorListening() : FailedInitializationYolo("Failed to listen to the socket.", 254){}
+InvalidAdreess::InvalidAdreess() : FailedInitializationYolo("Invalid address.", 253){}
 
-ErrorAcceptingConnection::ErrorAcceptingConnection() : FailedInitializationYolo("Failed to accept the connection.", 255){}
+ErrorAcceptingConnection::ErrorAcceptingConnection() : FailedInitializationYolo("Failed to accept the connection.", 254){}
 
 // END YOLOCTRL
 

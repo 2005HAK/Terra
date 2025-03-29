@@ -27,8 +27,11 @@ array<int, 2> IMAGE_CENTER = {IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2};
 // Size of the zone that is considered the center of the image (in px)
 const int ERROR_CENTER = 50;
 
-// Distance considered safe for the AUV to approach (in m)
-const double SAFE_DISTANCE = .1;
+// Angle of error for the AUV to consider that it is aligned with the object (in rad)
+const double ERROR_ANGLE = .174533; // 10 degrees in rad
+
+// 
+const double ERROR_DISTANCE = .05; // 5 cm
 
 /**
  * @brief Enum representing the different states of the AUV state machine.

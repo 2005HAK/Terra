@@ -68,26 +68,20 @@ class ErrorCreatingSocket : public FailedInitializationYolo{
         ErrorCreatingSocket();
 };
 
-/**
- * @brief Class representing errors that may occur during the binding of a socket.
- */
-class ErrorBindingSocket : public FailedInitializationYolo{
+class ErrorToConnect : public FailedInitializationYolo{
     public:
         /**
-         * @brief Constructor of the ErrorBindingSocket class.
+         * @brief Constructor of the ErrorToConnect class.
          */
-        ErrorBindingSocket();
+        ErrorToConnect();
 };
 
-/**
- * @brief Class representing errors that may occur during the listening of a socket.
- */
-class ErrorListening : public FailedInitializationYolo{
+class InvalidAdreess : public FailedInitializationYolo{
     public:
         /**
-         * @brief Constructor of the ErrorListening class.
+         * @brief Constructor of the InvalidAddress class.
          */
-        ErrorListening();
+        InvalidAdreess();
 };
 
 /**

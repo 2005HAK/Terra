@@ -37,7 +37,7 @@ class Sensors{
         array<double, 3> mag = {0, 0, 0};              // Magnetometer {x, y, z}
         array<double, 3> velOld = {0, 0, 0};           // Velocity {x, y, z}
         array<double, 3> vel = {0, 0, 0};              // Velocity {x, y, z}
-        array<double, 5> position = {0, 0, 0, 0, 0};   // Position {x, y, z, roll, yaw}
+        array<double, 5> position = {0, 0, 0, 0, 0};   // Position {x, y, z, roll, yaw} // possivelmente precisa atualizar os valores para o valor atual dos sensores na inicialização
         double tempPixhawk = 0.0;                      // Temperature of Pixhawk ºC
         double tempRaspberry = 0.0;                    // Temperature of Raspberry ºC
         double tempJetson = 0.0;                       // Temperature of Jetson ºC
@@ -109,6 +109,8 @@ class Sensors{
          * @return The velocity values on the x, y, and z axes, respectively.
          */
         array<double, 3> getVel();
+
+        array<double, 5> getPosition();
 
         uint32_t deltaTimeV();
 

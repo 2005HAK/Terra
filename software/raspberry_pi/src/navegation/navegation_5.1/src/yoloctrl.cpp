@@ -4,13 +4,13 @@
 
 YoloCtrl::YoloCtrl(){
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd == 0) throw ErrorCreatingSocket();
+    if (server_fd == -1) throw ErrorCreatingSocket();
 
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
+    if(inet_pton(AF_INET, host))
 
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) throw ErrorBindingSocket();
 
@@ -55,24 +55,37 @@ void YoloCtrl::updateData(){
     }
 }
 
-// Atualizar para receber qual camera é a desejada
+// Piaz precisa revisar
 
-void YoloCtrl::switchCam(){
-    data = !data;
-    std::cout << "Value changed to: " << (data ? "Front camera" : "Bottom camera") << std::endl;
+void YoloCtrl::switchCam(int chooseCam){
+    cout << "Switching camera..." << endl;
+
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1) throw ErrorCreatingSocket();
     
-    try{
-        // Mudar para uma verificação se a camera foi trocada usando o dado que a jetson enviar
-        for(int i = 0; i < 5; i++){
-            ssize_t bytes_sent = send(new_socket, &data, sizeof(data), 0);
-            if (bytes_sent == -1) {
-                cerr << "Error sending data: " << strerror(errno) << endl;
-                break;
-            }
-            sleep_for(milliseconds(100));
-        }
-    } catch(const exception& e){
-        cerr << "Error: " << e.what() << endl;
+    sockaddr_in server_addr{};
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+
+    if (inet_pton(AF_INET, server_ip, &server_addr.sin_addr) <= 0) {
+        throw InvalidAdreess();
+        close(sock);
+    }
+    
+    if (connect(sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        throw ErrorToConnect();
+        close(sock);
+        // criar um erro pra isso
+    }
+    
+    int32_t net_number = htonl(chooseCam); 
+    send(sock, &net_number, sizeof(net_number), 0);
+    close(sock);
+
+    if(cam == chooseCam){
+        std::cout << "Value changed to: " << (cam == 0 ? "Front camera" : "Bottom camera") << std::endl;
+    } else{
+        // gerar erro
     }
 }
 
