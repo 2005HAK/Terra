@@ -29,18 +29,22 @@ const double MAX_TEMP_JETSON = 60;       // Maximum temperature for Jetson (ºC)
  */
 class Sensors{
     private:
-        array<double, 3> acc = {0, 0, 0};       // Acceleration {x, y, z}
-        array<double, 3> gyro = {0, 0, 0};      // Gyroscope {x, y, z}
-        array<double, 3> mag = {0, 0, 0};       // Magnetometer {x, y, z}
-        array<double, 3> vel = {0, 0, 0};       // Velocity {x, y, z}
-        array<double, 5> position = {0, 0, 0, 0, 0}; // Position {x, y, z, roll, yaw}
-        double tempPixhawk = 0.0;               // Temperature of Pixhawk ºC
-        double tempRaspberry = 0.0;             // Temperature of Raspberry ºC
-        double tempJetson = 0.0;                // Temperature of Jetson ºC
-        uint32_t oldTimeV = 0;                   // Time of the last update ms
-        uint32_t currentTimeV = 0;               // Time of the current update ms
-        uint32_t oldTimeA = 0;                   // Time of the last update us
-        uint32_t currentTimeA = 0;               // Time of the current update us
+        array<double, 3> accOld = {0, 0, 0};           // Acceleration {x, y, z}
+        array<double, 3> acc = {0, 0, 0};              // Acceleration {x, y, z}
+        array<double, 3> gyroOld = {0, 0, 0};          // Gyroscope {x, y, z}
+        array<double, 3> gyro = {0, 0, 0};             // Gyroscope {x, y, z}
+        array<double, 3> magOld = {0, 0, 0};           // Magnetometer {x, y, z}
+        array<double, 3> mag = {0, 0, 0};              // Magnetometer {x, y, z}
+        array<double, 3> velOld = {0, 0, 0};           // Velocity {x, y, z}
+        array<double, 3> vel = {0, 0, 0};              // Velocity {x, y, z}
+        array<double, 5> position = {0, 0, 0, 0, 0};   // Position {x, y, z, roll, yaw}
+        double tempPixhawk = 0.0;                      // Temperature of Pixhawk ºC
+        double tempRaspberry = 0.0;                    // Temperature of Raspberry ºC
+        double tempJetson = 0.0;                       // Temperature of Jetson ºC
+        uint32_t oldTimeV = 0;                         // Time of the last update ms
+        uint32_t currentTimeV = 0;                     // Time of the current update ms
+        uint32_t oldTimeA = 0;                         // Time of the last update us
+        uint32_t currentTimeA = 0;                     // Time of the current update us
         unique_ptr<Telemetry> telemetry;
         unique_ptr<MavlinkPassthrough> mavlink_passthrough;
         unique_ptr<Mavsdk> mavsdk;

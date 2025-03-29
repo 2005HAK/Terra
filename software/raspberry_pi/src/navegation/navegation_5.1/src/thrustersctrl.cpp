@@ -72,13 +72,16 @@ void ThrustersControl::rotateYaw(double valueDeslocation){
 }
 
 void ThrustersControl::pidControl(){
-    pidX();
-    pidY();
-    pidZ();
-    pidRoll();
-    pidYaw();
+    while(true){ // Esse true vai dar problema, mas por enquanto é só para testar
+        pidX();
+        pidY();
+        pidZ();
+        pidRoll();
+        pidYaw();
 
-    sleep_for(milliseconds(350)); // Ajustar o tempo de espera para o controle PID
+        sleep_for(milliseconds(350)); // Ajustar o tempo de espera para o controle PID
+    }
+    
 }
 
 // TESTAR SE OS VALORES DE POWER MOVEM OS MOTORES PRO LADO DESEJADO (SE NÃO, INVERTER O SINAL)

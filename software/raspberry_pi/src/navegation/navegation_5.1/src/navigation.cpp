@@ -95,12 +95,6 @@ void advanceDecision(Decision &decision, double objectDistance){
     }
 }
 
-void definesAction(Action &action, double velocity, double errorVelocity, Action positiveAction, Action negativeAction){
-    if(velocity > errorVelocity) action = negativeAction;
-    else if(velocity < 0 - errorVelocity) action = positiveAction;
-}
-
-
 AUVStateMachine::AUVStateMachine(){
     cout << "State machine creation..." << endl;
     this->state = State::INIT;
@@ -133,12 +127,10 @@ AUVStateMachine::~AUVStateMachine(){
 void AUVStateMachine::sensorsData(){
     sensors->initialize();
 
-    /*
     while(running){
         sensors->updateData();
-	sleep_for(milliseconds(100));
+        sleep_for(milliseconds(100));
     }
-    */
 }
 
 void AUVStateMachine::detectionData(){
@@ -155,27 +147,6 @@ void AUVStateMachine::checksErrors(){
             sensors->detectOverheat();
         }
         sleep_for(milliseconds(100));
-    }
-}
-
-void AUVStateMachine::stabilizes(){
-    while(running){
-        array<Decision, 3> decision;
-        array<double, 3> errorVelocity = {.1, .1, .1};
-    
-        definesAction(decision[0].action, this->sensors->getVel[0], errorVelocity[0], Action::FORWARD, Action::BACKWARD);
-        definesAction(decision[1].action, this->sensors->getVel[1], errorVelocity[1], Action::RIGHT, Action::LEFT);
-        definesAction(decision[2].action, this->sensors->getVel[2], errorVelocity[2], Action::DOWN, Action::UP);
-
-        if(this->thrusters->getStabilizeVert()){
-            this->thrusters->defineAction(decision[0]);
-            sleep_for(milliseconds(500));
-        }
-        if(this->thrusters->getStabilizeHori()){
-            this->thrusters->defineAction(decision[1]);
-            this->thrusters->defineAction(decision[2]);
-            sleep_for(milliseconds(500));
-        }
     }
 }
 
@@ -328,7 +299,6 @@ void AUVStateMachine::init(){
     this->thrusters = make_unique<ThrustersControl>();
 
     if(thrusters){
-        stabilizesThread = thread(&AUVStateMachine::stabilizes, this);
         checksTransition();
     }
     else throw FailedConnectThrusters();

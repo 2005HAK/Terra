@@ -151,17 +151,6 @@ void calculateDistance(double &objectDistance, string objectClass, array<int, 4>
 void advanceDecision(Decision &decision, double objectDistance);
 
 /**
- * @brief Auxiliary function to the function stabilizes.
- * 
- * @param action Location where the data will be stored.
- * @param velocity Current velocity of the AUV on one axis.
- * @param errorVelocity Acceptable error in the velocity to consider stable.
- * @param positiveAction Action that will be performed if the AUV moves to the negative side of the axis.
- * @param negativeAction Action that will be performed if the AUV moves to the positive side of the axis.
- */
-void definesAction(Action &action, double velocity, double errorVelocity, Action positiveAction, Action negativeAction);
-
-/**
  * @brief Class representing the state machine of the AUV.
  */
 class AUVStateMachine{
@@ -176,7 +165,6 @@ class AUVStateMachine{
         thread sensorThread;
         thread detectionThread;
         thread errorThread;
-        thread stabilizesThread;
         bool sideIsLeft = true;
         bool running = true;
 
@@ -199,11 +187,6 @@ class AUVStateMachine{
          * @brief Checks for errors every 100 ms.
          */
         void checksErrors();
-
-        /**
-         * @brief This state stabilizes the AUV.
-         */
-        void stabilizes();
 
         /**
          * @brief Checks if the state machine should transition to another state.

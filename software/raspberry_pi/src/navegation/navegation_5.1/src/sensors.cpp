@@ -32,9 +32,6 @@ Sensors::Sensors(){
     }else {//Colocar isso em código de erro tbm
         std::cerr << "Failed to detect system." << std::endl;
     }
-
-    currentTime = chrono::steady_clock::now();
-    oldTime = currentTime;
 }
 
 Sensors::~Sensors(){}
@@ -49,6 +46,10 @@ void Sensors::initialize(){
 
             this->oldTimeV = this->currentTimeV;
             this->currentTimeV = imu_data.time_boot_ms;
+
+            this->velOld[0] = this->vel[0];
+            this->velOld[1] = this->vel[1];
+            this->velOld[2] = this->vel[2];
             this->vel[0] = imu_data.vx * CONV_TO_MS;
             this->vel[1] = imu_data.vy * CONV_TO_MS;
             this->vel[2] = imu_data.vz * CONV_TO_MS;
@@ -61,14 +62,23 @@ void Sensors::initialize(){
             this->oldTimeA = this->currentTimeA;
             this->currentTimeA = imu_data.time_usec;
 
+            this->accOld[0] = this->acc[0];
+            this->accOld[1] = this->acc[1];
+            this->accOld[2] = this->acc[2];
             this->acc[0] = imu_data.xacc * CONV_TO_MS2;
             this->acc[1] = imu_data.yacc * CONV_TO_MS2;
             this->acc[2] = imu_data.zacc * CONV_TO_MS2;
 
+            this->gyroOld[0] = this->gyro[0];
+            this->gyroOld[1] = this->gyro[1];
+            this->gyroOld[2] = this->gyro[2];
             this->gyro[0] = imu_data.xgyro * CONV_TO_RAD;
             this->gyro[1] = imu_data.ygyro * CONV_TO_RAD;
             this->gyro[2] = imu_data.zgyro * CONV_TO_RAD;
-
+            
+            this->magOld[0] = this->mag[0];
+            this->magOld[1] = this->mag[1];
+            this->magOld[2] = this->mag[2];
             this->mag[0] = imu_data.xmag * CONV_TO_UT;
             this->mag[1] = imu_data.ymag * CONV_TO_UT;
             this->mag[2] = imu_data.zmag * CONV_TO_UT;
@@ -79,13 +89,15 @@ void Sensors::initialize(){
 }
 
 void Sensors::updateData(){
-    // cout << "accx: " << acc[0] << ", accy: " << acc[1] << ", accz: " << acc[2] << endl;
+    this->position[0] += (((this->vel[0] + this->velOld[0]) * this->deltaTimeV() * 10e-3) / 2) // X
 
-    // Fazer a atualização do array position com os dados do IMU
+    this->position[1] += (((this->vel[1] + this->velOld[1]) * this->deltaTimeV() * 10e-3) / 2) // Y
 
-    double confA = 1, confV = .6;
+    this->position[2] += (((this->vel[2] + this->velOld[2]) * this->deltaTimeV() * 10e-3) / 2) // Z
 
-    this->position[0] += this->deltaTimeV();
+    this->position[3] += ((((this->gyro[0] + this->gyroOld[0]) * this->deltaTimeA() * 10e-6) / 2)); // Roll
+
+    this->position[4] += ((((this->gyro[2] + this->gyroOld[2]) * this->deltaTimeA() * 10e-6) / 2)); // Yaw
 }
 
 void Sensors::collisionDetect(){
