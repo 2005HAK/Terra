@@ -39,8 +39,6 @@ const double ERROR_DISTANCE = .05; // 5 cm
 enum class State{
     INIT,
     SEARCH,
-    CENTERING,
-    ADVANCING, // VERIFICAR NECESSIDADE
     PASSGATE,
     ALIGNTOPATH,
     NAVIGATE,
@@ -48,7 +46,6 @@ enum class State{
     TAGGING,
     CLEANUP,
     RETURNING,
-    STABILIZING, //VERIFICAR NECESSIDADE
     STOP,
     NONE
 };
@@ -70,22 +67,7 @@ vector<StateTransition> stateTransitions = {
     {State::NONE, State::INIT, "", State::SEARCH},
     {State::INIT, State::SEARCH, "Cube", State::PASSGATE},
     {State::SEARCH, State::PASSGATE, "", State::SEARCH},
-    {State::PASSGATE, State::SEARCH, "PathMarker", State::ALIGNTOPATH},
-    {State::SEARCH, State::ALIGNTOPATH, "", State::SEARCH},
-    {State::ALIGNTOPATH, State::SEARCH, "SlalomRed", State::NAVIGATE},
-    {State::ALIGNTOPATH, State::SEARCH, "SlalomWhite", State::NAVIGATE},
-    {State::SEARCH, State::NAVIGATE, "", State::SEARCH},
-    {State::NAVIGATE, State::SEARCH, "PathMarker", State::ALIGNTOPATH},
-    {State::NAVIGATE, State::ALIGNTOPATH, "", State::SEARCH},
-    {State::ALIGNTOPATH, State::SEARCH, "Bin", State::DROPMARKERS},
-    {State::SEARCH, State::DROPMARKERS, "", State::SEARCH},
-    {State::DROPMARKERS, State::SEARCH, "PathMarker", State::ALIGNTOPATH},
-    {State::DROPMARKERS, State::ALIGNTOPATH, "", State::SEARCH},
-    {State::ALIGNTOPATH, State::SEARCH, INITIALCHOICE, State::TAGGING},
-    {State::SEARCH, State::TAGGING, "", State::SEARCH},
-    {State::TAGGING, State::SEARCH, "Octagon", State::CLEANUP},
-    {State::SEARCH, State::CLEANUP, "", State::RETURNING},
-    {State::CLEANUP, State::RETURNING, "", State::STOP},
+    {State::PASSGATE, State::SEARCH, "Cube", State::STOP},
 }
 
 /**
@@ -144,14 +126,6 @@ void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy);
  * @param xyxy Coordinates of the bounding box of the detected object.
  */
 void calculateDistance(double &objectDistance, string objectClass, array<int, 4> xyxy);
-
-/**
- * @brief Decides whether to advance to the object and the power that will be used.
- * 
- * @param decision Struct where the move decision is stored.
- * @param objectDistance Distance between the AUV and the object.
- */
-void advanceDecision(Decision &decision, double objectDistance);
 
 /**
  * @brief Class representing the state machine of the AUV.
@@ -281,11 +255,6 @@ class AUVStateMachine{
         bool centering();
         
         void dropping();
-
-        /**
-         * @brief This state difines the advancement procedure.
-         */
-        void advancing();
 
         /**
          * @brief This state defines the stopping procedure.

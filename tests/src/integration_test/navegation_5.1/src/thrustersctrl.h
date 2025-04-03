@@ -41,8 +41,8 @@ struct Decision{
  */
 class Thruster{
     private:
-        int pin, stablePower, currentPower;
-        int pwmRange = 1000;
+        int pin, stablePower, currentPower, pwmRange = 1000;
+        int minPWMus, maxPWMus;
 
     public:
         /**
@@ -51,7 +51,7 @@ class Thruster{
          * @param pin Pin connected to the thruster.
          * @param stablePower Power for this thruster to stabilize the AUV (Vx: 0, Vy: 0, Vz: 0).
          */
-        Thruster(int pin, int stablePower);
+        Thruster(int pin, int stablePower, int minPWMus = 1000, int maxPWMus = 2000);
 
         /**
          * @brief Initializes the thruster.

@@ -10,8 +10,6 @@ using namespace chrono;
 using namespace this_thread;
 
 /**
- * @brief Enum representing the actions the AUV can perform.
- * 
  * Actions:
  * 
  * - UP         : Move the AUV up, turning on the thrusters 3 and 6 in the forward direction.
@@ -24,17 +22,7 @@ using namespace this_thread;
  * - TURN LEFT  : Turn the AUV left, turning on the thrusters 1 and 4 in the forward direction and the thrusters 2 and 5 in the reverse direction.
  * - NONE       : No action.
  */
-enum class Action{
-    FORWARD,
-    BACKWARD,
-    RIGHT,
-    LEFT,
-    UP,
-    DOWN,
-    TURNRIGHT,
-    TURNLEFT,
-    NONE
-};
+
 
 /**
  * @brief Gets the current time as a string.
