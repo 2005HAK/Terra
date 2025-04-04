@@ -26,21 +26,15 @@ const double FREQUENCY = 200;
  */
 const array<int, 6> PINS = {17, 18, 22, 23, 24, 27};
 
-/**
- * @brief Struct representing a decision for thruster action
- */
-struct Decision{
-    Action action = Action::NONE;
-    double value = -1;
-};
+// Se precisar: https://github.com/WiringPi/WiringPi?tab=readme-ov-file#how-to-use 
 
 /**
  * @brief Class representing a single thruster
  */
 class Thruster{
     private:
-        int pin, stablePower, currentPower;
-        int pwmRange = 1000;
+        int pin, stablePower, currentPower, pwmRange = 1000;
+        int minPWMus, maxPWMus;
 
     public:
         /**
@@ -49,7 +43,7 @@ class Thruster{
          * @param pin Pin connected to the thruster.
          * @param stablePower Power for this thruster to stabilize the AUV (Vx: 0, Vy: 0, Vz: 0).
          */
-        Thruster(int pin, int stablePower);
+        Thruster(int pin, int stablePower, int minPWMus = 1000, int maxPWMus = 2000);
 
         /**
          * @brief Initializes the thruster.
@@ -101,7 +95,7 @@ class ThrustersControl{
          * 
          * Activates the wiringPi service and initializes each thruster.
          */
-        ThrustersControl();
+        ThrustersControl(unique_ptr<Sensors> sensors);
 
         /**
          * @brief Initializes each AUV thruster.

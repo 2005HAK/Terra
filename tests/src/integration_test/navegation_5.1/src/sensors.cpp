@@ -89,11 +89,11 @@ void Sensors::initialize(){
 }
 
 void Sensors::updateData(){
-    this->position[0] += (((this->vel[0] + this->velOld[0]) * this->deltaTimeV() * 10e-3) / 2) // X
+    this->position[0] += (((this->vel[0] + this->velOld[0]) * this->deltaTimeV() * 10e-3) / 2); // X
 
-    this->position[1] += (((this->vel[1] + this->velOld[1]) * this->deltaTimeV() * 10e-3) / 2) // Y
+    this->position[1] += (((this->vel[1] + this->velOld[1]) * this->deltaTimeV() * 10e-3) / 2); // Y
 
-    this->position[2] += (((this->vel[2] + this->velOld[2]) * this->deltaTimeV() * 10e-3) / 2) // Z
+    this->position[2] += (((this->vel[2] + this->velOld[2]) * this->deltaTimeV() * 10e-3) / 2); // Z
 
     this->position[3] += ((((this->gyro[0] + this->gyroOld[0]) * this->deltaTimeA() * 10e-6) / 2)); // Roll
 
