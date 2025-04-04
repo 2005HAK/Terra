@@ -88,7 +88,6 @@ AUVStateMachine::~AUVStateMachine(){
     if (sensorThread.joinable()) sensorThread.join();
     if (detectionThread.joinable()) detectionThread.join();
     if (errorThread.joinable()) errorThread.join();
-    if (transitionThread.joinable()) transitionThread.join();
 }
 
 // ja segue a nova logica de movimentação
@@ -151,17 +150,17 @@ void AUVStateMachine::transitionTo(State newState){
 // ERRORS HANDLING
 // arrumar logica por conta da movimentação que foi mudada
 void AUVStateMachine::errorHandling(AUVError e){
-    auto* error = dynamic_cast<CollisionDetected*>(&e);
+   /* auto* error = dynamic_cast<CollisionDetected*>(&e);
     if(error){
         if(this->state == State::SEARCH) directionCorrection(error->getAcceleration());
     }
     
-    if(dynamic_cast<const FailedConnectThrusters*>(&e) || dynamic_cast<const HighTemperatureError*>(&e)) exit(1); 
+    if(dynamic_cast<const FailedConnectThrusters*>(&e) || dynamic_cast<const HighTemperatureError*>(&e)) exit(1); */
 }
 
 // arrumar logica por conta da movimentação que foi mudada
 void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
-    cout << "Correcting direction..." << endl;
+/*    cout << "Correcting direction..." << endl;
 
     array<double, 3> positionCollision = {-acceleration[0], -acceleration[1], -acceleration[2]};
 
@@ -174,7 +173,7 @@ void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
 
     rotate(rotationAngle, 0.174533, action);
 
-    run();
+    run();*/
 }
 
 // END ERRORS HANDLING
@@ -201,7 +200,7 @@ void AUVStateMachine::search(){
         //sleep_for(seconds(2));
 
         for(int i = 0; i < 4; i++){
-            calculateDistance(this->objectDistance, "Cube", this->yoloCtrl->getXYXY("Cube"));
+            calculateDistance(this->distance, "Cube", this->yoloCtrl->getXYXY("Cube"));
             sleep_for(milliseconds(100));
         }
     } else transitionTo(State::STOP);
@@ -214,14 +213,13 @@ void AUVStateMachine::init(){
     cout << "Searching for launcher..." << endl;
 
     // implementar logica do sensor de agua
-    while(this->targetObject != OBJECT_INITIALIZATION){
-        searchObjects();
+    while(!searchObjects(OBJECT_INITIALIZATION)){
         sleep_for(milliseconds(100));
     }
 
     cout << "Initializing..." << endl;
 
-    this->thrusters = make_unique<ThrustersControl>();
+    this->thrusters = make_unique<ThrustersControl>(this->sensors); //ERRO AQUI
 
     if(thrusters){
         this->thrusters->moveZ(.5);
@@ -460,29 +458,6 @@ bool AUVStateMachine::searchObjects(string object){
 }
 
 // Testar
-// Não vai mais ser necessário, atualizar onde usava essa função para usar a nova logica de movimentação
-
-void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
-    /*array<double, 3> gyroCurrent = this->sensors->getGyro(), gyroOld;
-    double rotated = 0;
-    Decision decision = {action, 20};
-    
-    while(fabs(rotated) < angle - errorAngle){
-        this->thrusters->defineAction(decision);
-
-        gyroOld = gyroCurrent;
-        gyroCurrent = this->sensors->getGyro();
-        // Provalmente ta errado
-        double deltaTime = this->sensors->deltaTime().count();
-
-        rotated += deltaTime * (gyroCurrent[2] + gyroOld[2]) / 2;
-    }
-    decision.value = 0;
-
-    this->thrusters->defineAction(decision);*/
-}
-
-// Testar
 // Atualizar para que faça a movimentação correta quando estiver usando a camera de baixo
 // Atualizar para que identifique se o objeto esta de lado, se tiver as dimensoes dos objetos da para 
 // usar proporção
@@ -500,7 +475,7 @@ bool AUVStateMachine::centering(){
 
             centerObject(decision, xyxy);
 
-            this->thrusters->moveY(decicion[0]);
+            this->thrusters->moveY(decision[0]);
             this->thrusters->moveZ(decision[1]);
 
             if(decision[0] == 0 && decision[1] == 0) isCenter = true;

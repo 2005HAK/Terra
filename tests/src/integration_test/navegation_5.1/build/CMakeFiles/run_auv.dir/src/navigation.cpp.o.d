@@ -1,7 +1,7 @@
 CMakeFiles/run_auv.dir/src/navigation.cpp.o: \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/navigation.cpp \
+ /home/equipeterra/Terra/tests/src/integration_test/navegation_5.1/src/navigation.cpp \
  /usr/include/stdc-predef.h \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/navigation.h \
+ /home/equipeterra/Terra/tests/src/integration_test/navegation_5.1/src/navigation.h \
  /usr/include/c++/12/stdlib.h /usr/include/c++/12/cstdlib \
  /usr/include/aarch64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/aarch64-linux-gnu/c++/12/bits/os_defines.h \
@@ -189,7 +189,7 @@ CMakeFiles/run_auv.dir/src/navigation.cpp.o: \
  /usr/include/c++/12/bits/uses_allocator.h \
  /usr/include/c++/12/bits/stl_multimap.h \
  /usr/include/c++/12/bits/erase_if.h \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/sensors.h \
+ /home/equipeterra/Terra/tests/src/integration_test/navegation_5.1/src/sensors.h \
  /usr/include/c++/12/array /usr/include/c++/12/compare \
  /usr/include/mavsdk/mavsdk.h /usr/include/c++/12/memory \
  /usr/include/c++/12/bits/stl_uninitialized.h \
@@ -470,18 +470,18 @@ CMakeFiles/run_auv.dir/src/navigation.cpp.o: \
  /usr/include/mavsdk/plugin_base.h \
  /usr/include/mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h \
  /usr/include/mavsdk/mavlink_address.h \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/auverror.h \
+ /home/equipeterra/Terra/tests/src/integration_test/navegation_5.1/src/auverror.h \
  /usr/include/c++/12/fstream /usr/include/c++/12/bits/codecvt.h \
  /usr/include/aarch64-linux-gnu/c++/12/bits/basic_file.h \
  /usr/include/aarch64-linux-gnu/c++/12/bits/c++io.h \
  /usr/include/c++/12/bits/fstream.tcc \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/utils.h \
+ /home/equipeterra/Terra/tests/src/integration_test/navegation_5.1/src/utils.h \
  /usr/include/c++/12/chrono /usr/include/c++/12/bits/chrono.h \
  /usr/include/c++/12/ratio /usr/include/c++/12/ctime \
  /usr/include/c++/12/bits/parse_numbers.h /usr/include/c++/12/thread \
  /usr/include/c++/12/bits/std_thread.h \
  /usr/include/c++/12/bits/this_thread_sleep.h \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/yoloctrl.h \
+ /home/equipeterra/Terra/tests/src/integration_test/navegation_5.1/src/yoloctrl.h \
  /usr/include/boost/asio.hpp \
  /usr/include/boost/asio/associated_allocator.hpp \
  /usr/include/boost/asio/detail/config.hpp /usr/include/boost/config.hpp \
@@ -1404,6 +1404,6 @@ CMakeFiles/run_auv.dir/src/navigation.cpp.o: \
  /usr/include/c++/12/bits/quoted_string.h /usr/include/c++/12/codecvt \
  /usr/include/c++/12/bits/fs_dir.h /usr/include/c++/12/bits/fs_ops.h \
  /usr/include/c++/12/numeric /usr/include/c++/12/bits/stl_numeric.h \
- /usr/include/c++/12/pstl/glue_numeric_defs.h /usr/include/c++/12/variant \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/thrustersctrl.h \
+ /usr/include/c++/12/pstl/glue_numeric_defs.h \
+ /home/equipeterra/Terra/tests/src/integration_test/navegation_5.1/src/thrustersctrl.h \
  /usr/local/include/wiringPi.h

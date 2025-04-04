@@ -26,14 +26,6 @@ const double FREQUENCY = 200;
  */
 const array<int, 6> PINS = {17, 18, 22, 23, 24, 27};
 
-/**
- * @brief Struct representing a decision for thruster action
- */
-struct Decision{
-    Action action = Action::NONE;
-    double value = -1;
-};
-
 // Se precisar: https://github.com/WiringPi/WiringPi?tab=readme-ov-file#how-to-use 
 
 /**
@@ -103,7 +95,7 @@ class ThrustersControl{
          * 
          * Activates the wiringPi service and initializes each thruster.
          */
-        ThrustersControl();
+        ThrustersControl(unique_ptr<Sensors> sensors);
 
         /**
          * @brief Initializes each AUV thruster.

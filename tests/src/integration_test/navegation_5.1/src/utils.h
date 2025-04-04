@@ -31,13 +31,4 @@ using namespace this_thread;
  */
 string getTime();
 
-/**
- * @brief Converts the action enum to a string.
- * 
- * @param action The action to convert to string.
- * 
- * @return The action in string format.
- */
-string actionToString(Action action);
-
 #endif // UTILS_H

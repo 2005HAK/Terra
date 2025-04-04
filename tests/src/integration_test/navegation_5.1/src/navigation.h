@@ -58,7 +58,7 @@ struct StateTransition{
     State currentState;
     string targetObject;
     State nextState;
-}
+};
 
 /**
  * @brief Vector representing the transitions between states.
@@ -68,7 +68,7 @@ vector<StateTransition> stateTransitions = {
     {State::INIT, State::SEARCH, "Cube", State::PASSGATE},
     {State::SEARCH, State::PASSGATE, "", State::SEARCH},
     {State::PASSGATE, State::SEARCH, "Cube", State::STOP},
-}
+};
 
 /**
  * @brief Transforms the state in enum to the state in string.
@@ -87,36 +87,12 @@ string stateToString(State state);
 array<int, 2> center(array<int, 4> xyxy);
 
 /**
- * @brief Sets the power for centering the object.
- * 
- * @param decision Array of struct where the move decision is stored.
- * @param center Coordinates of the center of the object.
- */
-void centerSetPower(array<Decision, 2> &decision, array<int, 2> center);
-
-/**
- * @brief Sets the power based on the distance to the object.
- * 
- * @param power Variable where the power is stored.
- * @param distance Distance to the object.
- */
-void distanceSetPower(double &power, double distance);
-
-/**
- * @brief Sets the power based on the velocity of the AUV.
- * 
- * @param decision Array of struct where the move decision is stored.
- * @param velocity Velocity values on the x, y, and z axes, respectively.
- */
-void velocitySetPower(array<Decision, 3> &decision, array<double, 3> velocity);
-
-/**
  * @brief Decides which movement to take based on the position of the object in the image.
  * 
  * @param decision Array of struct where the move decision is stored.
  * @param xyxy x and y coordinates of the detected object.
  */
-void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy);
+void centerObject(array<double, 2> &decision, array<int, 4> xyxy);
 
 /**
  * @brief Calculates the distance between the AUV and the object based on the object's actual width and image dimension.
@@ -241,19 +217,10 @@ class AUVStateMachine{
         bool searchObjects(string object);
 
         /**
-         * @brief Rotates the AUV by a specified angle.
-         * 
-         * @param angle The angle to rotate (default is 0.785398 radians or 45 degrees).
-         * @param errorAngle The acceptable error in the angle (default is 0.174533 radians or 10 degrees).
-         * @param action The action to perform (default is Action::TURNLEFT).
-         */
-        void rotate(double angle = 0.785398, double errorAngle = 0.174533, Action action = Action::TURNLEFT);
-
-        /**
          * @brief This state defines the centralization procedure.
          */
         bool centering();
-        
+
         void dropping();
 
         /**
