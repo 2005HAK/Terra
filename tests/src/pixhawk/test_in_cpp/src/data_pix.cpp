@@ -16,7 +16,7 @@ int main() {
     Mavsdk mavsdk{Mavsdk::Configuration(1,1,true)};
 
     // Conexão com a Pixhawk via USB
-    ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyAMA0:115200");
+    ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyACM0:115200");
     if (connection_result != ConnectionResult::Success) {
         std::cerr << "Failed to connect: " << connection_result << std::endl;
         return 1;
