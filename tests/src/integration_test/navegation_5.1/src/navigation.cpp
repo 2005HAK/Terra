@@ -219,7 +219,7 @@ void AUVStateMachine::init(){
 
     cout << "Initializing..." << endl;
 
-    this->thrusters = make_unique<ThrustersControl>(this->sensors); //ERRO AQUI
+    this->thrusters = make_unique<ThrustersControl>(this->sensors.get()); //ERRO AQUI
 
     if(thrusters){
         this->thrusters->moveZ(.5);

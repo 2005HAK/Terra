@@ -9,15 +9,15 @@ YoloCtrl::YoloCtrl(){
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     address.sin_family = AF_INET;
-    address.sin_port = htons(PORT);
-    if(inet_pton(AF_INET, host))
+    address.sin_port = htons(port);
+    if(inet_pton(AF_INET, "0.0.0.0", &address.sin_addr))
 
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) throw ErrorBindingSocket();
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) throw ErrorCreatingSocket();
 
-    if (listen(server_fd, 3) < 0) throw ErrorListening();
+    // if (listen(server_fd, 3) < 0) throw ErrorListening(); ERRO AQUI
 
     std::cout << "Server waiting for connection..." << std::endl;
-    new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
+    new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen); // ERRO AQUI
     if (new_socket < 0) throw ErrorAcceptingConnection();
 
     std::cout << "Connection established." << std::endl;
@@ -125,11 +125,11 @@ array<int, 4> YoloCtrl::getXYXY(string objectName){
     array<int, 4> xyxy = {-1, -1, -1, -1};
 
     for(const auto& obj : identifiedObjects){
-        if(obj->name == objectName){
-            xyxy[0] = obj->topLeftXY[0];
-            xyxy[1] = obj->topLeftXY[1];
-            xyxy[2] = obj->downRightXY[0];
-            xyxy[3] = obj->downRightXY[1];
+        if(obj.name == objectName){
+            xyxy[0] = obj.topLeftXY[0];
+            xyxy[1] = obj.topLeftXY[1];
+            xyxy[2] = obj.downRightXY[0];
+            xyxy[3] = obj.downRightXY[1];
             break;
         }
     }

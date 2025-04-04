@@ -95,7 +95,7 @@ class ThrustersControl{
          * 
          * Activates the wiringPi service and initializes each thruster.
          */
-        ThrustersControl(unique_ptr<Sensors> sensors);
+        ThrustersControl(Sensors *sensors);
 
         /**
          * @brief Initializes each AUV thruster.

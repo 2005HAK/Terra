@@ -29,7 +29,7 @@ void Thruster::finishesThruster(){
     pwmWrite(this->pin, 0);
 }
 
-ThrustersControl::ThrustersControl(unique_ptr<Sensors> sensors) : sensors(sensors){
+ThrustersControl::ThrustersControl(Sensors *sensors) : sensors(sensors){
     cout << "Starting thrusters..." << endl;
     
     if(wiringPiSetup() == -1) throw FailedConnectThrusters();
@@ -153,14 +153,6 @@ void ThrustersControl::pidYaw(){
     thrusters[1].move(power);
     thrusters[3].move(-power);
     thrusters[4].move(power);
-}
-
-bool ThrustersControl::getStabilizeVert(){
-    return stabilizeVert;
-}
-
-bool ThrustersControl::getStabilizeHori(){
-    return stabilizeHori;
 }
 
 void ThrustersControl::finish(){
