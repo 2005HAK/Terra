@@ -14,7 +14,7 @@ YoloCtrl::YoloCtrl(){
 
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) throw ErrorCreatingSocket();
 
-    // if (listen(server_fd, 3) < 0) throw ErrorListening(); ERRO AQUI
+    if (listen(server_fd, 3) < 0) throw ErrorListening(); //ERRO AQUI
 
     std::cout << "Server waiting for connection..." << std::endl;
     new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen); // ERRO AQUI

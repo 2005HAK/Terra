@@ -95,6 +95,11 @@ class ErrorAcceptingConnection : public FailedInitializationYolo{
         ErrorAcceptingConnection();
 };
 
+class ErrorListening : public FailedInitializationYolo{
+    public:
+        ErrorListening();
+};
+
 // END YOLOCTRL
 
 /**
