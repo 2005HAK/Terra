@@ -69,6 +69,8 @@ class Thruster{
          */
         int percentageToDutycycle(double value);
 
+	int getCurrentPower();
+
         /**
          * @brief Turns off the thruster.
          * 
@@ -95,7 +97,7 @@ class ThrustersControl{
          * 
          * Activates the wiringPi service and initializes each thruster.
          */
-        ThrustersControl(unique_ptr<Sensors> sensors);
+        ThrustersControl(Sensors *sensors);
 
         /**
          * @brief Initializes each AUV thruster.

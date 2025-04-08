@@ -28,6 +28,7 @@ InvalidAdreess::InvalidAdreess() : FailedInitializationYolo("Invalid address.", 
 
 ErrorAcceptingConnection::ErrorAcceptingConnection() : FailedInitializationYolo("Failed to accept the connection.", 254){}
 
+ErrorListening::ErrorListening() : FailedInitializationYolo("Failed listening.", 255){}
 // END YOLOCTRL
 
 CollisionDetected::CollisionDetected(array<double, 3> acceleration) : AUVError("Collision detected based in sensor data: {" + to_string(acceleration[0]) +

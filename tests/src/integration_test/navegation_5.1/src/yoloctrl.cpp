@@ -3,24 +3,6 @@
 // Init class YoloCtrl
 
 YoloCtrl::YoloCtrl(){
-    server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd == -1) throw ErrorCreatingSocket();
-
-    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
-    address.sin_family = AF_INET;
-    address.sin_port = htons(PORT);
-    if(inet_pton(AF_INET, host))
-
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) throw ErrorBindingSocket();
-
-    if (listen(server_fd, 3) < 0) throw ErrorListening();
-
-    std::cout << "Server waiting for connection..." << std::endl;
-    new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
-    if (new_socket < 0) throw ErrorAcceptingConnection();
-
-    std::cout << "Connection established." << std::endl;
     cout << "Object YoloCtrl created." << endl;
 }
 
@@ -42,7 +24,7 @@ void YoloCtrl::updateData(){
             istream is(&buffer);
             string received_data;
             getline(is, received_data);
-
+	    // tem que tratar o caso de 
             try {
                 json received_json = json::parse(received_data);
                 identifiedObjects = process_json(received_json);
@@ -108,6 +90,8 @@ vector<Object> YoloCtrl::process_json(const json& received_json){
                         currentObject.name = received_json["names"][to_string(currentObject.objectId)];
                     }
                     results.emplace_back(currentObject);
+
+		    if(received_json.count("cam")) this->cam = received_json["cam"];
                 }
             }
         }
@@ -125,11 +109,11 @@ array<int, 4> YoloCtrl::getXYXY(string objectName){
     array<int, 4> xyxy = {-1, -1, -1, -1};
 
     for(const auto& obj : identifiedObjects){
-        if(obj->name == objectName){
-            xyxy[0] = obj->topLeftXY[0];
-            xyxy[1] = obj->topLeftXY[1];
-            xyxy[2] = obj->downRightXY[0];
-            xyxy[3] = obj->downRightXY[1];
+        if(obj.name == objectName){
+            xyxy[0] = obj.topLeftXY[0];
+            xyxy[1] = obj.topLeftXY[1];
+            xyxy[2] = obj.downRightXY[0];
+            xyxy[3] = obj.downRightXY[1];
             break;
         }
     }
