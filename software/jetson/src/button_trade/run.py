@@ -23,9 +23,9 @@ class IA:
         self.show = True
         self.imgsz = 640
         self.save = False
-        self.max_det = 1
+        self.max_det = 3
         self.conf = 0.8
-        self.HOST = '127.0.0.1'
+        self.HOST = '150.162.216.94'
         self.PORT = 65432
         self.model = YOLO('yolo11n.pt')
 
