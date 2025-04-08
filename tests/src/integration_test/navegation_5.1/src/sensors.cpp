@@ -85,10 +85,23 @@ void Sensors::initialize(){
 
             this->tempPixhawk = imu_data.temperature / 100.0;
         });
+
+        this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_LOCAL_POSITION_NED, [this](const mavlink_message_t& message) {
+            mavlink_local_position_ned_t imu_data;
+            mavlink_msg_local_position_ned_decode(&message, &imu_data);
+
+            this->oldTimeA = this->currentTimeA;
+            this->currentTimeA = imu_data.time_usec;
+
+            this->position[0] = imu_data.x;
+            this->position[1] = imu_data.y;
+            this->position[2] = imu_data.z;
+        });
     }
 }
 
 void Sensors::updateData(){
+    /*
     this->position[0] += (((this->vel[0] + this->velOld[0]) * this->deltaTimeV() * 10e-3) / 2); // X
 
     this->position[1] += (((this->vel[1] + this->velOld[1]) * this->deltaTimeV() * 10e-3) / 2); // Y
@@ -98,6 +111,7 @@ void Sensors::updateData(){
     this->position[3] += ((((this->gyro[0] + this->gyroOld[0]) * this->deltaTimeA() * 10e-6) / 2)); // Roll
 
     this->position[4] += ((((this->gyro[2] + this->gyroOld[2]) * this->deltaTimeA() * 10e-6) / 2)); // Yaw
+    */
 
     cout << "X: " << this->position[0] << " m\nY: " << this->position[1] << " m\nZ: " << this->position[2] << " m\nRoll: " << this->position[3] << " rad\nYaw: " << this->position[4] << " rad" << endl;
 }

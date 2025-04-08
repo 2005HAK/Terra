@@ -63,7 +63,8 @@ class Sensors{
          * @brief Continuously updates sensor data, fetching new information from Pixhawk and ****temperature sensors (fazer essa parte)****
          */
         void updateData();
-            
+
+        void NewFunction();
 
         /**
          * @brief Detects whether the AUV has collided with an object.
