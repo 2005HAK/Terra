@@ -16,7 +16,7 @@ const int IMAGE_WIDTH = 640;
 const int IMAGE_HEIGHT = 480;
 
 // Object used to initialization
-const string OBJECT_INITIALIZATION = "Cube";
+const string OBJECT_INITIALIZATION = "person";
 
 // Initial choice of the AUV
 const string INITIALCHOICE = "Cube";

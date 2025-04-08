@@ -26,6 +26,7 @@ struct Object{
     double downRightXY[2];
     double confidance;
     int objectId;
+    int cam;
 };
 
 /**
@@ -37,7 +38,7 @@ class YoloCtrl{
         struct sockaddr_in address{};
         int opt = 1;
         int addrlen = sizeof(address);
-        const char* server_ip = "127.0.0.1";
+        const char* server_ip = "200.135.73.51";
         int port = 12345;
         int cam = 0;
 

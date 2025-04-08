@@ -69,6 +69,8 @@ class Thruster{
          */
         int percentageToDutycycle(double value);
 
+	int getCurrentPower();
+
         /**
          * @brief Turns off the thruster.
          * 

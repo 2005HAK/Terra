@@ -25,6 +25,10 @@ int Thruster::percentageToDutycycle(double value){
     return (FREQUENCY / 1000000) * (this->minPWMus + ((this->maxPWMus - this->minPWMus) / 2) * (1 + (currentPower / 100))) * pwmRange;
 }
 
+int Thruster::getCurrentPower(){
+	return this->currentPower;
+}
+
 void Thruster::finishesThruster(){
     pwmWrite(this->pin, 0);
 }
@@ -76,6 +80,8 @@ void ThrustersControl::pidControl(){
         pidZ();
         pidRoll();
         pidYaw();
+
+        cout << "Fl: " << this->thrusters[0].getCurrentPower() << " %\nFr: " << this->thrusters[1].getCurrentPower() << " %\nBl: " << this->thrusters[4].getCurrentPower() << " %\nBr: " << this->thrusters[3].getCurrentPower() << " %\nMl: " << this->thrusters[5].getCurrentPower() << " %\nMr: " << this->thrusters[2].getCurrentPower() << " %" << endl;
 
         sleep_for(milliseconds(350)); // Ajustar o tempo de espera para o controle PID
     }
