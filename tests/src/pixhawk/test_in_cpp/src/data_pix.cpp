@@ -16,7 +16,7 @@ int main() {
     Mavsdk mavsdk{Mavsdk::Configuration(1,1,true)};
 
     // Conexão com a Pixhawk via USB
-    ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyACM0:115200");
+    ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyACM2:115200");
     if (connection_result != ConnectionResult::Success) {
         std::cerr << "Failed to connect: " << connection_result << std::endl;
         return 1;
@@ -59,6 +59,25 @@ int main() {
 
     cout << "Listening messages..." << endl;
 
+    telemetry.set_rate_position(20.0);
+
+    /*
+    for(int i = 0; i < 300; i++) {
+        mavlink_passthrough.subscribe_message(i, [](const mavlink_message_t& message) {
+            cout << "ID:" << message.msgid << endl;
+        });
+    }
+    */
+    /*
+    mavlink_passthrough.subscribe_message(MAVLINK_MSG_ID_SCALED_PRESSURE, [](const mavlink_message_t& message) {
+        mavlink_scaled_pressure_t scaled_pressure;
+        mavlink_msg_scaled_pressure_decode(&message, &scaled_pressure);
+
+        cout << "SCALED_PRESSURE:" << endl;
+        cout << "Pressure: " << scaled_pressure.press_abs * 100 << " Pa" << endl;
+    });
+    */
+
     mavlink_passthrough.subscribe_message(MAVLINK_MSG_ID_GLOBAL_POSITION_INT, [](const mavlink_message_t& message) {
         mavlink_global_position_int_t imu_data;
         mavlink_msg_global_position_int_decode(&message, &imu_data);
@@ -69,6 +88,7 @@ int main() {
         cout << "Vel Z: " << imu_data.vz / 100.0 << " m/s" << endl;
     });
 
+    /*
     mavlink_passthrough.subscribe_message(MAVLINK_MSG_ID_RAW_IMU, [](const mavlink_message_t& message) {
         mavlink_raw_imu_t imu_data;
         mavlink_msg_raw_imu_decode(&message, &imu_data);
@@ -89,11 +109,12 @@ int main() {
         cout << "Temp: " << imu_data.temperature / 100.0 << "ºC" << endl;
     });
 
+    */
+
     // Loop infinito para manter o programa rodando
     while (true) {
         sleep_for(milliseconds(100));
     }
-
 
     return 0;
 }
