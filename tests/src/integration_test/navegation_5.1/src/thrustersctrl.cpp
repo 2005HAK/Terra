@@ -52,13 +52,15 @@ void ThrustersControl::initializeThrusters(){
     }
     sleep_for(seconds(7));
 }
-
+// movimentação baseada nos eixos do AUV
 void ThrustersControl::moveX(double valueDeslocation){
-    setPoint[0] += valueDeslocation;
+    setPoint[0] += valueDeslocation * cos(sensors->getPosition()[4]);
+    setPoint[1] += valueDeslocation * sin(sensors->getPosition()[4]);
 }
 
 void ThrustersControl::moveY(double valueDeslocation){
-    setPoint[1] += valueDeslocation;
+    setPoint[1] += valueDeslocation * cos(sensors->getPosition()[4]);
+    setPoint[0] += valueDeslocation * -  sin(sensors->getPosition()[4]);
 }
 
 void ThrustersControl::moveZ(double valueDeslocation){
@@ -75,8 +77,14 @@ void ThrustersControl::rotateYaw(double valueDeslocation){
 
 void ThrustersControl::pidControl(){
     while(true){ // Esse true vai dar problema, mas por enquanto é só para testar
-        pidX();
-        pidY();
+        double x = this->setPoint[0] - this->sensors->getPosition()[0];
+        double y = this->setPoint[1] - this->sensors->getPosition()[1];
+        double d = sqrt(pow(x, 2) + pow(y, 2));
+        double yaw = this->sensors->getPosition()[4];
+        double theta = acos((x*cos(yaw) + y*sin(yaw)) / d);
+
+        pidX(theta, d);
+        pidY(theta, d);
         pidZ();
         pidRoll();
         pidYaw();
@@ -85,19 +93,18 @@ void ThrustersControl::pidControl(){
 
         sleep_for(milliseconds(350)); // Ajustar o tempo de espera para o controle PID
     }
-    
 }
 
 // TESTAR SE OS VALORES DE POWER MOVEM OS MOTORES PRO LADO DESEJADO (SE NÃO, INVERTER O SINAL)
 
-void ThrustersControl::pidX(){
-    double error = setPoint[0] - sensors->getPosition()[0];
+void ThrustersControl::pidX(double theta, double d){
+    double error = d * cos(theta);
     double power = 0.0;
 
-    double kp = 0.5, ki = 0.1, kd = 0.01; // Coefficients for PID control
+    double kp = 0.5, kd = 0.01; // Coefficients for PID control
 
     power = kp * error; // Proportional term
-    // FALTA OS TERMOS INTEGRAL E DERIVATIVO
+    // FALTA O TERMO DERIVATIVO
 
     thrusters[0].move(-power);
     thrusters[1].move(-power);
@@ -105,14 +112,14 @@ void ThrustersControl::pidX(){
     thrusters[4].move(power);
 }
 
-void ThrustersControl::pidY(){
-    double error = setPoint[1] - sensors->getPosition()[1];
+void ThrustersControl::pidY(double theta, double d){
+    double error = d * sin(theta);
     double power = 0.0;
 
-    double kp = 0.5, ki = 0.1, kd = 0.01; // Coefficients for PID control
+    double kp = 0.5, kd = 0.01; // Coefficients for PID control
 
     power = kp * error; // Proportional term
-    // FALTA OS TERMOS INTEGRAL E DERIVATIVO    
+    // FALTA O TERMO DERIVATIVO    
 
     thrusters[0].move(-power);
     thrusters[1].move(power);
@@ -124,10 +131,10 @@ void ThrustersControl::pidZ(){
     double error = setPoint[2] - sensors->getPosition()[2];
     double power = 0.0;
 
-    double kp = 0.5, ki = 0.1, kd = 0.01; // Coefficients for PID control
+    double kp = 0.5, kd = 0.01; // Coefficients for PID control
 
     power = kp * error; // Proportional term
-    // FALTA OS TERMOS INTEGRAL E DERIVATIVO
+    // FALTA O TERMO DERIVATIVO
 
     thrusters[2].move(power);
     thrusters[5].move(power);

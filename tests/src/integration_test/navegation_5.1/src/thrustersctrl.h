@@ -144,9 +144,9 @@ class ThrustersControl{
 
         void pidControl();
 
-        void pidX();
+        void pidX(double theta, double d);
 
-        void pidY();
+        void pidY(double theta, double d);
 
         void pidZ();
 

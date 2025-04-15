@@ -1,3 +1,0 @@
-/home/equipeterra/Terra/tests/src/integration_test/navegation_5.1/build/CMakeFiles/run_auv.dir
-/home/equipeterra/Terra/tests/src/integration_test/navegation_5.1/build/CMakeFiles/edit_cache.dir
-/home/equipeterra/Terra/tests/src/integration_test/navegation_5.1/build/CMakeFiles/rebuild_cache.dir
