@@ -60,15 +60,15 @@ include CMakeFiles/run_pix.dir/flags.make
 CMakeFiles/run_pix.dir/src/data_pix.cpp.o: CMakeFiles/run_pix.dir/flags.make
 CMakeFiles/run_pix.dir/src/data_pix.cpp.o: ../src/data_pix.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hak/Documents/Terra/tests/src/pixhawk/test_in_cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/run_pix.dir/src/data_pix.cpp.o"
-	/usr/lib/ccache/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run_pix.dir/src/data_pix.cpp.o -c /home/hak/Documents/Terra/tests/src/pixhawk/test_in_cpp/src/data_pix.cpp
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/run_pix.dir/src/data_pix.cpp.o -c /home/hak/Documents/Terra/tests/src/pixhawk/test_in_cpp/src/data_pix.cpp
 
 CMakeFiles/run_pix.dir/src/data_pix.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/run_pix.dir/src/data_pix.cpp.i"
-	/usr/lib/ccache/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hak/Documents/Terra/tests/src/pixhawk/test_in_cpp/src/data_pix.cpp > CMakeFiles/run_pix.dir/src/data_pix.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hak/Documents/Terra/tests/src/pixhawk/test_in_cpp/src/data_pix.cpp > CMakeFiles/run_pix.dir/src/data_pix.cpp.i
 
 CMakeFiles/run_pix.dir/src/data_pix.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/run_pix.dir/src/data_pix.cpp.s"
-	/usr/lib/ccache/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hak/Documents/Terra/tests/src/pixhawk/test_in_cpp/src/data_pix.cpp -o CMakeFiles/run_pix.dir/src/data_pix.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hak/Documents/Terra/tests/src/pixhawk/test_in_cpp/src/data_pix.cpp -o CMakeFiles/run_pix.dir/src/data_pix.cpp.s
 
 # Object files for target run_pix
 run_pix_OBJECTS = \

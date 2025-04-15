@@ -5,115 +5,93 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <cmath>
 
 using namespace mavsdk;
 using namespace std;
 using namespace this_thread;
 using namespace chrono;
 
+vector<float> vel_ned = {0, 0, 0};
+vector<float> vel_local = {0, 0, 0};
+
+float last_yaw = 0.0;
 
 int main() {
     Mavsdk mavsdk{Mavsdk::Configuration(1,1,true)};
+    ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyACM1:115200");
 
-    // Conexão com a Pixhawk via USB
-    ConnectionResult connection_result = mavsdk.add_any_connection("serial:///dev/ttyACM2:115200");
     if (connection_result != ConnectionResult::Success) {
-        std::cerr << "Failed to connect: " << connection_result << std::endl;
+        cerr << "Failed to connect: " << connection_result << endl;
         return 1;
     }
 
-    std::cout << "Connected to Pixhawk via USB!" << std::endl;
-
+    cout << "Connected to Pixhawk via USB!" << endl;
     sleep_for(seconds(2));
 
     auto systems = mavsdk.systems();
-
     if (systems.empty()) {
-        std::cerr << "No systems detected." << std::endl;
+        cerr << "No systems detected." << endl;
         return 1;
     }
-    
-    std::cout << "Number of systems detected: " << systems.size() << std::endl;
 
-    // Obtém o sistema
-    auto system = mavsdk.systems().at(0);
-
+    auto system = systems.at(0);
     if (!system) {
-        std::cerr << "Failed to detect system." << std::endl;
+        cerr << "Failed to detect system." << endl;
         return 1;
     }
 
     Telemetry telemetry{system};
-
-    // Verifica se a conexão está ativa
     while (!telemetry.health().is_accelerometer_calibration_ok ||
            !telemetry.health().is_gyrometer_calibration_ok || 
            !telemetry.health().is_magnetometer_calibration_ok) {
-        std::cout << "Waiting for the system to be ready..." << std::endl;
+        cout << "Waiting for the system to be ready..." << endl;
         sleep_for(seconds(1));
     }
-    
-    std::cout << "System is ready!" << std::endl;
+
+    cout << "System is ready!" << endl;
 
     MavlinkPassthrough mavlink_passthrough{system};
 
-    cout << "Listening messages..." << endl;
+    
+    // Subscreve ao ATTITUDE para obter o yaw (em radianos)
+    mavlink_passthrough.subscribe_message(MAVLINK_MSG_ID_ATTITUDE, [](const mavlink_message_t& message) {
+        mavlink_attitude_t att;
+        mavlink_msg_attitude_decode(&message, &att);
 
-    telemetry.set_rate_position(20.0);
-
-    /*
-    for(int i = 0; i < 300; i++) {
-        mavlink_passthrough.subscribe_message(i, [](const mavlink_message_t& message) {
-            cout << "ID:" << message.msgid << endl;
-        });
-    }
-    */
-    /*
-    mavlink_passthrough.subscribe_message(MAVLINK_MSG_ID_SCALED_PRESSURE, [](const mavlink_message_t& message) {
-        mavlink_scaled_pressure_t scaled_pressure;
-        mavlink_msg_scaled_pressure_decode(&message, &scaled_pressure);
-
-        cout << "SCALED_PRESSURE:" << endl;
-        cout << "Pressure: " << scaled_pressure.press_abs * 100 << " Pa" << endl;
+        last_yaw = att.yaw; // em rad
     });
-    */
 
+    // Subscreve à mensagem de posição global para pegar as velocidades
     mavlink_passthrough.subscribe_message(MAVLINK_MSG_ID_GLOBAL_POSITION_INT, [](const mavlink_message_t& message) {
-        mavlink_global_position_int_t imu_data;
-        mavlink_msg_global_position_int_decode(&message, &imu_data);
+        mavlink_global_position_int_t pos;
+        mavlink_msg_global_position_int_decode(&message, &pos);
 
-        cout << "GLOBAL_POSITION_INT:" << endl;
-        cout << "Vel X: " << imu_data.vx / 100.0 << " m/s" << endl;
-        cout << "Vel Y: " << imu_data.vy / 100.0 << " m/s" << endl;
-        cout << "Vel Z: " << imu_data.vz / 100.0 << " m/s" << endl;
+        vel_ned[0] = pos.vx / 100.0f; // norte
+        vel_ned[1] = pos.vy / 100.0f; // leste
+        vel_ned[2] = pos.vz / 100.0f; // descendo
+
+        // Rotação de NED -> local (com x = frente do AUV)
+        float cos_yaw = cos(last_yaw);
+        float sin_yaw = sin(last_yaw);
+
+        vel_local[0] =  vel_ned[0] * cos_yaw + vel_ned[1] * sin_yaw;  // x (frente)
+        vel_local[1] = -vel_ned[0] * sin_yaw + vel_ned[1] * cos_yaw;  // y (direita)
+        vel_local[2] =  vel_ned[2];                                   // z (descida)
     });
-
-    /*
-    mavlink_passthrough.subscribe_message(MAVLINK_MSG_ID_RAW_IMU, [](const mavlink_message_t& message) {
-        mavlink_raw_imu_t imu_data;
-        mavlink_msg_raw_imu_decode(&message, &imu_data);
-
-        cout << "\nRAW_IMU Data:" << endl;
-        cout << "Accel X: " << imu_data.xacc * 9.80665 / 1000 << " m/s²" << endl;
-        cout << "Accel Y: " << imu_data.yacc * 9.80665 / 1000 << " m/s²" << endl;
-        cout << "Accel Z: " << imu_data.zacc * 9.80665 / 1000 << " m/s²" << endl;
-
-        cout << "Gyro X: " << imu_data.xgyro * 0.001 << " rad/s" << endl;
-        cout << "Gyro Y: " << imu_data.ygyro * 0.001 << " rad/s" << endl;
-        cout << "Gyro Z: " << imu_data.zgyro * 0.001 << " rad/s" << endl;
-        
-        cout << "Mag X: " << imu_data.xmag * 0.1 << " µT" << endl;
-        cout << "Mag Y: " << imu_data.ymag * 0.1 << " µT" << endl;
-        cout << "Mag Z: " << imu_data.zmag * 0.1 << " µT" << endl;
-
-        cout << "Temp: " << imu_data.temperature / 100.0 << "ºC" << endl;
-    });
-
-    */
-
-    // Loop infinito para manter o programa rodando
+    
+    // Loop infinito para imprimir as velocidades locais
     while (true) {
-        sleep_for(milliseconds(100));
+        cout << fixed;
+        cout.precision(2);
+        cout << "Velocidade LOCAL (em relação ao AUV):" << endl;
+        cout << "X (frente):   " << vel_ned[0] << " m/s" << endl;
+        cout << "Y (direita):  " << vel_ned[1] << " m/s" << endl;
+        cout << "Z (descendo): " << vel_ned[2] << " m/s" << endl;
+        cout << "Yaw atual:    " << last_yaw * 180.0 / M_PI << " graus" << endl;
+        cout << "-------------------------------------" << endl;
+
+        sleep_for(milliseconds(333));
     }
 
     return 0;

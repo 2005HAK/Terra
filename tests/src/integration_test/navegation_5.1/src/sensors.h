@@ -31,13 +31,12 @@ class Sensors{
     private:
         array<double, 3> accOld = {0, 0, 0};           // Acceleration {x, y, z}
         array<double, 3> acc = {0, 0, 0};              // Acceleration {x, y, z}
-        array<double, 3> gyroOld = {0, 0, 0};          // Gyroscope {x, y, z}
         array<double, 3> gyro = {0, 0, 0};             // Gyroscope {x, y, z}
         array<double, 3> magOld = {0, 0, 0};           // Magnetometer {x, y, z}
         array<double, 3> mag = {0, 0, 0};              // Magnetometer {x, y, z}
         array<double, 3> velOld = {0, 0, 0};           // Velocity {x, y, z}
         array<double, 3> vel = {0, 0, 0};              // Velocity {x, y, z}
-        array<double, 5> position = {0, 0, 0, 0, 0};   // Position {x, y, z, roll, yaw} // possivelmente precisa atualizar os valores para o valor atual dos sensores na inicialização
+        array<double, 5> position = {0, 0, 0, 0, 0, 0};   // Position {x, y, z, roll, yaw, pitch} // possivelmente precisa atualizar os valores para o valor atual dos sensores na inicialização
         double tempPixhawk = 0.0;                      // Temperature of Pixhawk ºC
         double tempRaspberry = 0.0;                    // Temperature of Raspberry ºC
         double tempJetson = 0.0;                       // Temperature of Jetson ºC

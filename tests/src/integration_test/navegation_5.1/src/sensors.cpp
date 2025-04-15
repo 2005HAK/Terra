@@ -69,9 +69,6 @@ void Sensors::initialize(){
             this->acc[1] = imu_data.yacc * CONV_TO_MS2;
             this->acc[2] = imu_data.zacc * CONV_TO_MS2;
 
-            this->gyroOld[0] = this->gyro[0];
-            this->gyroOld[1] = this->gyro[1];
-            this->gyroOld[2] = this->gyro[2];
             this->gyro[0] = imu_data.xgyro * CONV_TO_RAD;
             this->gyro[1] = imu_data.ygyro * CONV_TO_RAD;
             this->gyro[2] = imu_data.zgyro * CONV_TO_RAD;
@@ -85,33 +82,26 @@ void Sensors::initialize(){
 
             this->tempPixhawk = imu_data.temperature / 100.0;
         });
+        
+        // Obtenção dos dados do giroscópio de forma mais precisa
+        this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_ATTITUDE, [this](const mavlink_message_t& message) {
+            mavlink_attitude_t imu_data;
+            mavlink_msg_attitude_decode(&message, &imu_data);
 
-        this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_LOCAL_POSITION_NED, [this](const mavlink_message_t& message) {
-            mavlink_local_position_ned_t imu_data;
-            mavlink_msg_local_position_ned_decode(&message, &imu_data);
-
-            this->oldTimeA = this->currentTimeA;
-            this->currentTimeA = imu_data.time_usec;
-
-            this->position[0] = imu_data.x;
-            this->position[1] = imu_data.y;
-            this->position[2] = imu_data.z;
+            this->position[3] = imu_data.roll;
+            this->position[4] = imu_data.yaw;
+            this->position[5] = imu_data.pitch;
         });
     }
 }
 
 void Sensors::updateData(){
-    /*
+    
     this->position[0] += (((this->vel[0] + this->velOld[0]) * this->deltaTimeV() * 10e-3) / 2); // X
 
     this->position[1] += (((this->vel[1] + this->velOld[1]) * this->deltaTimeV() * 10e-3) / 2); // Y
 
     this->position[2] += (((this->vel[2] + this->velOld[2]) * this->deltaTimeV() * 10e-3) / 2); // Z
-
-    this->position[3] += ((((this->gyro[0] + this->gyroOld[0]) * this->deltaTimeA() * 10e-6) / 2)); // Roll
-
-    this->position[4] += ((((this->gyro[2] + this->gyroOld[2]) * this->deltaTimeA() * 10e-6) / 2)); // Yaw
-    */
 
     cout << "X: " << this->position[0] << " m\nY: " << this->position[1] << " m\nZ: " << this->position[2] << " m\nRoll: " << this->position[3] << " rad\nYaw: " << this->position[4] << " rad" << endl;
 }
