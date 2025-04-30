@@ -1,0 +1,16 @@
+Master: 
+
+torchrun --nproc_per_node=1 --nnodes=2 --node_rank=0 \
+  --master_addr=192.168.1.10 --master_port=12345 train.py
+
+
+PC2:
+
+torchrun --nproc_per_node=1 --nnodes=2 --node_rank=1 \
+  --master_addr=192.168.1.10 --master_port=12345 train.py
+
+
+
+-Trocar os ips e definir o master
+-Garantir que o venv tem as mesmas dependencias (Nesse caso a ultralytics instalada)
+-Garantir conexão estável e conexão por ssh
