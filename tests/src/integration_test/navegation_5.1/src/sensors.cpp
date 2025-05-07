@@ -1,9 +1,10 @@
+
 #include "sensors.h"
 
 Sensors::Sensors(){
     mavsdk = make_unique<Mavsdk>(Mavsdk::Configuration(1, 1, true));
 
-    ConnectionResult connection_result = mavsdk->add_any_connection("serial:///dev/ttyAMA0:115200");
+    ConnectionResult connection_result = mavsdk->add_any_connection("serial:///dev/ttyAMA0:57600");
 
     if (connection_result != ConnectionResult::Success){ //Colocar isso em um código de erro
         cout << "Failed to connect: " << connection_result << endl;
@@ -44,21 +45,15 @@ void Sensors::initialize(){
             mavlink_global_position_int_t imu_data;
             mavlink_msg_global_position_int_decode(&message, &imu_data);
 
-            double alpha = 0.1; // Fator de suavização
-
             this->oldTimeV = this->currentTimeV;
             this->currentTimeV = imu_data.time_boot_ms;
 
             this->velOld[0] = this->vel[0];
             this->velOld[1] = this->vel[1];
             this->velOld[2] = this->vel[2];
-            this->vel[0] = (alpha * imu_data.vx * CONV_TO_MS + (1 - alpha) * this->vel[0]);
-            this->vel[1] = (alpha * imu_data.vy * CONV_TO_MS + (1 - alpha) * this->vel[1]);
-            this->vel[2] = (alpha * imu_data.vz * CONV_TO_MS + (1 - alpha) * this->vel[2]);
-            
-            this->position[0] += (((this->vel[0] + this->velOld[0]) * this->deltaTimeV() * 10e-3) / 2); // X
-            this->position[1] += (((this->vel[1] + this->velOld[1]) * this->deltaTimeV() * 10e-3) / 2); // Y
-            this->position[2] += (((this->vel[2] + this->velOld[2]) * this->deltaTimeV() * 10e-3) / 2); // Z
+            this->vel[0] = imu_data.vx * CONV_TO_MS;
+            this->vel[1] = imu_data.vy * CONV_TO_MS;
+            this->vel[2] = imu_data.vz * CONV_TO_MS;
         });
 
         this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_RAW_IMU, [this](const mavlink_message_t& message) {
@@ -102,7 +97,14 @@ void Sensors::initialize(){
 }
 
 void Sensors::updateData(){
-    cout << "X: " << this->position[0] << " m\nY: " << this->position[1] << " m\nZ: " << this->position[2] << " m\nRoll: " << this->position[3] << " rad\nYaw: " << this->position[4] << " rad" << endl;
+    
+    this->position[0] += (((this->vel[0] + this->velOld[0]) * this->deltaTimeV() * 10e-3) / 2); // X
+
+    this->position[1] += (((this->vel[1] + this->velOld[1]) * this->deltaTimeV() * 10e-3) / 2); // Y
+
+    this->position[2] += (((this->vel[2] + this->velOld[2]) * this->deltaTimeV() * 10e-3) / 2); // Z
+
+//    cout << "X: " << this->position[0] << " m\nY: " << this->position[1] << " m\nZ: " << this->position[2] << " m\nRoll: " << this->position[3] << " rad\nYaw: " << this->position[4] << " rad" << endl;
 }
 
 void Sensors::collisionDetect(){
