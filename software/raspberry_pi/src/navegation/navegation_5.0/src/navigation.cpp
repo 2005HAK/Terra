@@ -575,7 +575,7 @@ void AUVStateMachine::tagging(){
 }
 
 // Implementar
-void shoot(){
+void AUVStateMachine::shoot(){
 }
 
 void AUVStateMachine::cleanup(){
