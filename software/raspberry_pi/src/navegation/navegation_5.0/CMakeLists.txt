@@ -17,6 +17,7 @@ set(SOURCES
 	src/yoloctrl.cpp
 	src/auverror.cpp
 	src/utils.cpp
+	src/activator.cpp
 )
 
 add_executable(run_auv ${SOURCES})

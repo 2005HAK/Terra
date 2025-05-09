@@ -10,6 +10,7 @@
 #include "yoloctrl.h"
 #include "thrustersctrl.h"
 #include "auverror.h"
+#include "activator.h"
 
 // Width and height of the image seen by the camera
 const int IMAGE_WIDTH = 640;
