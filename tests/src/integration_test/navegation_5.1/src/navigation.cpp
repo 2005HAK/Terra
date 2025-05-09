@@ -216,7 +216,7 @@ void AUVStateMachine::init(){
     while(!searchObjects(OBJECT_INITIALIZATION)){
         sleep_for(milliseconds(100));
     }
-
+    
     cout << "Initializing..." << endl;
 
     this->thrusters = make_unique<ThrustersControl>(this->sensors.get()); //ERRO AQUI

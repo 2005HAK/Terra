@@ -4,7 +4,6 @@
 #include <string>
 #include <chrono>
 #include <thread>
-#include <cmath.h>
 
 using namespace std;
 using namespace chrono;

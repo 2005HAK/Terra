@@ -26,7 +26,7 @@ int Thruster::percentageToDutycycle(double value){
 }
 
 int Thruster::getCurrentPower(){
-	return this->currentPower;
+    return this->currentPower;
 }
 
 void Thruster::finishesThruster(){
@@ -88,8 +88,9 @@ void ThrustersControl::pidControl(){
         pidZ();
         pidRoll();
         pidYaw();
+	cout << "valor: " << this->thrusters[0].getCurrentPower() << endl;
 
-        cout << "Fl: " << this->thrusters[0].getCurrentPower() << " %\nFr: " << this->thrusters[1].getCurrentPower() << " %\nBl: " << this->thrusters[4].getCurrentPower() << " %\nBr: " << this->thrusters[3].getCurrentPower() << " %\nMl: " << this->thrusters[5].getCurrentPower() << " %\nMr: " << this->thrusters[2].getCurrentPower() << " %" << endl;
+        //cout << "Fl: " << this->thrusters[0].getCurrentPower() << " %\nFr: " << this->thrusters[1].getCurrentPower() << " %\nBl: " << this->thrusters[4].getCurrentPower() << " %\nBr: " << this->thrusters[3].getCurrentPower() << " %\nMl: " << this->thrusters[5].getCurrentPower() << " %\nMr: " << this->thrusters[2].getCurrentPower() << " %" << endl;
 
         sleep_for(milliseconds(350)); // Ajustar o tempo de espera para o controle PID
     }
@@ -101,7 +102,7 @@ void ThrustersControl::pidX(double theta, double d){
     double error = d * cos(theta);
     double power = 0.0;
 
-    double kp = 0.5, kd = 0.01; // Coefficients for PID control
+    double kp = 3.5, kd = 0.01; // Coefficients for PID control
 
     power = kp * error; // Proportional term
     // FALTA O TERMO DERIVATIVO
