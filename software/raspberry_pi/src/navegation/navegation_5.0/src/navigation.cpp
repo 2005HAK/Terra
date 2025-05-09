@@ -163,9 +163,9 @@ void AUVStateMachine::stabilizes(){
         array<Decision, 3> decision;
         array<double, 3> errorVelocity = {.1, .1, .1};
     
-        definesAction(decision[0].action, this->sensors->getVel[0], errorVelocity[0], Action::FORWARD, Action::BACKWARD);
-        definesAction(decision[1].action, this->sensors->getVel[1], errorVelocity[1], Action::RIGHT, Action::LEFT);
-        definesAction(decision[2].action, this->sensors->getVel[2], errorVelocity[2], Action::DOWN, Action::UP);
+        definesAction(decision[0].action, this->sensors->getVel()[0], errorVelocity[0], Action::FORWARD, Action::BACKWARD);
+        definesAction(decision[1].action, this->sensors->getVel()[1], errorVelocity[1], Action::RIGHT, Action::LEFT);
+        definesAction(decision[2].action, this->sensors->getVel()[2], errorVelocity[2], Action::DOWN, Action::UP);
 
         if(this->thrusters->getStabilizeVert()){
             this->thrusters->defineAction(decision[0]);
@@ -361,7 +361,7 @@ void AUVStateMachine::passGate(){
                 array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
                 
                 if(xyxy[0] != -1){
-                    array<double, 2> centerObject = center(xyxy);
+                    array<int, 2> centerObject = center(xyxy);
                     
                     if(xyxy[1] > (ERROR_CENTER / 2)) this->thrusters->defineAction({Action::DOWN, 20});
                     else isAbove = true;
@@ -448,7 +448,7 @@ void AUVStateMachine::navigate(){
                     //Definir com o controle PID
                     decision.value = 20; 
                 } else if(middlePipes > IMAGE_CENTER[0] + (ERROR_CENTER / 2)){
-                    desision.action = Action::TURNRIGHT;
+                    deision.action = Action::TURNRIGHT;
                     //Definir com o controle PID
                     decision.value = 20; 
                 } else {
@@ -576,6 +576,8 @@ void AUVStateMachine::tagging(){
 }
 
 // Implementar
+void shoot(){
+}
 
 void AUVStateMachine::cleanup(){
 
@@ -685,10 +687,12 @@ void AUVStateMachine::advancing(){
         }
     }
 
-    if(!lostObject){
+    if(lostObject){
+        /*
         this->nextState = State::STOP;
         transitionTo(State::STABILIZING);
-    } else transitionTo(State::SEARCH);
+        */
+    } else checksTransition();
 }
 
 void AUVStateMachine::stop(){
@@ -703,7 +707,7 @@ void AUVStateMachine::stop(){
 void AUVStateMachine::run(){
     try{
         errorThread = thread(&AUVStateMachine::checksErrors, this);
-        Activator act(0); // GPIO 17 = pino 0 no esquema WiringPi
+        Activator act(25); // GPIO 17 = pino 0 no esquema WiringPi
         act.WaitingForActivation();
         cout << "Ativado!\n";
         while (this->state != State::STOP){
@@ -738,7 +742,7 @@ void AUVStateMachine::run(){
                     advancing();
                     break;
                 case State::STABILIZING:
-                    stabilizing();
+                    stabilizes();
                     break;
                 default:
                     break;

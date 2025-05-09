@@ -296,6 +296,7 @@ class AUVStateMachine{
         bool centering();
         
         void dropping();
+        void shoot();
 
         /**
          * @brief This state difines the advancement procedure.

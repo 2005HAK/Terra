@@ -114,9 +114,9 @@ class ThrustersControl{
         void defineAction(Decision decision);
 
         
-        void getStabilizeVert();
+        bool getStabilizeVert();
 
-        void getStabilizeHori();
+        bool getStabilizeHori();
 
         /**
          * @brief Finish the thrusters.
