@@ -18,6 +18,8 @@ FailedInitializationSensors::FailedInitializationSensors() : AUVError("Failed to
 
 // YOLOCTRL
 
+
+
 FailedInitializationYolo ::FailedInitializationYolo(string type, int code) : AUVError(type, code){}
 
 ErrorCreatingSocket::ErrorCreatingSocket() : FailedInitializationYolo("Failed to create the socket.", 252){}

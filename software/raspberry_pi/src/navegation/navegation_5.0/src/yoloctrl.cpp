@@ -50,12 +50,12 @@ void YoloCtrl::switchCam(int chooseCam){
     server_addr.sin_port = htons(port);
 
     if (inet_pton(AF_INET, server_ip, &server_addr.sin_addr) <= 0) {
-        throw InvalidAdreess();
+        throw ErrorListening();
         close(sock);
     }
     
     if (connect(sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        throw ErrorToConnect();
+        throw ErrorAcceptingConnection();
         close(sock);
         // criar um erro pra isso
     }
