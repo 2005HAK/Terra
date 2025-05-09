@@ -6,6 +6,8 @@
 #include <nlohmann/json.hpp>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <cstring>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <vector>
 #include <tuple>
@@ -24,6 +26,7 @@ struct Object{
     double downRightXY[2];
     double confidance;
     int objectId;
+    int cam;
 };
 
 /**
@@ -32,10 +35,12 @@ struct Object{
 class YoloCtrl{
     private:
         int server_fd, new_socket;
-        struct sockaddr_in address;
+        struct sockaddr_in address{};
         int opt = 1;
         int addrlen = sizeof(address);
-        bool data = true;
+        const char* server_ip = "200.135.73.51";
+        int port = 12345;
+        int cam = 0;
 
         vector<Object> identifiedObjects;
         mutex mutexIdentifiedObjects;
@@ -62,7 +67,7 @@ class YoloCtrl{
         /**
          * @brief Switches the camera.
          */
-        void switchCam();
+        void switchCam(int chooseCam);
 
         /**
          * @brief Checks if any object has been found.
