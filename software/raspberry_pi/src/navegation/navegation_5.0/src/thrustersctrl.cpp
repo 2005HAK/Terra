@@ -66,7 +66,7 @@ void ThrustersControl::defineAction(Decision decision){
             thrusters[5].move(-decision.value);
             break;
         case Action::FORWARD:
-            stabilizeHori = false
+            stabilizeHori = false;
             thrusters[0].move(-decision.value);
             thrusters[1].move(-decision.value);
             thrusters[3].move(decision.value);
