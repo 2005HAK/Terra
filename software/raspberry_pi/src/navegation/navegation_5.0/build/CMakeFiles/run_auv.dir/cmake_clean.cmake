@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/run_auv.dir/src/activator.cpp.o"
+  "CMakeFiles/run_auv.dir/src/activator.cpp.o.d"
   "CMakeFiles/run_auv.dir/src/auverror.cpp.o"
   "CMakeFiles/run_auv.dir/src/auverror.cpp.o.d"
   "CMakeFiles/run_auv.dir/src/navigation.cpp.o"
