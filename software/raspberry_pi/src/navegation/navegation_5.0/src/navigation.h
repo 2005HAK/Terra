@@ -11,7 +11,7 @@
 #include "thrustersctrl.h"
 #include "auverror.h"
 #include "activator.h"
-#include <vector>
+
 // Width and height of the image seen by the camera
 const int IMAGE_WIDTH = 640;
 const int IMAGE_HEIGHT = 480;
@@ -59,7 +59,7 @@ struct StateTransition{
     State currentState;
     string targetObject;
     State nextState;
-}
+};
 
 /**
  * @brief Vector representing the transitions between states.
