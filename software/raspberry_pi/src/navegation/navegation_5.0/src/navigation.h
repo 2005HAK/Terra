@@ -83,8 +83,8 @@ vector<StateTransition> stateTransitions = {
     {State::SEARCH, State::TAGGING, "", State::SEARCH},
     {State::TAGGING, State::SEARCH, "Octagon", State::CLEANUP},
     {State::SEARCH, State::CLEANUP, "", State::RETURNING},
-    {State::CLEANUP, State::RETURNING, "", State::STOP},
-}
+    {State::CLEANUP, State::RETURNING, "", State::STOP}
+};
 
 /**
  * @brief Transforms the state in enum to the state in string.
