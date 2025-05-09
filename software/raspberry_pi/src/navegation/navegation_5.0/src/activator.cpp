@@ -1,4 +1,4 @@
-#include "Activator.h"
+#include "activator.h"
 #include <wiringPi.h>
 #include <stdexcept>
 #include <iostream>
