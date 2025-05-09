@@ -18,7 +18,8 @@
         "iosfwd": "cpp",
         "iterator": "cpp",
         "stdexcept": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "cmath": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

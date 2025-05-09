@@ -317,12 +317,12 @@ void AUVStateMachine::search(){
 
 void AUVStateMachine::init(){
     cout << "Searching for launcher..." << endl;
-
+    /*
     while(this->targetObject != OBJECT_INITIALIZATION){
         searchObjects();
         sleep_for(milliseconds(100));
     }
-
+    */
     cout << "Initializing..." << endl;
 
     this->thrusters = make_unique<ThrustersControl>();
