@@ -125,7 +125,6 @@ AUVStateMachine::~AUVStateMachine(){
     if (sensorThread.joinable()) sensorThread.join();
     if (detectionThread.joinable()) detectionThread.join();
     if (errorThread.joinable()) errorThread.join();
-    if (transitionThread.joinable()) transitionThread.join();
 }
 
 // FUNCTIONS USED BY THREADS
@@ -448,7 +447,7 @@ void AUVStateMachine::navigate(){
                     //Definir com o controle PID
                     decision.value = 20; 
                 } else if(middlePipes > IMAGE_CENTER[0] + (ERROR_CENTER / 2)){
-                    deision.action = Action::TURNRIGHT;
+                    decision.action = Action::TURNRIGHT;
                     //Definir com o controle PID
                     decision.value = 20; 
                 } else {
