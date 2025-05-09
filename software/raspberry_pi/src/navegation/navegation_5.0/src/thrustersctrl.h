@@ -23,7 +23,7 @@ const double FREQUENCY = 200;
  * 4 - Back right
  * 5 - Back left 
  */
-const array<int, 6> PINS = {17, 18, 22, 23, 24, 27};
+const array<int, 6> PINS = {0, 1, 3, 4, 5, 2};
 
 /**
  * @brief Struct representing a decision for thruster action

@@ -322,6 +322,11 @@ void AUVStateMachine::init(){
         sleep_for(milliseconds(100));
     }
     */
+
+    Activator act(6); // GPIO 17 = pino 0 no esquema WiringPi
+        act.WaitingForActivation();
+        cout << "Ativado!\n";
+
     cout << "Initializing..." << endl;
 
     this->thrusters = make_unique<ThrustersControl>();
@@ -685,7 +690,6 @@ void AUVStateMachine::advancing(){
             cout << "Lost object!" << endl;
         }
     }
-
     if(lostObject){
         /*
         this->nextState = State::STOP;
@@ -706,9 +710,7 @@ void AUVStateMachine::stop(){
 void AUVStateMachine::run(){
     try{
         errorThread = thread(&AUVStateMachine::checksErrors, this);
-        Activator act(25); // GPIO 17 = pino 0 no esquema WiringPi
-        act.WaitingForActivation();
-        cout << "Ativado!\n";
+
         while (this->state != State::STOP){
             switch (this->state){
                 case State::INIT:

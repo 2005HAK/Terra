@@ -11,7 +11,7 @@ Activator::Activator(int pin) : pinNumber(pin) {
 }
 
 void Activator::WaitingForActivation() {
-    while (!digitalRead(pinNumber)) {
+    while (digitalRead(pinNumber)) {
         delay(10);
     }
 }
