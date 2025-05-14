@@ -42,5 +42,5 @@ echo "Executando código"
 rm -rf build/*
 cd build
 cmake ..
-make
+make -j$(nproc)
 sudo ./run_auv

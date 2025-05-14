@@ -706,9 +706,11 @@ void AUVStateMachine::stop(){
 void AUVStateMachine::run(){
     try{
         errorThread = thread(&AUVStateMachine::checksErrors, this);
+
         Activator act(25); // GPIO 17 = pino 0 no esquema WiringPi
         act.WaitingForActivation();
         cout << "Ativado!\n";
+        
         while (this->state != State::STOP){
             switch (this->state){
                 case State::INIT:
