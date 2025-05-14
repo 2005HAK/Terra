@@ -129,6 +129,30 @@ run_auv/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_auv.dir/build.make CMakeFiles/run_auv.dir/build
 .PHONY : run_auv/fast
 
+src/activator.o: src/activator.cpp.o
+.PHONY : src/activator.o
+
+# target to build an object file
+src/activator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_auv.dir/build.make CMakeFiles/run_auv.dir/src/activator.cpp.o
+.PHONY : src/activator.cpp.o
+
+src/activator.i: src/activator.cpp.i
+.PHONY : src/activator.i
+
+# target to preprocess a source file
+src/activator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_auv.dir/build.make CMakeFiles/run_auv.dir/src/activator.cpp.i
+.PHONY : src/activator.cpp.i
+
+src/activator.s: src/activator.cpp.s
+.PHONY : src/activator.s
+
+# target to generate assembly for a file
+src/activator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_auv.dir/build.make CMakeFiles/run_auv.dir/src/activator.cpp.s
+.PHONY : src/activator.cpp.s
+
 src/auverror.o: src/auverror.cpp.o
 .PHONY : src/auverror.o
 
@@ -282,6 +306,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... run_auv"
+	@echo "... src/activator.o"
+	@echo "... src/activator.i"
+	@echo "... src/activator.s"
 	@echo "... src/auverror.o"
 	@echo "... src/auverror.i"
 	@echo "... src/auverror.s"

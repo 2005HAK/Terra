@@ -38,8 +38,8 @@ class YoloCtrl{
         struct sockaddr_in address{};
         int opt = 1;
         int addrlen = sizeof(address);
-        const char* server_ip = "200.135.73.51";
-        int port = 12345;
+        const char* server_ip = "192.168.0.2";
+        int port = 65432;
         int cam = 0;
 
         vector<Object> identifiedObjects;
