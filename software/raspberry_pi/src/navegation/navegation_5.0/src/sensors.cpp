@@ -43,6 +43,10 @@ void Sensors::initialize(){
     cout << "Listening messages..." << endl;
 
     if(mavlink_passthrough){
+        this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_STATUSTEXT, [](const mavlink_message_t& message) {
+            // Não faz nada — ignora a mensagem STATUSTEXT
+        });
+
         this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_GLOBAL_POSITION_INT, [this](const mavlink_message_t& message) {
             mavlink_global_position_int_t imu_data;
             mavlink_msg_global_position_int_decode(&message, &imu_data);
