@@ -103,7 +103,7 @@ void definesAction(Action &action, double velocity, double errorVelocity, Action
 
 AUVStateMachine::AUVStateMachine(){
     cout << "Waiting for activation..." << endl;
-    Activator act(25); // GPIO 17 = pino 0 no esquema WiringPi
+    Activator act(6); // GPIO 25 = pino 6 no esquema WiringPi
     act.WaitingForActivation();
     cout << "Ativado!\n";
 
