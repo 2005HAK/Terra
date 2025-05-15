@@ -321,16 +321,14 @@ void AUVStateMachine::search(){
 
 void AUVStateMachine::init(){
     cout << "Searching for launcher..." << endl;
+
+    // Used if activation is done based on AI
     /*
     while(this->targetObject != OBJECT_INITIALIZATION){
         searchObjects();
         sleep_for(milliseconds(100));
     }
     */
-
-    Activator act(6); // GPIO 17 = pino 0 no esquema WiringPi
-        act.WaitingForActivation();
-        cout << "Ativado!\n";
 
     cout << "Initializing..." << endl;
 
