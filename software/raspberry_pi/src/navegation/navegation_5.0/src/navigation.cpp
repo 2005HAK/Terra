@@ -320,8 +320,6 @@ void AUVStateMachine::search(){
 }
 
 void AUVStateMachine::init(){
-    cout << "Searching for launcher..." << endl;
-
     // Used if activation is done based on AI
     /*
     while(this->targetObject != OBJECT_INITIALIZATION){
@@ -329,8 +327,6 @@ void AUVStateMachine::init(){
         sleep_for(milliseconds(100));
     }
     */
-
-    cout << "Initializing..." << endl;
 
     this->thrusters = make_unique<ThrustersControl>();
 

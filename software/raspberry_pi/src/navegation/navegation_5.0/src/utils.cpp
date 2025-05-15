@@ -9,7 +9,7 @@ string getTime(){
 }
 
 string actionToString(Action action){
-    switch (action){
+    switch(action){
         case Action::FORWARD: return "FORWARD";
         case Action::BACKWARD: return "BACKWARD";
         case Action::RIGHT: return "RIGHT";
@@ -18,6 +18,7 @@ string actionToString(Action action){
         case Action::DOWN: return "DOWN";
         case Action::TURNRIGHT: return "TURNRIGHT";
         case Action::TURNLEFT: return "TURNLEFT";
+        case Action::NONE: return "NONE";
         default: return "UNKNOWN";
     }
 }
