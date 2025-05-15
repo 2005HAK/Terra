@@ -1,13 +1,18 @@
 #ifndef ACTIVATOR_H
 #define ACTIVATOR_H
 
-class Activator {
-private:
-    int pinNumber;
+#include <wiringPi.h>
+#include <stdexcept>
+#include <iostream>
 
-public:
-    Activator(int pin);
-    void WaitingForActivation();
+class Activator {
+    private:
+        int pinNumber;
+
+    public:
+        Activator(int pin);
+
+        void WaitingForActivation();
 };
 
 #endif

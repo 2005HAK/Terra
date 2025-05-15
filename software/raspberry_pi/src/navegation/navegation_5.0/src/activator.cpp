@@ -1,7 +1,4 @@
 #include "activator.h"
-#include <wiringPi.h>
-#include <stdexcept>
-#include <iostream>
 
 Activator::Activator(int pin) : pinNumber(pin) {
     if (wiringPiSetup() == -1) {
@@ -11,7 +8,6 @@ Activator::Activator(int pin) : pinNumber(pin) {
 }
 
 void Activator::WaitingForActivation() {
-    while (digitalRead(pinNumber)) {
-        delay(10);
-    }
+    // Esse pino precisa de um resistor de pull-up
+    while(digitalRead(pinNumber)) delay(10);
 }
