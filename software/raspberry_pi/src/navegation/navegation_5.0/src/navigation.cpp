@@ -36,7 +36,7 @@ void centerSetPower(array<Decision, 2> &decision, array<int, 2> center){
     decision[1].value = max(min(kpV * fabs(center[1] - IMAGE_CENTER[1]), POWER_MAX), .0);
 }
 
-void distanceSetPower(double &power, double distance){
+void distanceSetPower(int &power, double distance){
     double kpF = 4.5;
 
     power = max(min(kpF * fabs(distance - SAFE_DISTANCE), POWER_MAX), .0);
