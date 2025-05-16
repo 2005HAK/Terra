@@ -84,6 +84,7 @@ void Sensors::initialize(){
 
 void Sensors::updateData(){
     // cout << "accx: " << acc[0] << ", accy: " << acc[1] << ", accz: " << acc[2] << endl;
+    cout << "roll: " << ori[0] << ", pitch: " << ori[1] << ", yaw: " << ori[2] << endl;
 
     oldTime = currentTime;
     currentTime = chrono::steady_clock::now();

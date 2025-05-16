@@ -244,13 +244,12 @@ void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
 // DEFINITION OF STATES
 
 void AUVStateMachine::search(){
-    int rotationCurrent = 0;
-
     cout << "Searching..." << endl;
 
     // Provavelmente as o modo de encontrar os objetos para fazer as transições sera mudado para ser mais especifico para cada caso
 
     if(this->lastState == State::INIT){
+        int rotationCurrent = 0;
         this->thrusters->defineAction({Action::NONE, 0});
 
         while(!searchObjects("Gate")){
