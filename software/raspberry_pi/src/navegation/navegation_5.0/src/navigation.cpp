@@ -195,6 +195,7 @@ bool AUVStateMachine::checksTransition(){
         for(const auto& transition : stateTransitions){
             if(transition.lastState == this->lastState && transition.currentState == this->state){
                 array<int, 4> xyxy = this->yoloCtrl->getXYXY(transition.targetObject);
+                cout << xyxy[0] << endl;
                 if(xyxy[0] != -1){
                     this->targetObject = transition.targetObject;
                     transitionTo(transition.nextState);
