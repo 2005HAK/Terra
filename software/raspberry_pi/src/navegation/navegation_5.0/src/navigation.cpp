@@ -620,7 +620,7 @@ void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
     Decision decision = {action, 20};
     
     while(fabs(oriCurrent[2] - oriInit[2]) < angle - errorAngle){
-        double error = angle - errorAngle - fabs(oriCurrent[2] - oriInit[2]);
+        double error = (angle - errorAngle) - fabs(oriCurrent[2] - oriInit[2]);
         decision.value = error * 60;
         this->thrusters->defineAction(decision);
 

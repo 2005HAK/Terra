@@ -74,9 +74,9 @@ void Sensors::initialize(){
             mavlink_attitude_t att;
             mavlink_msg_attitude_decode(&message, &att);
 
-            this->ori[0] = att.yaw; // em rad
+            this->ori[0] = att.roll;
             this->ori[1] = att.pitch;
-            this->ori[2] = att.roll;
+            this->ori[2] = att.yaw; // em rad
         });
     }
 }
