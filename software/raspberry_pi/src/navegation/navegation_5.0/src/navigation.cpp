@@ -207,7 +207,9 @@ bool AUVStateMachine::checksTransition(){
             return true;
         }
     }  
-    
+
+    cout << "No transition found" << endl;
+
     return false;
 }
 
@@ -254,7 +256,7 @@ void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
 void AUVStateMachine::search(){
     cout << "Searching..." << endl;
 
-    // Provavelmente as o modo de encontrar os objetos para fazer as transições sera mudado para ser mais especifico para cada caso
+    // Provavelmente o modo de encontrar os objetos para fazer as transições sera mudado para ser mais especifico para cada caso
 
     if(this->lastState == State::INIT){
         int rotationCurrent = 0;
@@ -618,7 +620,9 @@ void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
     
     while(fabs(oriCurrent[2] - oriInit[2]) < angle - errorAngle){
         int error = angle - errorAngle - fabs(oriCurrent[2] - oriInit[2]);
+        cout << "Error: " << error << endl;
         decision.value = error * 60;
+        cout << "Decision value: " << decision.value << endl;
         this->thrusters->defineAction(decision);
 
         oriCurrent = this->sensors->getOri();
