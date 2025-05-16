@@ -621,9 +621,8 @@ void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
     
     while(fabs(oriCurrent[2] - oriInit[2]) < angle - errorAngle){
         int error = angle - errorAngle - fabs(oriCurrent[2] - oriInit[2]);
-        cout << "Rotation angle: " << angle - errorAngle << endl;
+        cout << "Error: " << error << endl;
         decision.value = error * 60;
-        cout << "Rotation: " << fabs(oriCurrent[2] - oriInit[2]) << endl;
         this->thrusters->defineAction(decision);
 
         oriCurrent = this->sensors->getOri();
