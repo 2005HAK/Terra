@@ -123,6 +123,8 @@ AUVStateMachine::AUVStateMachine(){
 
     cout << "Threads initialized" << endl;
     cout << "State Machine created" << endl;
+
+    this->run();
 }
 
 AUVStateMachine::~AUVStateMachine(){
@@ -188,11 +190,12 @@ void AUVStateMachine::stabilizes(){
 // TRANSITION FUNCTIONS
 
 bool AUVStateMachine::checksTransition(){
+    cout << "Checking transition..." << endl;
     if(this->yoloCtrl->foundObject()) {
         for(const auto& transition : stateTransitions){
             if(transition.lastState == this->lastState && transition.currentState == this->state){
                 array<int, 4> xyxy = this->yoloCtrl->getXYXY(transition.targetObject);
-                if(xyxy[0] != -1 || transition.nextState == State::SEARCH){
+                if(xyxy[0] != -1){
                     this->targetObject = transition.targetObject;
                     transitionTo(transition.nextState);
                     return true;
@@ -753,6 +756,5 @@ void AUVStateMachine::run(){
 
 int main(){
     AUVStateMachine auv;
-    auv.run();
     return 0;
 }
