@@ -3,12 +3,21 @@
 
 #include <array>
 #include <iostream>
+#include <cmath>
+#include <wiringPiI2C.h>
+#include "mpu6050.h"
 #include "mavsdk/mavsdk.h"
 #include "mavsdk/plugins/telemetry/telemetry.h"
 #include "mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h"
 #include "auverror.h"
 
 using namespace mavsdk;
+
+// Endereço do MPU6050 no barramento I2C
+#define MPU 0x68
+
+// Variáveis globais
+int fd;  // file descriptor para comunicação I2C
 
 // Convertions constants
 const double CONV_TO_MS = .01;       // convert cm/s to m/s 
@@ -24,6 +33,18 @@ const double MAX_TEMP_PIXHAWK = 60;      // Maximum temperature for Pixhawk (ºC
 const double MAX_TEMP_RASPBERRY = 70;    // Maximum temperature for Raspberry (ºC)
 const double MAX_TEMP_JETSON = 60;       // Maximum temperature for Jetson (ºC)
 
+// Inicializa o MPU6050
+void init_MPU6050();
+
+// Função auxiliar para ler registradores de 16 bits (MSB primeiro)
+int16_t read_word_2c(int reg);
+
+// Lê os valores brutos do acelerômetro e converte para m/s²
+void getAccel(float& ax, float& ay, float& az);
+
+// Lê os valores brutos do giroscópio e converte para rad/s
+void getGyro(float& gx, float& gy, float& gz);
+
 /**
  * @brief Class responsible for managing the sensors of the AUV, including the Pixhawk sensors and temperature sensors.
  */
@@ -31,7 +52,6 @@ class Sensors{
     private:
         array<double, 3> acc = {0, 0, 0};       // Acceleration {x, y, z}
         array<double, 3> gyro = {0, 0, 0};      // Gyroscope {x, y, z}
-        array<double, 3> ori = {0, 0, 0};       // Orientation {x, y, z}
         array<double, 3> vel = {0, 0, 0};       // Velocity {x, y, z}
         double tempPixhawk = 0.0;               // Temperature of Pixhawk ºC
         double tempRaspberry = 0.0;             // Temperature of Raspberry ºC
@@ -89,11 +109,11 @@ class Sensors{
         array<double, 3> getGyro();
 
         /**
-         * @brief Gets the current orientation values.
+         * @brief Gets the current magnetometer values.
          * 
-         * @return The orientation values on the yaw, pitch, and roll axes, respectively.
+         * @return The magnetometer values on the x, y, and z axes, respectively.
          */
-        array<double, 3> getOri();
+        array<double, 3> getMag();
 
         /**
          * @brief Gets the current velocity values.

@@ -68,11 +68,16 @@ void Sensors::initialize(){
             this->gyro[1] = imu_data.ygyro * CONV_TO_RAD;
             this->gyro[2] = imu_data.zgyro * CONV_TO_RAD;
 
-            this->mag[0] = imu_data.xmag * CONV_TO_UT;
-            this->mag[1] = imu_data.ymag * CONV_TO_UT;
-            this->mag[2] = imu_data.zmag * CONV_TO_UT;
-
             this->tempPixhawk = imu_data.temperature / 100.0;
+        });
+
+        mavlink_passthrough.subscribe_message(MAVLINK_MSG_ID_ATTITUDE, [](const mavlink_message_t& message) {
+            mavlink_attitude_t att;
+            mavlink_msg_attitude_decode(&message, &att);
+
+            this->ori[0] = att.yaw; // em rad
+            this->ori[1] = att.pitch;
+            this->ori[2] = att.roll;
         });
     }
 }
@@ -103,8 +108,8 @@ array<double, 3> Sensors::getGyro(){
     return this->gyro;
 }
 
-array<double, 3> Sensors::getMag(){
-    return this->mag;
+array<double, 3> Sensors::getOri(){
+    return this->ori;
 }
 
 array<double, 3> Sensors::getVel(){

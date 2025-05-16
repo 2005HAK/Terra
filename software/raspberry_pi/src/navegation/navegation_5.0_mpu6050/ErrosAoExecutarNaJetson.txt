@@ -1,0 +1,119 @@
+equipeterra@equipeterra-desktop:~/Terra/software/raspberry_pi/src/navegation/navegation_5.0$ ./run.sh 
+-- The C compiler identification is GNU 7.5.0
+-- The CXX compiler identification is GNU 7.5.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build
+Scanning dependencies of target run_auv
+[ 14%] Building CXX object CMakeFiles/run_auv.dir/src/navegation.cpp.o
+[ 28%] Building CXX object CMakeFiles/run_auv.dir/src/sensors.cpp.o
+[ 42%] Building CXX object CMakeFiles/run_auv.dir/src/thrustersctrl.cpp.o
+[ 57%] Building CXX object CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o
+[ 71%] Building CXX object CMakeFiles/run_auv.dir/src/auverror.cpp.o
+[ 85%] Building CXX object CMakeFiles/run_auv.dir/src/utils.cpp.o
+[100%] Linking CXX executable run_auv
+CMakeFiles/run_auv.dir/src/navegation.cpp.o: In function `__static_initialization_and_destruction_0(int, int)':
+navegation.cpp:(.text+0x2ab8): undefined reference to `boost::system::generic_category()'
+navegation.cpp:(.text+0x2acc): undefined reference to `boost::system::generic_category()'
+navegation.cpp:(.text+0x2ae0): undefined reference to `boost::system::system_category()'
+CMakeFiles/run_auv.dir/src/navegation.cpp.o: In function `boost::system::error_category::std_category::equivalent(int, std::error_condition const&) const':
+navegation.cpp:(.text._ZNK5boost6system14error_category12std_category10equivalentEiRKSt15error_condition[_ZNK5boost6system14error_category12std_category10equivalentEiRKSt15error_condition]+0xe4): undefined reference to `boost::system::generic_category()'
+navegation.cpp:(.text._ZNK5boost6system14error_category12std_category10equivalentEiRKSt15error_condition[_ZNK5boost6system14error_category12std_category10equivalentEiRKSt15error_condition]+0x124): undefined reference to `boost::system::generic_category()'
+CMakeFiles/run_auv.dir/src/navegation.cpp.o: In function `boost::system::error_category::std_category::equivalent(std::error_code const&, int) const':
+navegation.cpp:(.text._ZNK5boost6system14error_category12std_category10equivalentERKSt10error_codei[_ZNK5boost6system14error_category12std_category10equivalentERKSt10error_codei]+0xe4): undefined reference to `boost::system::generic_category()'
+navegation.cpp:(.text._ZNK5boost6system14error_category12std_category10equivalentERKSt10error_codei[_ZNK5boost6system14error_category12std_category10equivalentERKSt10error_codei]+0x124): undefined reference to `boost::system::generic_category()'
+navegation.cpp:(.text._ZNK5boost6system14error_category12std_category10equivalentERKSt10error_codei[_ZNK5boost6system14error_category12std_category10equivalentERKSt10error_codei]+0x228): undefined reference to `boost::system::generic_category()'
+CMakeFiles/run_auv.dir/src/navegation.cpp.o: In function `boost::asio::error::get_system_category()':
+navegation.cpp:(.text._ZN5boost4asio5error19get_system_categoryEv[_ZN5boost4asio5error19get_system_categoryEv]+0x8): undefined reference to `boost::system::system_category()'
+CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o: In function `__static_initialization_and_destruction_0(int, int)':
+yoloctrl.cpp:(.text+0xdd0): undefined reference to `boost::system::generic_category()'
+yoloctrl.cpp:(.text+0xde4): undefined reference to `boost::system::generic_category()'
+yoloctrl.cpp:(.text+0xdf8): undefined reference to `boost::system::system_category()'
+CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o: In function `boost::system::error_code::error_code()':
+yoloctrl.cpp:(.text._ZN5boost6system10error_codeC2Ev[_ZN5boost6system10error_codeC5Ev]+0x14): undefined reference to `boost::system::system_category()'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::canonical(std::filesystem::__cxx11::path const&, std::error_code&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `stat64@GLIBC_2.33'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `fstat64@GLIBC_2.33'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::copy_file(std::filesystem::__cxx11::path const&, std::filesystem::__cxx11::path const&, std::filesystem::copy_options, std::error_code&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::directory_iterator::directory_iterator(std::filesystem::__cxx11::path const&, std::filesystem::directory_options, std::error_code*)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::path::compare(std::filesystem::__cxx11::path const&) const@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `dladdr@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::remove(std::filesystem::__cxx11::path const&, std::error_code&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `fcntl64@GLIBC_2.28'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::status(std::filesystem::__cxx11::path const&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::create_directories(std::filesystem::__cxx11::path const&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `dlclose@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `fstat@GLIBC_2.33'
+/usr/lib/libwiringPi.so: undefined reference to `shm_open@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::__atomic_futex_unsigned_base::_M_futex_wait_until_steady(unsigned int*, unsigned int, bool, std::chrono::duration<long, std::ratio<1l, 1l> >, std::chrono::duration<long, std::ratio<1l, 1000000000l> >)@GLIBCXX_3.4.29'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::__exception_ptr::exception_ptr::_M_release()@CXXABI_1.3.13'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `dlerror@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::create_directories(std::filesystem::__cxx11::path const&, std::error_code&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::path::_List::_Impl_deleter::operator()(std::filesystem::__cxx11::path::_List::_Impl*) const@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::file_size(std::filesystem::__cxx11::path const&, std::error_code&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::status(std::filesystem::__cxx11::path const&, std::error_code&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_key_create@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::path::operator/=(std::filesystem::__cxx11::path const&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_rwlock_unlock@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_detach@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_setspecific@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::remove_all(std::filesystem::__cxx11::path const&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::__exception_ptr::exception_ptr::_M_addref()@CXXABI_1.3.13'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::path::lexically_normal() const@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::directory_iterator::operator*() const@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::path::_List::_List()@GLIBCXX_3.4.26'
+/usr/lib/libwiringPi.so: undefined reference to `pthread_cancel@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `__libc_single_threaded@GLIBC_2.32'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_join@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::path::replace_extension(std::filesystem::__cxx11::path const&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_rwlock_destroy@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_mutex_trylock@GLIBC_2.34'
+/usr/lib/libwiringPi.so: undefined reference to `crypt@XCRYPT_2.0'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::temp_directory_path[abi:cxx11]()@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::remove(std::filesystem::__cxx11::path const&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_rwlock_wrlock@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::path::_M_find_extension() const@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::path::_M_split_cmpts()@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::__cxx11::basic_ostringstream<char, std::char_traits<char>, std::allocator<char> >::basic_ostringstream()@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `dlsym@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::path::_List::_List(std::filesystem::__cxx11::path::_List const&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::canonical(std::filesystem::__cxx11::path const&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::remove_all(std::filesystem::__cxx11::path const&, std::error_code&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_getspecific@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::__throw_bad_array_new_length()@GLIBCXX_3.4.29'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::rename(std::filesystem::__cxx11::path const&, std::filesystem::__cxx11::path const&, std::error_code&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::path::operator=(std::filesystem::__cxx11::path const&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_key_delete@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_rwlock_init@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::directory_iterator::operator++()@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::__cxx11::basic_stringstream<char, std::char_traits<char>, std::allocator<char> >::basic_stringstream()@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::create_directory(std::filesystem::__cxx11::path const&)@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `stat@GLIBC_2.33'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `dlopen@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::__cxx11::path::_List::end() const@GLIBCXX_3.4.26'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_once@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_rwlock_rdlock@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `pthread_create@GLIBC_2.34'
+/usr/lib/libmavsdk.so.3.0.0: undefined reference to `std::filesystem::create_directory(std::filesystem::__cxx11::path const&, std::error_code&)@GLIBCXX_3.4.26'
+/usr/lib/libwiringPi.so: undefined reference to `pow@GLIBC_2.29'
+collect2: error: ld returned 1 exit status
+CMakeFiles/run_auv.dir/build.make:226: recipe for target 'run_auv' failed
+make[2]: *** [run_auv] Error 1
+CMakeFiles/Makefile2:67: recipe for target 'CMakeFiles/run_auv.dir/all' failed
+make[1]: *** [CMakeFiles/run_auv.dir/all] Error 2
+Makefile:83: recipe for target 'all' failed
+make: *** [all] Error 2
+sudo: ./run_auv: command not found
+

@@ -25,7 +25,7 @@ class IA:
         self.save = False
         self.max_det = 3
         self.conf = 0.8
-        self.HOST = '150.162.217.47'
+        self.HOST = '192.168.0.1' # Endereço IP da raspberry
         self.PORT = 65432
         self.model = YOLO('/home/hak/Documents/Terra/software/jetson/src/Treinos/modelos/TreinoCuboV2Para160px01.pt')  # Carrega o modelo YOLOv8
 

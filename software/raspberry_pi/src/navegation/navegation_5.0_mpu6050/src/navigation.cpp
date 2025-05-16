@@ -605,19 +605,24 @@ bool AUVStateMachine::searchObjects(string object){
 }
 
 // Testar
+
 void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
-    array<double, 3> oriCurrent = this->sensors->getGyro(), oriInit;
+    array<double, 3> gyroCurrent = this->sensors->getGyro(), gyroOld;
+    double rotated = 0;
     Decision decision = {action, 20};
     
-    while(fabs(oriCurrent[2] - oriInit[2]) < angle - errorAngle){
-        int error = angle - errorAngle - fabs(oriCurrent[2] - oriInit[2]);
-        decision.value = error * 60;
+    while(fabs(rotated) < angle - errorAngle){
         this->thrusters->defineAction(decision);
 
-        oriCurrent = this->sensors->getOri();
-    }
+        gyroOld = gyroCurrent;
+        gyroCurrent = this->sensors->getGyro();
+        // Provalmente ta errado
+        double deltaTime = this->sensors->deltaTime().count();
 
+        rotated += deltaTime * (gyroCurrent[2] + gyroOld[2]) / 2;
+    }
     decision.value = 0;
+
     this->thrusters->defineAction(decision);
 }
 

@@ -1,0 +1,3 @@
+/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles/run_auv.dir
+/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles/edit_cache.dir
+/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/CMakeFiles/rebuild_cache.dir
