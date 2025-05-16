@@ -330,7 +330,7 @@ void AUVStateMachine::init(){
     this->thrusters = make_unique<ThrustersControl>();
 
     if(thrusters){
-        stabilizesThread = thread(&AUVStateMachine::stabilizes, this);
+        //stabilizesThread = thread(&AUVStateMachine::stabilizes, this);
         checksTransition();
     }
     else throw FailedConnectThrusters();

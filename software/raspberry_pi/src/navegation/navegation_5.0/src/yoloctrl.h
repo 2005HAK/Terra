@@ -11,7 +11,6 @@
 #include <unistd.h>
 #include <vector>
 #include <tuple>
-#include <mutex>
 #include "auverror.h"
 
 using boost::asio::ip::tcp;

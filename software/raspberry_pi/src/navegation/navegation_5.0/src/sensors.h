@@ -42,6 +42,8 @@ class Sensors{
         unique_ptr<MavlinkPassthrough> mavlink_passthrough;
         unique_ptr<Mavsdk> mavsdk;
 
+        mutex mutexSensors;
+
     public:
         /**
          * @brief Initializes the Sensors class, establishing a connection to Pixhawk and setting initial values for acceleration, gyro, magnetometer,

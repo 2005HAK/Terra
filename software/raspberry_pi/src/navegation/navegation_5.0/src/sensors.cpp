@@ -44,6 +44,7 @@ void Sensors::initialize(){
 
     if(mavlink_passthrough){
         this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_GLOBAL_POSITION_INT, [this](const mavlink_message_t& message) {
+            lock_guard<mutex> lock(mutexSensors);
             mavlink_global_position_int_t imu_data;
             mavlink_msg_global_position_int_decode(&message, &imu_data);
 
@@ -53,6 +54,7 @@ void Sensors::initialize(){
         });
 
         this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_RAW_IMU, [this](const mavlink_message_t& message) {
+            lock_guard<mutex> lock(mutexSensors);
             mavlink_raw_imu_t imu_data;
             mavlink_msg_raw_imu_decode(&message, &imu_data);
 
@@ -68,6 +70,7 @@ void Sensors::initialize(){
         });
 
         this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_ATTITUDE, [this](const mavlink_message_t& message) {
+            lock_guard<mutex> lock(mutexSensors);
             mavlink_attitude_t att;
             mavlink_msg_attitude_decode(&message, &att);
 
@@ -80,39 +83,45 @@ void Sensors::initialize(){
 
 void Sensors::updateData(){
     // cout << "accx: " << acc[0] << ", accy: " << acc[1] << ", accz: " << acc[2] << endl;
-    cout << "roll: " << ori[0] << ", pitch: " << ori[1] << ", yaw: " << ori[2] << endl;
 
     oldTime = currentTime;
     currentTime = chrono::steady_clock::now();
 }
 
 void Sensors::collisionDetect(){
+    lock_guard<mutex> lock(mutexSensors);
     if(fabs(this->acc[0]) > ACC_LIMIT || fabs(this->acc[1]) > ACC_LIMIT || fabs(this->acc[2]) > ACC_LIMIT){
         throw CollisionDetected(acc);
     }
 }
 
 void Sensors::detectOverheat(){
+    lock_guard<mutex> lock(mutexSensors);
     if(this->tempPixhawk > MAX_TEMP_PIXHAWK) throw PixhawkHighTemperature(tempPixhawk);
     if(this->tempRaspberry > MAX_TEMP_RASPBERRY) throw RaspberryHighTemperature(tempRaspberry);
 }
 
 array<double, 3> Sensors::getAcc(){
+    lock_guard<mutex> lock(mutexSensors);
     return this->acc;
 }
 
 array<double, 3> Sensors::getGyro(){
+    lock_guard<mutex> lock(mutexSensors);
     return this->gyro;
 }
 
 array<double, 3> Sensors::getOri(){
+    lock_guard<mutex> lock(mutexSensors);
     return this->ori;
 }
 
 array<double, 3> Sensors::getVel(){
+    lock_guard<mutex> lock(mutexSensors);
     return this->vel;
 }
 
 chrono::duration<double> Sensors::deltaTime(){
+    lock_guard<mutex> lock(mutexSensors);
     return this->currentTime - this->oldTime;
 }
