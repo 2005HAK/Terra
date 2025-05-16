@@ -615,7 +615,7 @@ bool AUVStateMachine::searchObjects(string object){
 
 // Testar
 void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
-    array<double, 3> oriCurrent = this->sensors->getGyro();
+    array<double, 3> oriCurrent = this->sensors->getOri();
     array<double, 3> oriInit = oriCurrent;
     Decision decision = {action, 20};
     
