@@ -71,7 +71,7 @@ void Sensors::initialize(){
             this->tempPixhawk = imu_data.temperature / 100.0;
         });
 
-        this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_ATTITUDE, [](const mavlink_message_t& message) {
+        this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_ATTITUDE, [this](const mavlink_message_t& message) {
             mavlink_attitude_t att;
             mavlink_msg_attitude_decode(&message, &att);
 
