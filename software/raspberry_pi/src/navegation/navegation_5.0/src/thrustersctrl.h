@@ -30,7 +30,7 @@ const array<int, 6> PINS = {0, 1, 3, 4, 5, 2};
  */
 struct Decision{
     Action action = Action::NONE;
-    double value = -1;
+    int value = -1;
 };
 
 /**
