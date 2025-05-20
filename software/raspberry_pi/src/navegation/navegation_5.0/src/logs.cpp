@@ -3,7 +3,7 @@
 void logMessage(std::string message){
     std::string msg = "[" + getTime() + "] " + message;
 
-    int mode 0; // 0 - console, 1 - file, 2 - both, 3 - none
+    int mode = 0; // 0 - console, 1 - file, 2 - both, 3 - none
 
     if(mode == 0){
         std::cout << msg << std::endl;
