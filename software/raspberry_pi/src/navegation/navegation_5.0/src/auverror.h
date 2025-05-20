@@ -122,6 +122,41 @@ class ObjectNotFound : public DetectionError{
 
 // END YOLOCTRL
 
+// SENSORS
+
+class FailedPixhawk : public AUVError{
+    public:
+        /**
+         * @brief Constructor of the FailedPixhawk class.
+         * 
+         * @param type Type of error identified.
+         * @param code Error code.
+         */
+        FailedPixhawk(std::string type = "Failed in the Pixhawk", int code = 350);
+};
+
+class FailedConnectMavsdk : public FailedPixhawk{
+    public:
+        /**
+         * @brief Constructor of the FailedConnectMavsdk class.
+         * 
+         * @param type Type of error identified.
+         * @param code Error code.
+         */
+        FailedConnectMavsdk();
+};
+
+class FailedDetectSystem : public FailedPixhawk{
+    public:
+        /**
+         * @brief Constructor of the FailedFindSystem class.
+         * 
+         * @param type Type of error identified.
+         * @param code Error code.
+         */
+        FailedDetectSystem();
+};
+
 /**
  * @brief Class representing errors that may occur during the initialization of the thrusters.
  */
@@ -148,30 +183,19 @@ class CollisionDetected : public AUVError{
 /**
  * @brief Class representing errors that may occur during the initialization of the thrusters.
  */
-class FailedConnectThrusters : public AUVError{
-    public:
-        /**
-         * @brief Constructor of the FailedConnectThrusters class.
-         */
-        FailedConnectThrusters();
-};
-
-/**
- * @brief Class representing errors that may occur during the initialization of the thrusters.
- */
 class HighTemperatureError : public AUVError{
     private:
-        double temperature;
-
+    double temperature;
+    
     public:
-        /**
-         * @brief Constructor of the HighTemperatureError class.
-         * 
-         * @param temperature Temperature value that caused the error.
-         * @param type Type of error identified.
-         * @param code Error code.
-         */
-        HighTemperatureError(double temperature = -1, std::string type = "High temperature detected", int code = 95);
+    /**
+     * @brief Constructor of the HighTemperatureError class.
+     * 
+     * @param temperature Temperature value that caused the error.
+     * @param type Type of error identified.
+     * @param code Error code.
+     */
+    HighTemperatureError(double temperature = -1, std::string type = "High temperature detected", int code = 95);
 };
 
 /**
@@ -179,12 +203,12 @@ class HighTemperatureError : public AUVError{
  */
 class PixhawkHighTemperature : public HighTemperatureError{
     public:
-        /**
-         * @brief Constructor of the PixhawkHighTemperature class.
-         * 
-         * @param temperature Temperature value that caused the error.
-         */
-        PixhawkHighTemperature(double temperature = -1);
+    /**
+     * @brief Constructor of the PixhawkHighTemperature class.
+     * 
+     * @param temperature Temperature value that caused the error.
+     */
+    PixhawkHighTemperature(double temperature = -1);
 };
 
 /**
@@ -192,12 +216,25 @@ class PixhawkHighTemperature : public HighTemperatureError{
  */
 class RaspberryHighTemperature : public HighTemperatureError{
     public:
-        /**
-         * @brief Constructor of the RaspberryHighTemperature class.
-         * 
-         * @param temperature Temperature value that caused the error.
-         */
+    /**
+     * @brief Constructor of the RaspberryHighTemperature class.
+     * 
+     * @param temperature Temperature value that caused the error.
+     */
         RaspberryHighTemperature(double temperature = -1);
+};
+
+// END SENSORS
+
+/**
+ * @brief Class representing errors that may occur during the initialization of the thrusters.
+ */
+class FailedConnectThrusters : public AUVError{
+    public:
+        /**
+         * @brief Constructor of the FailedConnectThrusters class.
+         */
+        FailedConnectThrusters();
 };
 
 /**

@@ -36,6 +36,22 @@ ObjectNotFound::ObjectNotFound(std::string object) : DetectionError("Failed to d
 
 // END YOLOCTRL
 
+// SENSORS
+
+FailedPixhawk::FailedPixhawk(std::string type, int code) : AUVError(type, code){}
+
+FailedConnectMavsdk::FailedConnectMavsdk() : FailedPixhawk("Failed to connect to Mavsdk", 351){}
+
+FailedDetectSystem::FailedDetectSystem() : FailedPixhawk("Failed to find system", 352){}
+
+HighTemperatureError::HighTemperatureError(double temperature, std::string type, int code) : AUVError(type, code), temperature(temperature){}
+
+PixhawkHighTemperature::PixhawkHighTemperature(double temperature) : HighTemperatureError(temperature, "Pixhawk temperature above threshold " + to_string(temperature) + "ºC", 332){}
+
+RaspberryHighTemperature::RaspberryHighTemperature(double temperature) : HighTemperatureError(temperature, "Raspberry temperature above threshold " + to_string(temperature) + "ºC", 141){}
+
+// END SENSORS
+
 CollisionDetected::CollisionDetected(std::array<double, 3> acceleration) : AUVError("Collision detected based in sensor data: {" + to_string(acceleration[0]) +
                 ", " + to_string(acceleration[1]) + ", " + to_string(acceleration[2]) + "} m/s²", 301), acceleration(acceleration){}
 
@@ -44,11 +60,5 @@ std::array<double, 3> CollisionDetected::getAcceleration(){
 }
 
 FailedConnectThrusters::FailedConnectThrusters() : AUVError("Failed to connect thrusters", 441){}
-
-HighTemperatureError::HighTemperatureError(double temperature, std::string type, int code) : AUVError(type, code), temperature(temperature){}
-
-PixhawkHighTemperature::PixhawkHighTemperature(double temperature) : HighTemperatureError(temperature, "Pixhawk temperature above threshold " + to_string(temperature) + "ºC", 332){}
-
-RaspberryHighTemperature::RaspberryHighTemperature(double temperature) : HighTemperatureError(temperature, "Raspberry temperature above threshold " + to_string(temperature) + "ºC", 141){}
 
 FailedFiringTorpedo::FailedFiringTorpedo() : AUVError("Failed to fire torpedo", 820){}

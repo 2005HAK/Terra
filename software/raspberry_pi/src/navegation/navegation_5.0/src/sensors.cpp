@@ -5,9 +5,8 @@ Sensors::Sensors(){
 
     ConnectionResult connection_result = mavsdk->add_any_connection("serial:///dev/ttyAMA0:57600");
 
-    if (connection_result != ConnectionResult::Success){ //Colocar isso em um código de erro
-        logMessage("Failed to connect: " + to_string(connection_result));
-    } else logMessage("Connected to Pixhawk");
+    if (connection_result != ConnectionResult::Success) throw FailedConnectMavsdk();
+    else logMessage("Connected to Pixhawk");
 
     sleep_for(seconds(3));
     logMessage("Finding systems...");
@@ -29,9 +28,7 @@ Sensors::Sensors(){
         }
 
         logMessage("System is ready!");
-    }else {//Colocar isso em código de erro tbm
-        logMessage("Failed to detect system.");
-    }
+    }else FailedDetectSystem();
 
     currentTime = chrono::steady_clock::now();
     oldTime = currentTime;

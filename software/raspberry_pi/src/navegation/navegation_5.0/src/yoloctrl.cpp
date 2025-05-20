@@ -29,11 +29,11 @@ void YoloCtrl::updateData(){
                 json received_json = json::parse(received_data);
                 identifiedObjects = process_json(received_json);
             } catch (const json::parse_error& e) {
-                logMessage("Erro ao interpretar JSON: " + e.what());
+                logMessage("Erro ao interpretar JSON: " << e.what());
             }
         }
     } catch (exception& e) {
-        logMessage("Erro: " + e.what());
+        logMessage("Erro: " << e.what());
     }
 }
 
@@ -66,7 +66,7 @@ void YoloCtrl::switchCam(int chooseCam){
     close(sock);
 
     if(cam == chooseCam){
-        logMessage("Value changed to: " + (cam == 0 ? "Front camera" : "Bottom camera"));
+        logMessage("Value changed to: " << (cam == 0 ? "Front camera" : "Bottom camera"));
     } else{
         // gerar erro
     }
@@ -97,7 +97,7 @@ vector<Object> YoloCtrl::process_json(const json& received_json){
             }
         }
     } catch (const json::exception& e) {
-        logMessage("Erro ao processar JSON: " + e.what());
+        logMessage("Erro ao processar JSON: " << e.what());
     }
     return results;
 }
