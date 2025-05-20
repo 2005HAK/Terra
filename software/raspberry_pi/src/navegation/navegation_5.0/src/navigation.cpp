@@ -658,7 +658,7 @@ bool AUVStateMachine::centering(){
             if(decision[0].action == Action::NONE && decision[1].action == Action::NONE) isCenter = true;
         } else{
 	        cout << "Lost object!" << endl;
-            return isCente
+            return isCenter;
         }
     }
 

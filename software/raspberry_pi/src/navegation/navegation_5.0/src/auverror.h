@@ -109,7 +109,7 @@ class DetectionError : public AUVError{
         DetectionError(string type = "Failed to detect", int code = 256);
 };
 
-class ObjectNotFound : public AUVError{
+class ObjectNotFound : public DetectionError{
     private:
         string object;
 
