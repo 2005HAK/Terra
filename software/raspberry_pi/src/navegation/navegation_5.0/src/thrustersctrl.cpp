@@ -38,12 +38,14 @@ ThrustersControl::ThrustersControl(){
 
     initializeThrusters();
 
+    this->defineAction({Action::NONE, 0});
+
     cout << "Engines thrusters" << endl;
 }
 
 void ThrustersControl::initializeThrusters(){
     for(int i = 0; i < PINS.size(); i++){
-        if(PINS[i] == 27 || PINS[i] == 22) thrusters.emplace_back(PINS[i], -14);
+        if(i == 2 || i == 5) thrusters.emplace_back(PINS[i], -14);
         else thrusters.emplace_back(PINS[i], 0);
     }
     sleep_for(seconds(7));

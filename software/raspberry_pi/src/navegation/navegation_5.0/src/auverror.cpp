@@ -18,8 +18,6 @@ FailedInitializationSensors::FailedInitializationSensors() : AUVError("Failed to
 
 // YOLOCTRL
 
-
-
 FailedInitializationYolo ::FailedInitializationYolo(string type, int code) : AUVError(type, code){}
 
 ErrorCreatingSocket::ErrorCreatingSocket() : FailedInitializationYolo("Failed to create the socket.", 252){}
@@ -29,6 +27,10 @@ ErrorBindingSocket::ErrorBindingSocket() : FailedInitializationYolo("Failed to b
 ErrorListening::ErrorListening() : FailedInitializationYolo("Failed to listen to the socket.", 254){}
 
 ErrorAcceptingConnection::ErrorAcceptingConnection() : FailedInitializationYolo("Failed to accept the connection.", 255){}
+
+DetectionError::DetectionError(string type, int code) : AUVError(type, code){}
+
+ObjectNotFound::ObjectNotFound(string object) : DetectionError("Failed to detected the object: " + object, 257), object(object){}
 
 // END YOLOCTRL
 

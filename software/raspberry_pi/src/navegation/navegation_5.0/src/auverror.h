@@ -101,6 +101,27 @@ class ErrorAcceptingConnection : public FailedInitializationYolo{
         ErrorAcceptingConnection();
 };
 
+class DetectionError : public AUVError{
+    public:
+        /**
+         * @brief Constructor of the DetectionError class.
+         */
+        DetectionError(string type = "Failed to detect", int code = 256);
+};
+
+class ObjectNotFound : public AUVError{
+    private:
+        string object;
+
+    public:
+        /**
+         * @brief Constructor of the ObjectNotFound class.
+         * 
+         * @param object The object that was not found.
+         */
+        ObjectNotFound(string object = "Unidentified object");
+};
+
 // END YOLOCTRL
 
 /**

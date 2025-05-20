@@ -259,17 +259,20 @@ void AUVStateMachine::search(){
     // Provavelmente o modo de encontrar os objetos para fazer as transições sera mudado para ser mais especifico para cada caso
 
     if(this->lastState == State::INIT){
-        int rotationCurrent = 0;
+        this->thrusters->defineAction({Action::DOWN, 10});
+
+        sleep_for(seconds(2)); // definir tempo que o AUV demora para descer a uma profundidade onde o gate será visivel
+
         this->thrusters->defineAction({Action::NONE, 0});
 
+        int rotationCurrent = 0;
+
         while(!searchObjects("Gate")){
-            if(rotationCurrent < 1){
+            if(rotationCurrent < 16){
                 rotate();
                 rotationCurrent++;
-            } else if(rotationCurrent < 3){
-                rotate();
-                rotationCurrent++;
-            } // tratar questão de não encontrar o gate so com esse procedimento
+            } else throw ObjectNotFound("Gate");
+            
             sleep_for(milliseconds(100));
         }
     } else if(this->lastState == State::PASSGATE){
@@ -654,8 +657,8 @@ bool AUVStateMachine::centering(){
             
             if(decision[0].action == Action::NONE && decision[1].action == Action::NONE) isCenter = true;
         } else{
-	        isCenter = true;
 	        cout << "Lost object!" << endl;
+            return isCente
         }
     }
 
