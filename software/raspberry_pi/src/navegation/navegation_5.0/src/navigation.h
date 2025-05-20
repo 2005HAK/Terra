@@ -2,7 +2,6 @@
 #define NAVIGATION_H
 
 #include <stdlib.h>
-#include <iostream>
 #include <unistd.h>
 #include <math.h>
 #include <map>
@@ -10,6 +9,7 @@
 #include "yoloctrl.h"
 #include "thrustersctrl.h"
 #include "auverror.h"
+#include "logs.h"
 #include "activator.h"
 
 // Width and height of the image seen by the camera
@@ -17,13 +17,13 @@ const int IMAGE_WIDTH = 640;
 const int IMAGE_HEIGHT = 480;
 
 // Object used to initialization
-const string OBJECT_INITIALIZATION = "Cube";
+const std::string OBJECT_INITIALIZATION = "Cube";
 
 // Initial choice of the AUV
-const string INITIALCHOICE = "Reef Shark";
+const std::string INITIALCHOICE = "Reef Shark";
 
 // Center of the image seen by the camera
-array<int, 2> IMAGE_CENTER = {IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2};
+std::array<int, 2> IMAGE_CENTER = {IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2};
 
 // Size of the zone that is considered the center of the image (in px)
 const int ERROR_CENTER = 50;
@@ -57,7 +57,7 @@ enum class State{
 struct StateTransition{
     State lastState;
     State currentState;
-    string targetObject;
+    std::string targetObject;
     State nextState;
 };
 
@@ -92,7 +92,7 @@ vector<StateTransition> stateTransitions = {
  * @param state A state in enum format.
  * @return The state in string format.
  */
-string stateToString(State state);
+std::string stateToString(State state);
 
 /**
  * @brief Calculates the center of the object.
@@ -100,7 +100,7 @@ string stateToString(State state);
  * @param xyxy x and y coordinates of the detected object.
  * @return x and y coordinates as an array of center or [-1, -1] if xyxy is invalid.
  */
-array<int, 2> center(array<int, 4> xyxy);
+std::array<int, 2> center(std::array<int, 4> xyxy);
 
 /**
  * @brief Sets the power for centering the object.
@@ -108,7 +108,7 @@ array<int, 2> center(array<int, 4> xyxy);
  * @param decision Array of struct where the move decision is stored.
  * @param center Coordinates of the center of the object.
  */
-void centerSetPower(array<Decision, 2> &decision, array<int, 2> center);
+void centerSetPower(std::array<Decision, 2> &decision, std::array<int, 2> center);
 
 /**
  * @brief Sets the power based on the distance to the object.
@@ -124,7 +124,7 @@ void distanceSetPower(double &power, double distance);
  * @param decision Array of struct where the move decision is stored.
  * @param velocity Velocity values on the x, y, and z axes, respectively.
  */
-void velocitySetPower(array<Decision, 3> &decision, array<double, 3> velocity);
+void velocitySetPower(std::array<Decision, 3> &decision, std::array<double, 3> velocity);
 
 /**
  * @brief Decides which movement to take based on the position of the object in the image.
@@ -132,7 +132,7 @@ void velocitySetPower(array<Decision, 3> &decision, array<double, 3> velocity);
  * @param decision Array of struct where the move decision is stored.
  * @param xyxy x and y coordinates of the detected object.
  */
-void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy);
+void centerObject(std::array<Decision, 2> &decision, std::array<int, 4> xyxy);
 
 /**
  * @brief Calculates the distance between the AUV and the object based on the object's actual width and image dimension.
@@ -141,7 +141,7 @@ void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy);
  * @param objectClass The class of the detected object.
  * @param xyxy Coordinates of the bounding box of the detected object.
  */
-void calculateDistance(double &objectDistance, string objectClass, array<int, 4> xyxy);
+void calculateDistance(double &objectDistance, std::string objectClass, std::array<int, 4> xyxy);
 
 /**
  * @brief Decides whether to advance to the object and the power that will be used.

@@ -1,24 +1,22 @@
 #include "utils.h"
 
 string getTime(){
-    auto now = system_clock::now();
-    time_t nowTime = system_clock::to_time_t(now);
-    string strNowTime = ctime(&nowTime);
+    auto now = std::chrono::system_clock::now();
+    time_t nowTime = std::chrono::system_clock::to_time_t(now);
+    std::string strNowTime = ctime(&nowTime);
     strNowTime.pop_back();
     return strNowTime;
 }
 
 string actionToString(Action action){
-    switch(action){
-        case Action::FORWARD: return "FORWARD";
-        case Action::BACKWARD: return "BACKWARD";
-        case Action::RIGHT: return "RIGHT";
-        case Action::LEFT: return "LEFT";
-        case Action::UP: return "UP";
-        case Action::DOWN: return "DOWN";
-        case Action::TURNRIGHT: return "TURNRIGHT";
-        case Action::TURNLEFT: return "TURNLEFT";
-        case Action::NONE: return "NONE";
-        default: return "UNKNOWN";
-    }
+    if(Action::FORWARD == action) return "FORWARD";
+    if else(Action::BACKWARD == action) return "BACKWARD";
+    if else(Action::RIGHT == action) return "RIGHT";
+    if else(Action::LEFT == action) return "LEFT";
+    if else(Action::UP == action) return "UP";
+    if else(Action::DOWN == action) return "DOWN";
+    if else(Action::TURNRIGHT == action) return "TURNRIGHT";
+    if else(Action::TURNLEFT == action) return "TURNLEFT";
+    if else(Action::NONE == action) return "NONE";
+    else return "UNKNOWN";
 }

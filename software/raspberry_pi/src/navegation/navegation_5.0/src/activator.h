@@ -15,4 +15,4 @@ class Activator {
         void WaitingForActivation();
 };
 
-#endif
+#endif // ACTIVATOR_H

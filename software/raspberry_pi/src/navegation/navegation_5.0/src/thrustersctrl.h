@@ -1,11 +1,7 @@
 #ifndef THRUSTERSCTRL_H
 #define THRUSTERSCTRL_H
 
-#include <iostream>
-#include <array>
 #include <vector>
-#include <string>
-#include <chrono>
 #include <wiringPi.h>
 #include "auverror.h"
 

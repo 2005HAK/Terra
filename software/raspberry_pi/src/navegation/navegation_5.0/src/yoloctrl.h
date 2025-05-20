@@ -1,7 +1,6 @@
 #ifndef YOLOCTRL_H
 #define YOLOCTRL_H
 
-#include <iostream>
 #include <boost/asio.hpp>
 #include <nlohmann/json.hpp>
 #include <sys/socket.h>

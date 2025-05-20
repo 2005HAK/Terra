@@ -1,8 +1,6 @@
 #ifndef SENSORS_H
 #define SENSORS_H
 
-#include <array>
-#include <iostream>
 #include "mavsdk/mavsdk.h"
 #include "mavsdk/plugins/telemetry/telemetry.h"
 #include "mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h"

@@ -1,16 +1,18 @@
 #include "auverror.h"
 
-AUVError::AUVError(string type, int code) : time(getTime()), type(type), code(code){
+AUVError::AUVError(std::string type, int code) : time(getTime()), type(type), code(code){
     logError();
 }
 
 void AUVError::logError(){
-    ofstream logFile("auv_errors.log", ios::app);
+    std::ofstream logFile("auv_errors.log", std::ios::app);
+    std::string msg = "[" + this->time + "]" + " (Error " + to_string(this->code) + "): " + this->type;
+
     if(logFile.is_open()){
-        logFile << "[" << this->time << "]" << " (Error " << this->code << "): " << this->type << endl;
+        logFile << msg << endl;
         logFile.close();
     } else {
-        cout << "Failed to open log file: auv_errors.log" << endl;
+        std::cout << "Failed to open log file: auv_errors.log" << std::endl;
     }
 }
 
@@ -18,7 +20,7 @@ FailedInitializationSensors::FailedInitializationSensors() : AUVError("Failed to
 
 // YOLOCTRL
 
-FailedInitializationYolo ::FailedInitializationYolo(string type, int code) : AUVError(type, code){}
+FailedInitializationYolo ::FailedInitializationYolo(std::string type, int code) : AUVError(type, code){}
 
 ErrorCreatingSocket::ErrorCreatingSocket() : FailedInitializationYolo("Failed to create the socket.", 252){}
 
@@ -28,22 +30,22 @@ ErrorListening::ErrorListening() : FailedInitializationYolo("Failed to listen to
 
 ErrorAcceptingConnection::ErrorAcceptingConnection() : FailedInitializationYolo("Failed to accept the connection.", 255){}
 
-DetectionError::DetectionError(string type, int code) : AUVError(type, code){}
+DetectionError::DetectionError(std::string type, int code) : AUVError(type, code){}
 
-ObjectNotFound::ObjectNotFound(string object) : DetectionError("Failed to detected the object: " + object, 257), object(object){}
+ObjectNotFound::ObjectNotFound(std::string object) : DetectionError("Failed to detected the object: " + object, 257), object(object){}
 
 // END YOLOCTRL
 
-CollisionDetected::CollisionDetected(array<double, 3> acceleration) : AUVError("Collision detected based in sensor data: {" + to_string(acceleration[0]) +
+CollisionDetected::CollisionDetected(std::array<double, 3> acceleration) : AUVError("Collision detected based in sensor data: {" + to_string(acceleration[0]) +
                 ", " + to_string(acceleration[1]) + ", " + to_string(acceleration[2]) + "} m/s²", 301), acceleration(acceleration){}
 
-array<double, 3> CollisionDetected::getAcceleration(){
+std::array<double, 3> CollisionDetected::getAcceleration(){
     return this->acceleration;
 }
 
 FailedConnectThrusters::FailedConnectThrusters() : AUVError("Failed to connect thrusters", 441){}
 
-HighTemperatureError::HighTemperatureError(double temperature, string type, int code) : AUVError(type, code), temperature(temperature){}
+HighTemperatureError::HighTemperatureError(double temperature, std::string type, int code) : AUVError(type, code), temperature(temperature){}
 
 PixhawkHighTemperature::PixhawkHighTemperature(double temperature) : HighTemperatureError(temperature, "Pixhawk temperature above threshold " + to_string(temperature) + "ºC", 332){}
 
