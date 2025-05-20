@@ -6,11 +6,11 @@ Sensors::Sensors(){
     ConnectionResult connection_result = mavsdk->add_any_connection("serial:///dev/ttyAMA0:57600");
 
     if (connection_result != ConnectionResult::Success){ //Colocar isso em um código de erro
-        cout << "Failed to connect: " << connection_result << endl;
-    } else cout << "Connected to Pixhawk" << endl;
+        logMessage("Failed to connect: " + connection_result);
+    } else logMessage("Connected to Pixhawk");
 
     sleep_for(seconds(3));
-    cout << "Finding systems..." << endl;
+    logMessage("Finding systems...");
 
     auto systems = mavsdk->systems();
 
@@ -23,14 +23,14 @@ Sensors::Sensors(){
             while (!this->telemetry->health().is_accelerometer_calibration_ok ||
             !this->telemetry->health().is_gyrometer_calibration_ok ||
             !this->telemetry->health().is_magnetometer_calibration_ok) {
-                std::cout << "Waiting for the system to be ready..." << std::endl;
+                logMessage("Waiting for the system to be ready...");
                 sleep_for(seconds(1));
             }
         }
 
-        std::cout << "System is ready!" << std::endl;
+        logMessage("System is ready!");
     }else {//Colocar isso em código de erro tbm
-        std::cerr << "Failed to detect system." << std::endl;
+        logMessage("Failed to detect system.");
     }
 
     currentTime = chrono::steady_clock::now();
@@ -40,7 +40,7 @@ Sensors::Sensors(){
 Sensors::~Sensors(){}
 
 void Sensors::initialize(){
-    cout << "Listening messages..." << endl;
+    logMessage("Listening messages...");
 
     if(mavlink_passthrough){
         this->mavlink_passthrough->subscribe_message(MAVLINK_MSG_ID_GLOBAL_POSITION_INT, [this](const mavlink_message_t& message) {

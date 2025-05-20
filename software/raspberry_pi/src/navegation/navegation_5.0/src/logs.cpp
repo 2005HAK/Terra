@@ -5,11 +5,9 @@ void logMessage(std::string message){
 
     int mode = 0; // 0 - console, 1 - file, 2 - both, 3 - none
 
-    if(mode == 0){
-        std::cout << msg << std::endl;
-    } else if(mode == 1){
-        logToFile(msg);
-    } else if(mode == 2){
+    if(mode == 0) std::cout << msg << std::endl;
+    else if(mode == 1) logToFile(msg);
+    else if(mode == 2){
         std::cout << msg << std::endl;
         logToFile(msg);
     }

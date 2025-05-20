@@ -32,7 +32,7 @@ void Thruster::finishesThruster(){
 }
 
 ThrustersControl::ThrustersControl(){
-    cout << "Starting thrusters..." << endl;
+    logMessage("Starting thrusters...");
     
     if(wiringPiSetup() == -1) throw FailedConnectThrusters();
 
@@ -40,7 +40,7 @@ ThrustersControl::ThrustersControl(){
 
     this->defineAction({Action::NONE, 0});
 
-    cout << "Engines thrusters" << endl;
+    logMessage("Engines thrusters");
 }
 
 void ThrustersControl::initializeThrusters(){
@@ -52,7 +52,7 @@ void ThrustersControl::initializeThrusters(){
 }
 
 void ThrustersControl::defineAction(Decision decision){
-    cout << "Action: " << actionToString(decision.action) << ", Power: " << decision.value << endl;
+    logMessage("Action: " + actionToString(decision.action) + ", Power: " + to_string(decision.value));
     stabilizeHori = true;
     stabilizeVert = true;
 
@@ -128,9 +128,9 @@ bool ThrustersControl::getStabilizeHori(){
 }
 
 void ThrustersControl::finish(){
-    cout << "Turning off the thrusters..." << endl;
+    logMessage("Turning off the thrusters...");
 
     for(int i = 0; i < thrusters.size(); i++) thrusters[i].finishesThruster();
 
-    cout << "Thrusters off" << endl;
+    logMessage("Thrusters off");
 }

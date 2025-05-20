@@ -220,7 +220,7 @@ void AUVStateMachine::errorHandling(AUVError e){
 
     if(error) if(this->state == State::SEARCH) directionCorrection(error->getAcceleration());
     
-    if(dynamic_cast<const FailedConnectThrusters*>(&e) || dynamic_cast<const HighTemperatureError*>(&e)) exit(1); 
+    if(dynamic_cast<const FailedConnectThrusters*>(&e) || dynamic_cast<const HighTemperatureError*>(&e) || dynamic_cast<const ObjectNotFound*>(&e)) exit(1); 
 }
 
 void AUVStateMachine::directionCorrection(array<double, 3> acceleration){

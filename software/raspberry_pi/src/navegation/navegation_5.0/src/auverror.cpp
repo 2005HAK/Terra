@@ -12,7 +12,7 @@ void AUVError::logError(){
         logFile << msg << endl;
         logFile.close();
     } else {
-        std::cout << "Failed to open log file: auv_errors.log" << std::endl;
+        logMessage("Failed to open log file: auv_errors.log");
     }
 }
 

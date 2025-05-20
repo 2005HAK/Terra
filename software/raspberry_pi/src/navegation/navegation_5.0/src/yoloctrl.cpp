@@ -3,7 +3,7 @@
 // Init class YoloCtrl
 
 YoloCtrl::YoloCtrl(){
-    cout << "Object YoloCtrl created." << endl;
+    logMessage("Object YoloCtrl created.");
 }
 
 void YoloCtrl::updateData(){
@@ -29,18 +29,19 @@ void YoloCtrl::updateData(){
                 json received_json = json::parse(received_data);
                 identifiedObjects = process_json(received_json);
             } catch (const json::parse_error& e) {
-                cerr << "Erro ao interpretar JSON: " << e.what() << endl;
+                logMessage("Erro ao interpretar JSON: " + e.what());
             }
         }
     } catch (exception& e) {
-        cerr << "Erro: " << e.what() << endl;
+        logMessage("Erro: " + e.what());
     }
 }
 
 // Piaz precisa revisar
+// Nem vai ter
 
 void YoloCtrl::switchCam(int chooseCam){
-    cout << "Switching camera..." << endl;
+    logMessage("Switching camera...");
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1) throw ErrorCreatingSocket();
@@ -65,7 +66,7 @@ void YoloCtrl::switchCam(int chooseCam){
     close(sock);
 
     if(cam == chooseCam){
-        std::cout << "Value changed to: " << (cam == 0 ? "Front camera" : "Bottom camera") << std::endl;
+        logMessage("Value changed to: " + (cam == 0 ? "Front camera" : "Bottom camera"));
     } else{
         // gerar erro
     }
@@ -90,13 +91,13 @@ vector<Object> YoloCtrl::process_json(const json& received_json){
                         currentObject.name = received_json["names"][to_string(currentObject.objectId)];
                     }
                     results.emplace_back(currentObject);
-
-		    if(received_json.count("cam")) this->cam = received_json["cam"];
+                    
+                    if(received_json.count("cam")) this->cam = received_json["cam"];
                 }
             }
         }
     } catch (const json::exception& e) {
-        cerr << "Erro ao processar JSON: " << e.what() << endl;
+        logMessage("Erro ao processar JSON: " + e.what());
     }
     return results;
 }
