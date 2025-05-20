@@ -3,8 +3,6 @@
 
 #include "utils.h"
 
-int mode = 0; // 0 - console, 1 - file, 2 - both, 3 - none
-
 /**
  * @brief Logs a message to the console or file based on the mode.
  * 
