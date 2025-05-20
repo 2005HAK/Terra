@@ -6,7 +6,7 @@ Sensors::Sensors(){
     ConnectionResult connection_result = mavsdk->add_any_connection("serial:///dev/ttyAMA0:57600");
 
     if (connection_result != ConnectionResult::Success){ //Colocar isso em um código de erro
-        logMessage("Failed to connect: " + connection_result);
+        logMessage("Failed to connect: " + to_string(connection_result));
     } else logMessage("Connected to Pixhawk");
 
     sleep_for(seconds(3));
