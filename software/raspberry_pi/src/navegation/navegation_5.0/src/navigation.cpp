@@ -222,7 +222,10 @@ void AUVStateMachine::errorHandling(AUVError e){
     
     if(dynamic_cast<const FailedConnectThrusters*>(&e) || dynamic_cast<const HighTemperatureError*>(&e)) exit(1); 
 
-    if(dynamic_cast<const ObjectNotFound*>(&e)) transitionTo(State::STOP);
+    if(dynamic_cast<const ObjectNotFound*>(&e)){
+        transitionTo(State::STOP);
+        run();
+    }
 }
 
 void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
