@@ -102,6 +102,10 @@ vector<Object> YoloCtrl::process_json(const json& received_json){
     return results;
 }
 
+void YoloCtrl::sendState(StateDetection stateDetection){
+    // usar os pgpio para enviar o estado
+}
+
 bool YoloCtrl::foundObject(){
     return !(this->identifiedObjects.empty());
 }

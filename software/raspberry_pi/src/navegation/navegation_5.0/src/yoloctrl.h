@@ -27,6 +27,15 @@ struct Object{
     int cam;
 };
 
+enum class StateDetection{
+    GATE,
+    PATHMARKER,
+    SLALOM,
+    BIN,
+    OCTAGON,
+    NONE
+};
+
 /**
  * @brief Class responsible for controlling the YOLO object detection.
  */
@@ -50,6 +59,13 @@ class YoloCtrl{
          * @return A vector of identified objects.
          */
         vector<Object> process_json(const json& received_json);
+
+        /**
+         * @brief Sends the current state of the detection system to the server.
+         * 
+         * @param stateDetection The current state of the detection system.
+         */
+        void sendState(StateDetection stateDetection);
 
     public:
         /**
