@@ -1,4 +1,4 @@
-#include "Sensors.h"
+#include "sensors.h"
 #include <wiringPi.h>
 #include <sys/time.h>
 
