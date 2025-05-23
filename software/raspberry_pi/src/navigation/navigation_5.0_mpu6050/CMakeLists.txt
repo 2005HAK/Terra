@@ -6,12 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(src)
 
-# Adiciona o diretório de include da Eigen
-find_path(EIGEN3_INCLUDE_DIR Eigen/Dense)
-if(NOT EIGEN3_INCLUDE_DIR)
-    message(FATAL_ERROR "Eigen3 não encontrado. Instale a Eigen3 ou defina EIGEN3_INCLUDE_DIR.")
-endif()
-include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories(/usr/include/eigen3)
 
 find_package(MAVSDK REQUIRED)
 
