@@ -168,9 +168,6 @@ private:
     double tempJetson = 0.0;                // Temperature of Jetson ºC
     steady_clock::time_point currentTime;
     steady_clock::time_point oldTime;
-    unique_ptr<Telemetry> telemetry;
-    unique_ptr<MavlinkPassthrough> mavlink_passthrough;
-    unique_ptr<Mavsdk> mavsdk;
 
     mutex mutexSensors;
 };
