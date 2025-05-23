@@ -47,6 +47,7 @@ class YoloCtrl{
         int addrlen = sizeof(address);
         const char* server_ip = "192.168.0.2";
         int port = 65432;
+        vector<int> StateDetaction = {0, 0, 0, 0};
         int cam = 0;
 
         vector<Object> identifiedObjects;
