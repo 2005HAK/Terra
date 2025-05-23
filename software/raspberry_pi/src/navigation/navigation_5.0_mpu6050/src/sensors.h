@@ -94,10 +94,10 @@ public:
      */
     float getYaw();
 
-    array<double, 3> Sensors::getAcc();
-    array<double, 3> Sensors::getGyro();
-    array<double, 3> Sensors::getOri();
-    array<double, 3> Sensors::getVel();
+    array<double, 3> getAcc();
+    array<double, 3> getGyro();
+    array<double, 3> getOri();
+    array<double, 3> getVel();
 
 private:
     int fd; // File descriptor para I2C
