@@ -6,6 +6,22 @@
 #include <cmath>
 #include <iostream>
 #include "utils.h"
+#include "auverror.h"
+
+// Convertions constants
+const double CONV_TO_MS = .01;       // convert cm/s to m/s 
+const double CONV_TO_MS2 = 0.00980665;  // convert mG to m/s²
+const double CONV_TO_RAD = .001;     // convert mrad/s to rad/s
+const double CONV_TO_UT = .1;        // convert mgauss to µT
+
+//Acceleration limit consider a collision
+const double ACC_LIMIT = 15;
+
+// Critical temperatures - !!!Determinar quais são as temperaturas maximas!!!
+const double MAX_TEMP_PIXHAWK = 60;      // Maximum temperature for Pixhawk (ºC)
+const double MAX_TEMP_RASPBERRY = 70;    // Maximum temperature for Raspberry (ºC)
+const double MAX_TEMP_JETSON = 60;       // Maximum temperature for Jetson (ºC)
+
 /**
  * @brief      Classe para leitura e filtragem de dados do sensor MPU6050 usando filtro de Kalman.
  * @details    Realiza leitura de aceleração e giroscópio, calcula orientação e aplica filtro de Kalman nos eixos pitch e roll.
@@ -35,7 +51,7 @@ public:
      * @brief      Atualiza leituras do sensor e aplica o filtro de Kalman.
      * @details    Faz a leitura dos dados brutos, converte para unidades físicas e atualiza a estimativa com Kalman.
      */
-    void update();
+    void updateData();
 
     /**
      * @brief      Retorna aceleração linear no eixo X (inercial).
@@ -94,6 +110,26 @@ public:
      */
     float getYaw();
 
+
+
+
+
+
+    chrono::duration<double> deltaTime();
+
+
+    /**
+     * @brief Detects whether the AUV has collided with an object.
+     */
+    void collisionDetect();
+
+    /**
+     * @brief Checks whether the system's temperature is above the maximum allowed.
+     */
+    void detectOverheat();
+
+
+
     array<double, 3> getAcc();
     array<double, 3> getGyro();
     array<double, 3> getOri();
@@ -123,6 +159,20 @@ private:
     // Kalman - Roll
     Eigen::Matrix<float, 2, 1> X2; // Estado estimado (roll)
     Eigen::Matrix<float, 2, 2> P2; // Covariância do erro (roll)
+    array<double, 3> acc = {0, 0, 0};       // Acceleration {x, y, z}
+    array<double, 3> gyro = {0, 0, 0};      // Gyroscope {x, y, z}
+    array<double, 3> ori = {0, 0, 0};       // Orientation {x, y, z}
+    array<double, 3> vel = {0, 0, 0};       // Velocity {x, y, z}
+    double tempPixhawk = 0.0;               // Temperature of Pixhawk ºC
+    double tempRaspberry = 0.0;             // Temperature of Raspberry ºC
+    double tempJetson = 0.0;                // Temperature of Jetson ºC
+    steady_clock::time_point currentTime;
+    steady_clock::time_point oldTime;
+    unique_ptr<Telemetry> telemetry;
+    unique_ptr<MavlinkPassthrough> mavlink_passthrough;
+    unique_ptr<Mavsdk> mavsdk;
+
+    mutex mutexSensors;
 };
 
 #endif //SENSORS_H

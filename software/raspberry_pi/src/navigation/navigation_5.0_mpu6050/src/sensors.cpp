@@ -16,7 +16,7 @@ Sensors::Sensors() {
     estRoll = estPitch = 0.0f;
     yaw = 0.0f;
     currentTime = 0;
-    previousTime = 0;
+    previousTime = 0-;
     dt = 0.004f; // Valor inicial, será atualizado dinamicamente
 
     // Inicialização do filtro de Kalman
@@ -100,7 +100,7 @@ void Sensors::calibrate(int samples) {
  * @brief      Atualiza as leituras e executa o filtro de Kalman
  * @details    Lê os dados brutos, calcula ângulos, aplica o filtro de Kalman e obtém acelerações inerciais
  */
-void Sensors::update() {
+void Sensors::updateData() {
     // Calcula o passo de tempo dinâmico
     struct timeval tv;
     gettimeofday(&tv, nullptr);
@@ -276,4 +276,30 @@ float Sensors::getPitch() {
  */
 float Sensors::getYaw() {
     return yaw;
+}
+
+
+
+
+
+chrono::duration<double> Sensors::deltaTime(){
+    lock_guard<mutex> lock(mutexSensors);
+    return this->currentTime - this->oldTime;
+}
+
+
+/**
+ * @brief Detects whether the AUV has collided with an object.
+ */
+void Sensors::collisionDetect(){
+    lock_guard<mutex> lock(mutexSensors);
+    if(fabs(this->acc[0]) > ACC_LIMIT || fabs(this->acc[1]) > ACC_LIMIT || fabs(this->acc[2]) > ACC_LIMIT){
+        throw CollisionDetected(acc);
+    }
+}
+
+void Sensors::detectOverheat(){
+    lock_guard<mutex> lock(mutexSensors);
+    if(this->tempPixhawk > MAX_TEMP_PIXHAWK) throw PixhawkHighTemperature(tempPixhawk);
+    if(this->tempRaspberry > MAX_TEMP_RASPBERRY) throw RaspberryHighTemperature(tempRaspberry);
 }
