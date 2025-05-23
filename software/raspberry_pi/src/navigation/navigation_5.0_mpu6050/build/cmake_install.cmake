@@ -1,4 +1,4 @@
-# Install script for directory: /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0
+# Install script for directory: /home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -1,7 +1,7 @@
 CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o: \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/yoloctrl.cpp \
+ /home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/src/yoloctrl.cpp \
  /usr/include/stdc-predef.h \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/yoloctrl.h \
+ /home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/src/yoloctrl.h \
  /usr/include/c++/12/iostream \
  /usr/include/aarch64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/aarch64-linux-gnu/c++/12/bits/os_defines.h \
@@ -1143,10 +1143,10 @@ CMakeFiles/run_auv.dir/src/yoloctrl.cpp.o: \
  /usr/include/c++/12/bits/fs_dir.h /usr/include/c++/12/bits/fs_ops.h \
  /usr/include/c++/12/numeric /usr/include/c++/12/bits/stl_numeric.h \
  /usr/include/c++/12/pstl/glue_numeric_defs.h \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/auverror.h \
+ /home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/src/auverror.h \
  /usr/include/c++/12/fstream \
  /usr/include/aarch64-linux-gnu/c++/12/bits/basic_file.h \
  /usr/include/aarch64-linux-gnu/c++/12/bits/c++io.h \
  /usr/include/c++/12/bits/fstream.tcc \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/utils.h \
+ /home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/src/utils.h \
  /usr/include/c++/12/thread /usr/include/c++/12/bits/this_thread_sleep.h

@@ -1,5 +1,5 @@
-#ifndef MPU6050_KALMAN_H
-#define MPU6050_KALMAN_H
+#ifndef SENSORS_H
+#define SENSORS_H
 
 #include <wiringPiI2C.h>
 #include <Eigen/Dense>
@@ -125,4 +125,4 @@ private:
     Eigen::Matrix<float, 2, 2> P2; // Covariância do erro (roll)
 };
 
-#endif
+#endif //SENSORS_H
