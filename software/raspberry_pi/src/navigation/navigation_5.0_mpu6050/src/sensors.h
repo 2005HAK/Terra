@@ -166,8 +166,7 @@ private:
     double tempPixhawk = 0.0;               // Temperature of Pixhawk ºC
     double tempRaspberry = 0.0;             // Temperature of Raspberry ºC
     double tempJetson = 0.0;                // Temperature of Jetson ºC
-    steady_clock::time_point currentTime;
-    steady_clock::time_point oldTime;
+
 
     mutex mutexSensors;
 };

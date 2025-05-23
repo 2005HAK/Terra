@@ -16,7 +16,7 @@ Sensors::Sensors() {
     estRoll = estPitch = 0.0f;
     yaw = 0.0f;
     currentTime = 0;
-    previousTime = 0-;
+    previousTime = 0;
     dt = 0.004f; // Valor inicial, será atualizado dinamicamente
 
     // Inicialização do filtro de Kalman
@@ -284,7 +284,7 @@ float Sensors::getYaw() {
 
 chrono::duration<double> Sensors::deltaTime(){
     lock_guard<mutex> lock(mutexSensors);
-    return this->currentTime - this->oldTime;
+    return this->currentTime - this->previousTime;
 }
 
 
