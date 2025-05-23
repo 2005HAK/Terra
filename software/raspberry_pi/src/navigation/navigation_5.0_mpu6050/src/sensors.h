@@ -5,7 +5,7 @@
 #include <Eigen/Dense>
 #include <cmath>
 #include <iostream>
-
+#include "utils.h"
 /**
  * @brief      Classe para leitura e filtragem de dados do sensor MPU6050 usando filtro de Kalman.
  * @details    Realiza leitura de aceleração e giroscópio, calcula orientação e aplica filtro de Kalman nos eixos pitch e roll.
