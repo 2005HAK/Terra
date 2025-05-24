@@ -110,7 +110,7 @@ void Sensors::updateData() {
     std::lock_guard<std::mutex> lock(mutexSensors);
     array<double, 3> vel = getVel();
     
-    logging::log("Velocidade: " + std::to_string(vel[0]) + ", " + std::to_string(vel[1]) + ", " + std::to_string(vel[2]));
+    logMessage("Velocidade: " + std::to_string(vel[0]) + ", " + std::to_string(vel[1]) + ", " + std::to_string(vel[2]));
     
     oldTime = currentTime;
     currentTime = steady_clock::now();
