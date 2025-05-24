@@ -54,11 +54,11 @@ int16_t Sensors::readWord(int reg) {
     return (int16_t)((data[0] << 8) | data[1]);
 }
 
-// Obtém valores do acelerômetro e converte para 'g'
+// Obtém valores do acelerômetro e converte para m/s²
 array<double, 3> Sensors::getAcc() {
-    double ax = readWord(0x3B) / 16384.0;
-    double ay = readWord(0x3D) / 16384.0;
-    double az = readWord(0x3F) / 16384.0;
+    double ax = (readWord(0x3B) / 16384.0) * 9.81;
+    double ay = (readWord(0x3D) / 16384.0) * 9.81;
+    double az = (readWord(0x3F) / 16384.0) * 9.81;
     return {ax, ay, az};
 }
 
@@ -99,7 +99,7 @@ array<double, 3> Sensors::getVel() {
 
     for (int i = 0; i < 3; i++) {
         // Integração: v = v0 + a * deltaT
-        lastVelocity[i] += acc[i] * 9.81 * deltaT;  // Convertendo 'g' para m/s²
+        lastVelocity[i] += acc[i] * deltaT;
     }
 
     return lastVelocity;
