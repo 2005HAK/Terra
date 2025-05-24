@@ -1,9 +1,6 @@
 #ifndef AUVERROR_H
 #define AUVERROR_H
 
-#include <iostream>
-#include <fstream>
-#include <array>
 #include "utils.h"
 #include "logs.h"
 
@@ -12,8 +9,8 @@
  */
 class AUVError : public exception{
     private:
-        string time;
-        string type;
+        std::string time;
+        std::string type;
         int code;
 
     public:
@@ -23,7 +20,7 @@ class AUVError : public exception{
          * @param type Type of error identified.
          * @param code Error code.
          */
-        AUVError(string type = "Unidentidied error", int code = 95);
+        AUVError(std::string type = "Unidentidied error", int code = 95);
 
         /**
          * @brief Saves errors to a log file for later checking.
@@ -55,7 +52,7 @@ class FailedInitializationYolo : public AUVError{
          * @param type Type of error identified.
          * @param code Error code.
          */
-        FailedInitializationYolo(string type = "Failed to create the yolo object.", int code = 251);
+        FailedInitializationYolo(std::string type = "Failed to create the yolo object.", int code = 251);
 };
 
 /**
@@ -102,14 +99,70 @@ class ErrorAcceptingConnection : public FailedInitializationYolo{
         ErrorAcceptingConnection();
 };
 
+class DetectionError : public AUVError{
+    public:
+        /**
+         * @brief Constructor of the DetectionError class.
+         */
+        DetectionError(std::string type = "Failed to detect", int code = 256);
+};
+
+class ObjectNotFound : public DetectionError{
+    private:
+        std::string object;
+
+    public:
+        /**
+         * @brief Constructor of the ObjectNotFound class.
+         * 
+         * @param object The object that was not found.
+         */
+        ObjectNotFound(std::string object = "Unidentified object");
+};
+
 // END YOLOCTRL
+
+// SENSORS
+
+class FailedPixhawk : public AUVError{
+    public:
+        /**
+         * @brief Constructor of the FailedPixhawk class.
+         * 
+         * @param type Type of error identified.
+         * @param code Error code.
+         */
+        FailedPixhawk(std::string type = "Failed in the Pixhawk", int code = 350);
+};
+
+class FailedConnectMavsdk : public FailedPixhawk{
+    public:
+        /**
+         * @brief Constructor of the FailedConnectMavsdk class.
+         * 
+         * @param type Type of error identified.
+         * @param code Error code.
+         */
+        FailedConnectMavsdk();
+};
+
+class FailedDetectSystem : public FailedPixhawk{
+    public:
+        /**
+         * @brief Constructor of the FailedFindSystem class.
+         * 
+         * @param type Type of error identified.
+         * @param code Error code.
+         */
+        FailedDetectSystem();
+};
 
 /**
  * @brief Class representing errors that may occur during the initialization of the thrusters.
  */
 class CollisionDetected : public AUVError{
     private:
-        array<double, 3> acceleration;
+        std::array<double, 3> acceleration;
 
     public:
         /**
@@ -117,15 +170,61 @@ class CollisionDetected : public AUVError{
          * 
          * @param acceleration The acceleration values on the x, y, and z axes, respectively.
          */
-        CollisionDetected(array<double, 3> acceleration);
+        CollisionDetected(std::array<double, 3> acceleration);
         
         /**
          * @brief Gets the acceleration values that caused the collision.
          * 
          * @return The acceleration values on the x, y, and z axes, respectively.
          */
-        array<double, 3> getAcceleration();
+        std::array<double, 3> getAcceleration();
 };
+
+/**
+ * @brief Class representing errors that may occur during the initialization of the thrusters.
+ */
+class HighTemperatureError : public AUVError{
+    private:
+    double temperature;
+    
+    public:
+    /**
+     * @brief Constructor of the HighTemperatureError class.
+     * 
+     * @param temperature Temperature value that caused the error.
+     * @param type Type of error identified.
+     * @param code Error code.
+     */
+    HighTemperatureError(double temperature = -1, std::string type = "High temperature detected", int code = 95);
+};
+
+/**
+ * @brief Class representing errors that may occur during the initialization of the thrusters.
+ */
+class PixhawkHighTemperature : public HighTemperatureError{
+    public:
+    /**
+     * @brief Constructor of the PixhawkHighTemperature class.
+     * 
+     * @param temperature Temperature value that caused the error.
+     */
+    PixhawkHighTemperature(double temperature = -1);
+};
+
+/**
+ * @brief Class representing errors that may occur during the initialization of the thrusters.
+ */
+class RaspberryHighTemperature : public HighTemperatureError{
+    public:
+    /**
+     * @brief Constructor of the RaspberryHighTemperature class.
+     * 
+     * @param temperature Temperature value that caused the error.
+     */
+        RaspberryHighTemperature(double temperature = -1);
+};
+
+// END SENSORS
 
 /**
  * @brief Class representing errors that may occur during the initialization of the thrusters.
@@ -136,50 +235,6 @@ class FailedConnectThrusters : public AUVError{
          * @brief Constructor of the FailedConnectThrusters class.
          */
         FailedConnectThrusters();
-};
-
-/**
- * @brief Class representing errors that may occur during the initialization of the thrusters.
- */
-class HighTemperatureError : public AUVError{
-    private:
-        double temperature;
-
-    public:
-        /**
-         * @brief Constructor of the HighTemperatureError class.
-         * 
-         * @param temperature Temperature value that caused the error.
-         * @param type Type of error identified.
-         * @param code Error code.
-         */
-        HighTemperatureError(double temperature = -1, string type = "High temperature detected", int code = 95);
-};
-
-/**
- * @brief Class representing errors that may occur during the initialization of the thrusters.
- */
-class PixhawkHighTemperature : public HighTemperatureError{
-    public:
-        /**
-         * @brief Constructor of the PixhawkHighTemperature class.
-         * 
-         * @param temperature Temperature value that caused the error.
-         */
-        PixhawkHighTemperature(double temperature = -1);
-};
-
-/**
- * @brief Class representing errors that may occur during the initialization of the thrusters.
- */
-class RaspberryHighTemperature : public HighTemperatureError{
-    public:
-        /**
-         * @brief Constructor of the RaspberryHighTemperature class.
-         * 
-         * @param temperature Temperature value that caused the error.
-         */
-        RaspberryHighTemperature(double temperature = -1);
 };
 
 /**
