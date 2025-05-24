@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050
+CMAKE_SOURCE_DIR = /home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build
+CMAKE_BINARY_DIR = /home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build/CMakeFiles /home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build/CMakeFiles /home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -176,6 +176,30 @@ src/auverror.s: src/auverror.cpp.s
 src/auverror.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_auv.dir/build.make CMakeFiles/run_auv.dir/src/auverror.cpp.s
 .PHONY : src/auverror.cpp.s
+
+src/logs.o: src/logs.cpp.o
+.PHONY : src/logs.o
+
+# target to build an object file
+src/logs.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_auv.dir/build.make CMakeFiles/run_auv.dir/src/logs.cpp.o
+.PHONY : src/logs.cpp.o
+
+src/logs.i: src/logs.cpp.i
+.PHONY : src/logs.i
+
+# target to preprocess a source file
+src/logs.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_auv.dir/build.make CMakeFiles/run_auv.dir/src/logs.cpp.i
+.PHONY : src/logs.cpp.i
+
+src/logs.s: src/logs.cpp.s
+.PHONY : src/logs.s
+
+# target to generate assembly for a file
+src/logs.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run_auv.dir/build.make CMakeFiles/run_auv.dir/src/logs.cpp.s
+.PHONY : src/logs.cpp.s
 
 src/navigation.o: src/navigation.cpp.o
 .PHONY : src/navigation.o
@@ -312,6 +336,9 @@ help:
 	@echo "... src/auverror.o"
 	@echo "... src/auverror.i"
 	@echo "... src/auverror.s"
+	@echo "... src/logs.o"
+	@echo "... src/logs.i"
+	@echo "... src/logs.s"
 	@echo "... src/navigation.o"
 	@echo "... src/navigation.i"
 	@echo "... src/navigation.s"

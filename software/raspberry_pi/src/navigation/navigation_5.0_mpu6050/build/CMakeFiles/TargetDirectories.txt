@@ -1,3 +1,3 @@
-/home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build/CMakeFiles/run_auv.dir
-/home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build/CMakeFiles/edit_cache.dir
-/home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build/CMakeFiles/rebuild_cache.dir
+/home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build/CMakeFiles/run_auv.dir
+/home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build/CMakeFiles/edit_cache.dir
+/home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/build/CMakeFiles/rebuild_cache.dir
