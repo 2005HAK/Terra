@@ -15,7 +15,7 @@ def main():
         model = YOLO("yolo11n.pt")
         results = model.train(
                 device='cuda',
-                data="C:/Users/Gustavo/Desktop/Terra/software/jetson/src/Testes/Treinos/datasets/data.yaml",
+                data="/home/gustavo/Desktop/git/treinamento/datasets/V1/data.yaml",
                 epochs=epochs,
                 imgsz=640,
                 name=f"Treino_Com_{epochs}_Epochs",
