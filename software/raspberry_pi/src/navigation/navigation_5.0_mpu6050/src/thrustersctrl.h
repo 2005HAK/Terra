@@ -1,11 +1,7 @@
 #ifndef THRUSTERSCTRL_H
 #define THRUSTERSCTRL_H
 
-#include <iostream>
-#include <array>
 #include <vector>
-#include <string>
-#include <chrono>
 #include <wiringPi.h>
 #include "auverror.h"
 
@@ -30,7 +26,7 @@ const array<int, 6> PINS = {0, 1, 3, 4, 5, 2};
  */
 struct Decision{
     Action action = Action::NONE;
-    double value = -1;
+    int value = -1;
 };
 
 /**

@@ -1,7 +1,6 @@
 #ifndef YOLOCTRL_H
 #define YOLOCTRL_H
 
-#include <iostream>
 #include <boost/asio.hpp>
 #include <nlohmann/json.hpp>
 #include <sys/socket.h>
@@ -11,7 +10,6 @@
 #include <unistd.h>
 #include <vector>
 #include <tuple>
-#include <mutex>
 #include "auverror.h"
 
 using boost::asio::ip::tcp;
@@ -29,6 +27,15 @@ struct Object{
     int cam;
 };
 
+enum class StateDetection{
+    GATE,
+    PATHMARKER,
+    SLALOM,
+    BIN,
+    OCTAGON,
+    NONE
+};
+
 /**
  * @brief Class responsible for controlling the YOLO object detection.
  */
@@ -40,6 +47,7 @@ class YoloCtrl{
         int addrlen = sizeof(address);
         const char* server_ip = "192.168.0.2";
         int port = 65432;
+        vector<int> StateDetaction = {0, 0, 0, 0};
         int cam = 0;
 
         vector<Object> identifiedObjects;
@@ -52,6 +60,13 @@ class YoloCtrl{
          * @return A vector of identified objects.
          */
         vector<Object> process_json(const json& received_json);
+
+        /**
+         * @brief Sends the current state of the detection system to the server.
+         * 
+         * @param stateDetection The current state of the detection system.
+         */
+        void sendState(StateDetection stateDetection);
 
     public:
         /**
