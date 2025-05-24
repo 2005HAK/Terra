@@ -2,9 +2,11 @@
 #define UTILS_H
 
 #include <string>
+#include <array>
 #include <chrono>
 #include <thread>
 #include <mutex>
+
 using namespace std;
 using namespace chrono;
 using namespace this_thread;

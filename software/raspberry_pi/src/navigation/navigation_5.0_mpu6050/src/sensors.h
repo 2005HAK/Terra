@@ -1,7 +1,6 @@
 #ifndef SENSORS_H
 #define SENSORS_H
 
-#include <array>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
