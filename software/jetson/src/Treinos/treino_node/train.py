@@ -2,13 +2,13 @@ import os
 import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-from ultralytics import YOLO  # Requer YOLOv8 instalado
+from ultralytics import YOLO
 from ultralytics.cfg import get_cfg
 
 def main():
-    # Inicializa o processo distribuído
-    dist.init_process_group(backend='nccl')
-    local_rank = int(os.environ["LOCAL_RANK"])
+    # Inicializa o processo distribuído com backend GLOO
+    dist.init_process_group(backend='gloo')
+    local_rank = int(os.environ.get("LOCAL_RANK", 0))  # fallback para 0
     torch.cuda.set_device(local_rank)
 
     # Configurações do treinamento
