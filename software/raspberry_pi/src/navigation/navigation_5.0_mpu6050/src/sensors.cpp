@@ -64,7 +64,7 @@ void Sensors::updateData() {
     lastGyro = {(readWord(0x43) / 131.0), (readWord(0x45) / 131.0), (readWord(0x47) / 131.0)};
     lastOri = {atan2(this->lastAcc[1], this->lastAcc[2]) * 180.0 / M_PI, atan2(-this->lastAcc[0], sqrt(this->lastAcc[1] * this->lastAcc[1] + this->lastAcc[2] * this->lastAcc[2])) * 180.0 / M_PI, 0.0};
 
-    double deltaT = duration_cast<duration<double>>(this->deltaTime).count();
+    double deltaT = duration_cast<duration<double>>(this->deltaTime()).count();
 
     for (int i = 0; i < 3; i++) {
         // Integração: v = v0 + a * deltaT
