@@ -1,305 +1,128 @@
 #include "sensors.h"
-#include <wiringPi.h>
-#include <sys/time.h>
 
-/**
- * @brief      Construtor da classe Sensors
- * @details    Inicializa variáveis com zero e configura o I2C
- */
-Sensors::Sensors() {
-    gyroX = gyroY = gyroZ = 0.0f;
-    accX = accY = accZ = 0.0f;
-    accXOffset = accYOffset = accZOffset = 0.0f;
-    gyroXOffset = gyroYOffset = gyroZOffset = 0.0f;
-    accXInertial = accYInertial = accZInertial = 0.0f;
-    angleRoll = anglePitch = 0.0f;
-    estRoll = estPitch = 0.0f;
-    yaw = 0.0f;
-    currentTime = 0;
-    previousTime = 0;
-    dt = 0.004f; // Valor inicial, será atualizado dinamicamente
+using namespace std::chrono;
 
-    // Inicialização do filtro de Kalman
-    F << 1, dt,
-         0, 1;
-    G << 0.5 * dt * dt,
-         dt;
-    H << 1, 0;
-    I << 1, 0,
-         0, 1;
-    Q = G * G.transpose() * 10 * 10;
-    R << 30 * 30;
-    P << 0, 0,
-         0, 0;
-    S << 0,
-         0;
-    X1 << 0, 0;
-    P1 << 0, 0,
-          0, 0;
-    X2 << 0, 0;
-    P2 << 0, 0,
-          0, 0;
+// Construtor: define endereço e inicializa o descritor como inválido
+Sensors::Sensors(int i2cAddress) : address(i2cAddress), i2cFile(-1) {}
 
-    // Inicializa o WiringPi
-    wiringPiSetup();
-    fd = wiringPiI2CSetup(0x68); // Endereço I2C do MPU6050
-    if (fd < 0) {
-        std::cerr << "Erro ao inicializar I2C" << std::endl;
+// Destrutor: garante que o arquivo I2C será fechado
+Sensors::~Sensors() {
+    if (i2cFile >= 0) {
+        close(i2cFile);
     }
 }
 
-/**
- * @brief      Inicializa o sensor MPU6050
- * @details    Configura o sensor para operação, desligando o modo de suspensão
- */
-void Sensors::initialize() {
-    wiringPiI2CWriteReg8(fd, 0x6B, 0); // Desativa modo sleep
-    delayMicroseconds(100000); // 100ms
-    //calibra
-    calibrate(1000); // Calibra o sensor com 1000 amostras
-}
+// Inicializa o sensor MPU6050 na interface I2C
+bool Sensors::initialize() {
+    const char *filename = "/dev/i2c-1";
 
-/**
- * @brief      Calibra o sensor MPU6050
- * @details    Calcula os offsets do acelerômetro e giroscópio com base em várias amostras
- * @param      samples Número de amostras para a calibração
- */
-void Sensors::calibrate(int samples) {
-    float sumAccX = 0.0f, sumAccY = 0.0f, sumAccZ = 0.0f;
-    float sumGyroX = 0.0f, sumGyroY = 0.0f, sumGyroZ = 0.0f;
-
-    for (int i = 0; i < samples; i++) {
-        wiringPiI2CWriteReg8(fd, 0x3B, 0); // Início dos registros
-        int16_t rawAccX = wiringPiI2CReadReg16(fd, 0x3B);
-        int16_t rawAccY = wiringPiI2CReadReg16(fd, 0x3D);
-        int16_t rawAccZ = wiringPiI2CReadReg16(fd, 0x3F);
-        int16_t rawGyroX = wiringPiI2CReadReg16(fd, 0x43);
-        int16_t rawGyroY = wiringPiI2CReadReg16(fd, 0x45);
-        int16_t rawGyroZ = wiringPiI2CReadReg16(fd, 0x47);
-
-        sumAccX += (float)rawAccX / 4096.0f;
-        sumAccY += (float)rawAccY / 4096.0f;
-        sumAccZ += (float)rawAccZ / 4096.0f;
-        sumGyroX += (float)rawGyroX / 131.0f;
-        sumGyroY += (float)rawGyroY / 131.0f;
-        sumGyroZ += (float)rawGyroZ / 131.0f;
-
-        delayMicroseconds(2000); // 2ms
+    if ((i2cFile = open(filename, O_RDWR)) < 0) {
+        std::cerr << "Failed to open I2C bus\n";
+        return false;
     }
 
-    // Calcula os offsets
-    accXOffset = sumAccX / samples;
-    accYOffset = sumAccY / samples;
-    accZOffset = sumAccZ / samples - 1.0f; // Compensa 1g
-    gyroXOffset = sumGyroX / samples;
-    gyroYOffset = sumGyroY / samples;
-    gyroZOffset = sumGyroZ / samples;
+    if (ioctl(i2cFile, I2C_SLAVE, address) < 0) {
+        std::cerr << "Failed to acquire bus access\n";
+        return false;
+    }
+
+    // Desativa modo sleep do MPU6050
+    writeByte(0x6B, 0);
+    return true;
 }
 
-/**
- * @brief      Atualiza as leituras e executa o filtro de Kalman
- * @details    Lê os dados brutos, calcula ângulos, aplica o filtro de Kalman e obtém acelerações inerciais
- */
+// Escreve um byte em um registrador do sensor
+void Sensors::writeByte(int reg, int data) {
+    char buf[2] = { (char)reg, (char)data };
+    if (write(i2cFile, buf, 2) != 2) {
+        std::cerr << "Failed to write to the I2C bus\n";
+    }
+}
+
+// Lê uma palavra (2 bytes) de um registrador do sensor
+int16_t Sensors::readWord(int reg) {
+    char buf[1] = { (char)reg };
+    if (write(i2cFile, buf, 1) != 1) {
+        std::cerr << "Failed to set register for read\n";
+    }
+
+    char data[2];
+    if (read(i2cFile, data, 2) != 2) {
+        std::cerr << "Failed to read from I2C\n";
+    }
+
+    return (int16_t)((data[0] << 8) | data[1]);
+}
+
+// Obtém valores do acelerômetro e converte para 'g'
+array<double, 3> Sensors::getAcc() {
+    double ax = readWord(0x3B) / 16384.0;
+    double ay = readWord(0x3D) / 16384.0;
+    double az = readWord(0x3F) / 16384.0;
+    return {ax, ay, az};
+}
+
+// Obtém valores do giroscópio em graus/s
+array<double, 3> Sensors::getGyro() {
+    double gx = readWord(0x43) / 131.0;
+    double gy = readWord(0x45) / 131.0;
+    double gz = readWord(0x47) / 131.0;
+    return {gx, gy, gz};
+}
+
+// Calcula orientação: yaw, pitch e roll
+array<double, 3> Sensors::getOri() {
+    auto acc = getAcc();
+    double ax = acc[0];
+    double ay = acc[1];
+    double az = acc[2];
+
+    // Cálculo do pitch e roll baseado no acelerômetro
+    double pitch = atan2(-ax, sqrt(ay * ay + az * az)) * 180.0 / M_PI;
+    double roll = atan2(ay, az) * 180.0 / M_PI;
+
+    // Sem magnetômetro, yaw não é confiável
+    double yaw = 0.0;
+
+    return {yaw, pitch, roll};
+}
+
+// Estima a velocidade via integração simples da aceleração
+array<double, 3> Sensors::getVel() {
+    static auto lastTime = steady_clock::now();
+
+    auto now = steady_clock::now();
+    double deltaT = duration_cast<duration<double>>(now - lastTime).count();
+    lastTime = now;
+
+    auto acc = getAcc();
+
+    for (int i = 0; i < 3; i++) {
+        // Integração: v = v0 + a * deltaT
+        lastVelocity[i] += acc[i] * 9.81 * deltaT;  // Convertendo 'g' para m/s²
+    }
+
+    return lastVelocity;
+}
+
+// Atualiza os timestamps para controle de tempo
 void Sensors::updateData() {
-    // Calcula o passo de tempo dinâmico
-    struct timeval tv;
-    gettimeofday(&tv, nullptr);
-    previousTime = currentTime;
-    currentTime = tv.tv_sec * 1000000 + tv.tv_usec;
-    dt = (currentTime - previousTime) / 1000000.0f; // Em segundos
-
-    wiringPiI2CWriteReg8(fd, 0x3B, 0); // Início dos registros
-    int16_t rawAccX = wiringPiI2CReadReg16(fd, 0x3B);
-    int16_t rawAccY = wiringPiI2CReadReg16(fd, 0x3D);
-    int16_t rawAccZ = wiringPiI2CReadReg16(fd, 0x3F);
-    int16_t rawGyroX = wiringPiI2CReadReg16(fd, 0x43);
-    int16_t rawGyroY = wiringPiI2CReadReg16(fd, 0x45);
-    int16_t rawGyroZ = wiringPiI2CReadReg16(fd, 0x47);
-
-    // Aplica os offsets de calibração
-    accX = ((float)rawAccX / 4096.0f) - accXOffset;
-    accY = ((float)rawAccY / 4096.0f) - accYOffset;
-    accZ = ((float)rawAccZ / 4096.0f) - accZOffset;
-    gyroX = ((float)rawGyroX / 131.0f) - gyroXOffset;
-    gyroY = ((float)rawGyroY / 131.0f) - gyroYOffset;
-    gyroZ = ((float)rawGyroZ / 131.0f) - gyroZOffset;
-
-    // Calcula ângulos a partir do acelerômetro
-    angleRoll = atan2(accY, sqrt(accX * accX + accZ * accZ)) * 180.0f / M_PI;
-    anglePitch = -atan2(accX, sqrt(accY * accY + accZ * accZ)) * 180.0f / M_PI;
-
-    // Atualiza as matrizes do filtro de Kalman
-    F << 1, dt,
-         0, 1;
-    G << 0.5 * dt * dt,
-         dt;
-    Q = G * G.transpose() * 5 * 5;
-
-    // Filtro de Kalman - Pitch
-    Eigen::Matrix<float, 1, 1> Z1;
-    Z1 << anglePitch;
-    H << 1, 0;
-    I << 1, 0,
-         0, 1;
-    R << 3;
-    X1 = F * X1 + G * gyroY;
-    P1 = F * P1 * F.transpose() + Q;
-    Eigen::Matrix<float, 1, 1> Y1 = Z1 - H * X1;
-    Eigen::Matrix<float, 1, 1> S1 = H * P1 * H.transpose() + R;
-    K = P1 * H.transpose() * S1.inverse();
-    X1 = X1 + K * Y1;
-    P1 = (I - K * H) * P1;
-    estPitch = X1(0);
-
-    // Filtro de Kalman - Roll
-    Eigen::Matrix<float, 1, 1> Z2;
-    Z2 << angleRoll;
-    X2 = F * X2 + G * gyroX;
-    P2 = F * P2 * F.transpose() + Q;
-    Eigen::Matrix<float, 1, 1> Y2 = Z2 - H * X2;
-    Eigen::Matrix<float, 1, 1> S2 = H * P2 * H.transpose() + R;
-    K = P2 * H.transpose() * S2.inverse();
-    X2 = X2 + K * Y2;
-    P2 = (I - K * H) * P2;
-    estRoll = X2(0);
-
-    // Calcula o yaw por integração do giroscópio
-    yaw += gyroZ * dt;
-
-    // Calcula acelerações inerciais (m/s²)
-    float rollRad = estRoll * M_PI / 180.0f;
-    float pitchRad = estPitch * M_PI / 180.0f;
-    accXInertial = (accX - sin(pitchRad)) * 9.81f;
-    accYInertial = (accY + sin(rollRad) * cos(pitchRad)) * 9.81f;
-    accZInertial = (accZ - cos(rollRad) * cos(pitchRad)) * 9.81f;
+    std::lock_guard<std::mutex> lock(mutexSensors);
+    oldTime = currentTime;
+    currentTime = steady_clock::now();
 }
 
-/**
- * @brief      Retorna a aceleração linear no eixo X em m/s²
- * @return     Aceleração linear X
- */
-float Sensors::getLinearAccelerationX() {
-
-    return accXInertial;
+// Placeholder: lógica de detecção de colisão ainda não implementada
+void Sensors::collisionDetect() {
+    // TODO: Implementar detecção de colisão
 }
 
-/**
- * @brief      Retorna a aceleração linear no eixo Y em m/s²
- * @return     Aceleração linear Y
- */
-float Sensors::getLinearAccelerationY() {
-    return accYInertial;
+// Placeholder: lógica de detecção de sobreaquecimento ainda não implementada
+void Sensors::detectOverheat() {
+    // TODO: Implementar detecção de sobreaquecimento
 }
 
-/**
- * @brief      Retorna a aceleração linear no eixo Z em m/s²
- * @return     Aceleração linear Z
- */
-float Sensors::getLinearAccelerationZ() {
-    return accZInertial;
-}
-
-array<double, 3> Sensors::getAcc(){
-    array<double, 3> acc;
-    acc[0] = accX;
-    acc[1] = accY;
-    acc[2] = accZ;
-    return acc;
-}
-
-array<double, 3> Sensors::getGyro(){
-    array<double, 3> gyro;
-    gyro[0] = gyroX;
-    gyro[1] = gyroY;
-    gyro[2] = gyroZ;
-    return gyro;
-}
-array<double, 3> Sensors::getOri(){
-    array<double, 3> ori;
-    ori[0] = estRoll;
-    ori[1] = estPitch;
-    ori[2] = yaw;
-    return ori;
-}
-array<double, 3> Sensors::getVel(){
-    array<double, 3> vel;
-    vel[0] = accXInertial;
-    vel[1] = accYInertial;
-    vel[2] = accZInertial;
-    return vel;
-}
-
-
-/**
- * @brief      Retorna a velocidade angular no eixo X em rad/s
- * @return     Velocidade angular X
- */
-float Sensors::getGyroX() {
-    return gyroX * M_PI / 180.0f;
-}
-
-/**
- * @brief      Retorna a velocidade angular no eixo Y em rad/s
- * @return     Velocidade angular Y
- */
-float Sensors::getGyroY() {
-    return gyroY * M_PI / 180.0f;
-}
-
-/**
- * @brief      Retorna a velocidade angular no eixo Z em rad/s
- * @return     Velocidade angular Z
- */
-float Sensors::getGyroZ() {
-    return gyroZ * M_PI / 180.0f;
-}
-
-/**
- * @brief      Retorna o ângulo estimado de rolagem (Roll) em graus
- * @return     Ângulo Roll
- */
-float Sensors::getRoll() {
-    return estRoll;
-}
-
-/**
- * @brief      Retorna o ângulo estimado de inclinação (Pitch) em graus
- * @return     Ângulo Pitch
- */
-float Sensors::getPitch() {
-    return estPitch;
-}
-
-/**
- * @brief      Retorna o ângulo estimado de guinada (Yaw) em graus
- * @return     Ângulo Yaw
- */
-float Sensors::getYaw() {
-    return yaw;
-}
-
-
-
-
-
-chrono::duration<double> Sensors::deltaTime(){
-    lock_guard<mutex> lock(mutexSensors);
-    return this->currentTime - this->previousTime;
-}
-
-
-/**
- * @brief Detects whether the AUV has collided with an object.
- */
-void Sensors::collisionDetect(){
-    lock_guard<mutex> lock(mutexSensors);
-    if(fabs(this->acc[0]) > ACC_LIMIT || fabs(this->acc[1]) > ACC_LIMIT || fabs(this->acc[2]) > ACC_LIMIT){
-        throw CollisionDetected(acc);
-    }
-}
-
-void Sensors::detectOverheat(){
-    lock_guard<mutex> lock(mutexSensors);
-    if(this->tempPixhawk > MAX_TEMP_PIXHAWK) throw PixhawkHighTemperature(tempPixhawk);
-    if(this->tempRaspberry > MAX_TEMP_RASPBERRY) throw RaspberryHighTemperature(tempRaspberry);
+// Retorna o delta de tempo entre as duas últimas atualizações
+duration<double> Sensors::deltaTime() {
+    return duration_cast<duration<double>>(currentTime - oldTime);
 }

@@ -21,7 +21,8 @@
         "string": "cpp",
         "cmath": "cpp",
         "unordered_map": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "condition_variable": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
