@@ -124,5 +124,5 @@ void Sensors::detectOverheat() {
 
 // Retorna o delta de tempo entre as duas últimas atualizações
 duration<double> Sensors::deltaTime() {
-    return duration_cast<duration<double>>(currentTime - oldTime);
+    return currentTime - oldTime;
 }
