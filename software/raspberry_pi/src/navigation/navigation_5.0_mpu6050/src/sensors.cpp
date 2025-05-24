@@ -15,17 +15,17 @@ Sensors::~Sensors() {
 // Inicializa o sensor MPU6050 na interface I2C
 bool Sensors::initialize() {
     const char *filename = "/dev/i2c-1";
-
+    
     if ((i2cFile = open(filename, O_RDWR)) < 0) {
         std::cerr << "Failed to open I2C bus\n";
         return false;
     }
-
+    
     if (ioctl(i2cFile, I2C_SLAVE, address) < 0) {
         std::cerr << "Failed to acquire bus access\n";
         return false;
     }
-
+    
     // Desativa modo sleep do MPU6050
     writeByte(0x6B, 0);
     return true;
@@ -45,76 +45,60 @@ int16_t Sensors::readWord(int reg) {
     if (write(i2cFile, buf, 1) != 1) {
         std::cerr << "Failed to set register for read\n";
     }
-
+    
     char data[2];
     if (read(i2cFile, data, 2) != 2) {
         std::cerr << "Failed to read from I2C\n";
     }
-
+    
     return (int16_t)((data[0] << 8) | data[1]);
-}
-
-// Obtém valores do acelerômetro e converte para m/s²
-array<double, 3> Sensors::getAcc() {
-    double ax = (readWord(0x3B) / 16384.0) * 9.81;
-    double ay = (readWord(0x3D) / 16384.0) * 9.81;
-    double az = (readWord(0x3F) / 16384.0) * 9.81;
-    return {ax, ay, az};
-}
-
-// Obtém valores do giroscópio em graus/s
-array<double, 3> Sensors::getGyro() {
-    double gx = readWord(0x43) / 131.0;
-    double gy = readWord(0x45) / 131.0;
-    double gz = readWord(0x47) / 131.0;
-    return {gx, gy, gz};
-}
-
-// Calcula orientação: yaw, pitch e roll
-array<double, 3> Sensors::getOri() {
-    auto acc = getAcc();
-    double ax = acc[0];
-    double ay = acc[1];
-    double az = acc[2];
-
-    // Cálculo do pitch e roll baseado no acelerômetro
-    double pitch = atan2(-ax, sqrt(ay * ay + az * az)) * 180.0 / M_PI;
-    double roll = atan2(ay, az) * 180.0 / M_PI;
-
-    // Sem magnetômetro, yaw não é confiável
-    double yaw = 0.0;
-
-    return {yaw, pitch, roll};
-}
-
-// Estima a velocidade via integração simples da aceleração
-array<double, 3> Sensors::getVel() {
-    static auto lastTime = steady_clock::now();
-
-    auto now = steady_clock::now();
-    double deltaT = duration_cast<duration<double>>(now - lastTime).count();
-    lastTime = now;
-
-    auto acc = getAcc();
-
-    for (int i = 0; i < 3; i++) {
-        // Integração: v = v0 + a * deltaT
-        lastVelocity[i] += acc[i] * deltaT;
-    }
-
-    return lastVelocity;
 }
 
 // Atualiza os timestamps para controle de tempo
 void Sensors::updateData() {
     std::lock_guard<std::mutex> lock(mutexSensors);
+
+    // Atualiza os dados do sensor
+    lastAcc = acc;
+    acc = {(readWord(0x3B) / 16384.0) * 9.81, (readWord(0x3D) / 16384.0) * 9.81, (readWord(0x3F) / 16384.0) * 9.81};
+    lastGyro = {(readWord(0x43) / 131.0), (readWord(0x45) / 131.0), (readWord(0x47) / 131.0)};
+    lastOri = {atan2(this->lastAcc[1], this->lastAcc[2]) * 180.0 / M_PI, atan2(-this->lastAcc[0], sqrt(this->lastAcc[1] * this->lastAcc[1] + this->lastAcc[2] * this->lastAcc[2])) * 180.0 / M_PI, 0.0};
+
+    double deltaT = duration_cast<duration<double>>(this->deltaTime).count();
+
+    for (int i = 0; i < 3; i++) {
+        // Integração: v = v0 + a * deltaT
+        lastVelocity[i] += lastAcc[i] * deltaT;
+    }
+
+    oldTime = currentTime;
+    currentTime = steady_clock::now();
+
     array<double, 3> vel = getVel();
     
     logMessage("Velocidade: " + std::to_string(vel[0]) + ", " + std::to_string(vel[1]) + ", " + std::to_string(vel[2]));
-    
-    oldTime = currentTime;
-    currentTime = steady_clock::now();
 }
+
+// Obtém valores do acelerômetro e converte para m/s²
+array<double, 3> Sensors::getAcc() {
+    return this->lastAcc;
+}
+
+// Obtém valores do giroscópio em graus/s
+array<double, 3> Sensors::getGyro() {
+    return this->lastGyro;
+}
+
+// Calcula orientação: yaw, pitch e roll
+array<double, 3> Sensors::getOri() {
+    return this->lastOri;
+}
+
+// Estima a velocidade via integração simples da aceleração
+array<double, 3> Sensors::getVel() {
+    return this->lastVelocity;
+}
+
 
 // Placeholder: lógica de detecção de colisão ainda não implementada
 void Sensors::collisionDetect() {
