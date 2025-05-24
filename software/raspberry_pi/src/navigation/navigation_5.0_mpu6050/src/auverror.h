@@ -5,6 +5,7 @@
 #include <fstream>
 #include <array>
 #include "utils.h"
+#include "logs.h"
 
 /**
  * @brief Class responsible for managing errors that may occur during the AUV operation.

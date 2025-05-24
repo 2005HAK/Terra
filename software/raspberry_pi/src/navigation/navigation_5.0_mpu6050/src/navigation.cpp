@@ -1,7 +1,7 @@
 #include "navigation.h"
 
-string stateToString(State state){
-    static unordered_map<State, string> stateNames = {
+std::string stateToString(State state){
+    static unordered_map<State, std::string> stateNames = {
         {State::INIT, "INIT"},
         {State::SEARCH, "SEARCH"},
         {State::CENTERING, "CENTERING"},
@@ -21,7 +21,7 @@ string stateToString(State state){
     return (it != stateNames.end() ? it->second : "UNKNOWN");
 }
 
-array<int, 2> center(array<int, 4> xyxy){
+std::array<int, 2> center(std::array<int, 4> xyxy){
     if(xyxy[0] >= 0 && xyxy[0] <= IMAGE_WIDTH && xyxy[1] >= 0 && xyxy[1] <= IMAGE_HEIGHT &&
         xyxy[2] >= 0 && xyxy[2] <= IMAGE_WIDTH && xyxy[3] >= 0 && xyxy[3] <= IMAGE_HEIGHT){
         return {(xyxy[0] + xyxy[2]) / 2, (xyxy[1] + xyxy[3]) / 2};
@@ -29,20 +29,20 @@ array<int, 2> center(array<int, 4> xyxy){
     return {-1, -1};
 }
 
-void centerSetPower(array<Decision, 2> &decision, array<int, 2> center){
+void centerSetPower(std::array<Decision, 2> &decision, std::array<int, 2> center){
     double kpH = .5, kpV = .5;
 
     decision[0].value = max(min(kpH * fabs(center[0] - IMAGE_CENTER[0]), POWER_MAX), .0);
     decision[1].value = max(min(kpV * fabs(center[1] - IMAGE_CENTER[1]), POWER_MAX), .0);
 }
 
-void distanceSetPower(double &power, double distance){
+void distanceSetPower(int &power, double distance){
     double kpF = 4.5;
 
     power = max(min(kpF * fabs(distance - SAFE_DISTANCE), POWER_MAX), .0);
 }
 
-void velocitySetPower(array<Decision, 3> &decision, array<double, 3> velocity){
+void velocitySetPower(std::array<Decision, 3> &decision, std::array<double, 3> velocity){
     double kpX = 1.5, kpY = 1.5, kpZ = 1.5;
 
     decision[0].value = max(min(kpX * fabs(velocity[0]), POWER_MAX), .0);
@@ -50,8 +50,8 @@ void velocitySetPower(array<Decision, 3> &decision, array<double, 3> velocity){
     decision[2].value = max(min(kpZ * fabs(velocity[2]), POWER_MAX), .0);
 }
 
-void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy){
-    array<int, 2> middle = center(xyxy);
+void centerObject(std::array<Decision, 2> &decision, std::array<int, 4> xyxy){
+    std::array<int, 2> middle = center(xyxy);
 
     if(middle[0] >= 0 && middle[0] <= IMAGE_WIDTH && middle[1] >= 0 && middle[1] <= IMAGE_HEIGHT){
         if(middle[0] < IMAGE_CENTER[0] - (ERROR_CENTER / 2)) decision[0].action = Action::LEFT;
@@ -64,27 +64,21 @@ void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy){
     centerSetPower(decision, middle);
 }
 
-void calculateDistance(double &objectDistance, string objectClass, array<int, 4> xyxy){
-    // Actual width of the objects (in meters)
-    static map<string, double> widthObjects{{"obj1", 2}, {"Cube", .055}};
+//Essa função deveria esta em yolocrtl
+// Tratar questão do objeto estar de lado
 
-    // Inicializes the variable with invalid value to indicates error
-    objectDistance = -1;
-
+void calculateDistance(double &objectDistance, std::string objectClass, std::array<int, 4> xyxy){
+    static map<std::string, double> widthObjects{{"obj1", 2}, {"Cube", .055}}; // Actual width of the objects (in meters)
     auto it = widthObjects.find(objectClass);
+    objectDistance = -1;                                                  // Inicializes the variable with invalid value to indicates error
 
     if(it != widthObjects.end() && (xyxy[2] - xyxy[0]) != 0){
-        // image diagonal (in pixels)
-        double d = sqrt(pow(IMAGE_WIDTH, 2) + pow(IMAGE_HEIGHT, 2));
-
-        // Diagonal field of view (in rad)
-        double a = (M_PI / 180) * 55;
-
-        // Focal distance
-        double f = (d / 2) * (cos(a / 2) / sin(a / 2));
+        double d = sqrt(pow(IMAGE_WIDTH, 2) + pow(IMAGE_HEIGHT, 2));      // image diagonal (in pixels)
+        double a = (M_PI / 180) * 55;                                     // Diagonal field of view (in rad)
+        double f = (d / 2) * (cos(a / 2) / sin(a / 2));                   // Focal distance
 
         objectDistance = (f * it->second) / (xyxy[2] - xyxy[0]);
-        cout << "Object distance: " << objectDistance << endl;
+        logMessage("Object distance: " + to_string(objectDistance));
     }
 }
 
@@ -100,19 +94,18 @@ void definesAction(Action &action, double velocity, double errorVelocity, Action
     else if(velocity < 0 - errorVelocity) action = positiveAction;
 }
 
-
 AUVStateMachine::AUVStateMachine(){
-    cout << "Waiting for activation..." << endl;
+    logMessage("Waiting for activation...");
     Activator act(6); // GPIO 25 = pino 6 no esquema WiringPi
     act.WaitingForActivation();
-    cout << "Ativado!\n";
+    logMessage("Ativado!");
 
-    cout << "State machine creation..." << endl;
+    logMessage("State machine creation...");
     this->state = State::INIT;
     this->sensors = make_unique<Sensors>();
     this->yoloCtrl = make_unique<YoloCtrl>();
 
-    cout << "Threads initialization..." << endl;
+    logMessage("Threads initialization...");
 
     // Update sensors data and detection data in parallel with the state machine
     if(sensors) sensorThread = thread(&AUVStateMachine::sensorsData, this);
@@ -121,8 +114,10 @@ AUVStateMachine::AUVStateMachine(){
     if(yoloCtrl) detectionThread = thread(&AUVStateMachine::detectionData, this);
     else throw FailedInitializationYolo();
 
-    cout << "Threads initialized" << endl;
-    cout << "State Machine created" << endl;
+    logMessage("Threads initialized");
+    logMessage("State Machine created");
+
+    this->run();
 }
 
 AUVStateMachine::~AUVStateMachine(){
@@ -136,10 +131,12 @@ AUVStateMachine::~AUVStateMachine(){
 
 void AUVStateMachine::sensorsData(){
     sensors->initialize();
+    
     while(running){
         sensors->updateData();
 	sleep_for(milliseconds(100));
     }
+    
 }
 
 void AUVStateMachine::detectionData(){
@@ -185,23 +182,31 @@ void AUVStateMachine::stabilizes(){
 // TRANSITION FUNCTIONS
 
 bool AUVStateMachine::checksTransition(){
-    if(this->yoloCtrl->foundObject()) {
-        for(const auto& transition : stateTransitions){
-            if(transition.lastState == this->lastState && transition.currentState == this->state){
-                array<int, 4> xyxy = this->yoloCtrl->getXYXY(transition.targetObject);
-                if(xyxy[0] != -1 || transition.nextState == State::SEARCH){
-                    this->targetObject = transition.targetObject;
-                    transitionTo(transition.nextState);
-                    return true;
-                }               
-            }
+    logMessage("Checking transition...");
+
+    for(const auto& transition : stateTransitions){
+        if(transition.lastState == this->lastState && transition.currentState == this->state && transition.targetObject != ""){
+            array<int, 4> xyxy = this->yoloCtrl->getXYXY(transition.targetObject);
+
+            if(xyxy[0] != -1){
+                this->targetObject = transition.targetObject;
+                transitionTo(transition.nextState);
+                return true;
+            }               
+        } else if(transition.nextState == State::SEARCH){
+            this->targetObject = transition.targetObject;
+            transitionTo(transition.nextState);
+            return true;
         }
-    }       
+    }  
+
+    logMessage("Transition not found");
+
     return false;
 }
 
 void AUVStateMachine::transitionTo(State newState){
-    cout << "Transitioning from " + stateToString(this->state) + " to " + stateToString(newState) << endl;
+    logMessage("Transitioning from " + stateToString(this->state) + " to " + stateToString(newState));
     this->lastState = this->state;
     this->state = newState;
 }
@@ -212,15 +217,19 @@ void AUVStateMachine::transitionTo(State newState){
 
 void AUVStateMachine::errorHandling(AUVError e){
     auto* error = dynamic_cast<CollisionDetected*>(&e);
-    if(error){
-        if(this->state == State::SEARCH) directionCorrection(error->getAcceleration());
-    }
+
+    if(error) if(this->state == State::SEARCH) directionCorrection(error->getAcceleration());
     
     if(dynamic_cast<const FailedConnectThrusters*>(&e) || dynamic_cast<const HighTemperatureError*>(&e)) exit(1); 
+
+    if(dynamic_cast<const ObjectNotFound*>(&e)){
+        transitionTo(State::STOP);
+        run();
+    }
 }
 
 void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
-    cout << "Correcting direction..." << endl;
+    logMessage("Correcting direction...");
 
     array<double, 3> positionCollision = {-acceleration[0], -acceleration[1], -acceleration[2]};
 
@@ -241,23 +250,25 @@ void AUVStateMachine::directionCorrection(array<double, 3> acceleration){
 // DEFINITION OF STATES
 
 void AUVStateMachine::search(){
-    int rotationCurrent = 0;
+    logMessage("Searching...");
 
-    cout << "Searching..." << endl;
-
-    // Provavelmente as o modo de encontrar os objetos para fazer as transições sera mudado para ser mais especifico para cada caso
+    // Provavelmente o modo de encontrar os objetos para fazer as transições sera mudado para ser mais especifico para cada caso
 
     if(this->lastState == State::INIT){
+        this->thrusters->defineAction({Action::DOWN, 10});
+
+        sleep_for(seconds(2)); // definir tempo que o AUV demora para descer a uma profundidade onde o gate será visivel
+
         this->thrusters->defineAction({Action::NONE, 0});
 
+        int rotationCurrent = 0;
+
         while(!searchObjects("Gate")){
-            if(rotationCurrent < 1){
+            if(rotationCurrent < 16){
                 rotate();
                 rotationCurrent++;
-            } else if(rotationCurrent < 3){
-                rotate();
-                rotationCurrent++;
-            } // tratar questão de não encontrar o gate so com esse procedimento
+            } else throw ObjectNotFound("Gate");
+            
             sleep_for(milliseconds(100));
         }
     } else if(this->lastState == State::PASSGATE){
@@ -328,70 +339,76 @@ void AUVStateMachine::init(){
     this->thrusters = make_unique<ThrustersControl>();
 
     if(thrusters){
-        stabilizesThread = thread(&AUVStateMachine::stabilizes, this);
+        //stabilizesThread = thread(&AUVStateMachine::stabilizes, this);
         checksTransition();
     }
     else throw FailedConnectThrusters();
 }  
 
 void AUVStateMachine::passGate(){
-    cout << "Passing gate..." << endl;
+    logMessage("Passing gate...");
+    int attempts = 0;
 
-    if(centering()){
-        while(!searchObjects(INITIALCHOICE)){
-            this->thrusters->defineAction({Action::FORWARD, 20});
-            sleep_for(milliseconds(100));
-        }
-
-        this->thrusters->defineAction({Action::NONE, 0});
-
-        array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
-
-        // Check which side the object is on
-        if(xyxy[0] > IMAGE_CENTER[0]) sideIsLeft = false;
-
+    while(attempts < 5) {
         if(centering()){
-            double currentDistance = 0, distance;
+            while(!searchObjects(INITIALCHOICE)){
+                this->thrusters->defineAction({Action::FORWARD, 20}); // Fazer testes para definir essa potencia
+                sleep_for(milliseconds(100));
+            }
+            this->thrusters->defineAction({Action::NONE, 0});
 
             array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
-            calculateDistance(distance, this->targetObject, xyxy);
+            if(xyxy[0] > IMAGE_CENTER[0]) sideIsLeft = false; // Check which side the object is on
 
-            bool isAbove = false;
-            while(!isAbove){
-                array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
-                
-                if(xyxy[0] != -1){
-                    array<int, 2> centerObject = center(xyxy);
+            attempts = 0;
+            while(attempts < 5){
+                if(centering()){
+                    double currentDeslocation = 0, distance;
+
+                    array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
+                    calculateDistance(distance, this->targetObject, xyxy);
+
+                    this->thrusters->defineAction({Action::DOWN, 20});
+                    sleep_for(seconds(3)); // Definir o tempo necessario para estar abaixo da placa
+                    this->thrusters->defineAction({Action::NONE, 0});
+
+                    while(currentDeslocation < distance){
+                        int power = 0;
+                        distanceSetPower(power, distance - currentDeslocation);
+
+                        this->thrusters->defineAction({Action::FORWARD, power});
+
+                        currentDeslocation += this->sensors->getVel()[0] * this->sensors->deltaTime().count(); // Verificar tamanho da defasagem
+                    }
+                    this->thrusters->defineAction({Action::NONE, 0});
+
+                    // Rotate after passing through the gate
+                    rotate(2 * M_PI, 0.174533, Action::TURNRIGHT);
+                    sleep_for(milliseconds(500));
+                    rotate(2 * M_PI, 0.174533, Action::TURNRIGHT);
                     
-                    if(xyxy[1] > (ERROR_CENTER / 2)) this->thrusters->defineAction({Action::DOWN, 20});
-                    else isAbove = true;
+                    checksTransition();
+                    break;
+                } else {
+                    // Tratar a perda do objeto
+                    // Verificar ultima posição que ele ainda estava na imagem e voltar para la
+                    attempts++;
                 }
             }
-            this->thrusters->defineAction({Action::NONE, 0});
-
-            while(currentDistance < distance + .5){
-                this->thrusters->defineAction({Action::FORWARD, 20});
-
-                currentDistance += this->sensors->getVel()[0] * this->sensors->deltaTime().count(); // Verificar tamanho da defasagem
-            }
-
-            this->thrusters->defineAction({Action::NONE, 0});
-
-            // Rotate after passing through the gate
-            rotate(2 * M_PI, 0.174533, Action::TURNRIGHT);
-            sleep_for(milliseconds(500));
-            rotate(2 * M_PI, 0.174533, Action::TURNRIGHT);
+            break;
+        } else{
+            // tratar questão de perda de objeto
+            // verificar ultima posição que ele ainda estava na imagem e voltar para la
+            attempts++;
         }
-        checksTransition();
-    } else{
-        // tratar questão de perda de objeto
     }
+    if(attempts == 5) throw ObjectNotFound("Gate");
 }
 
 // Testar
 
 void AUVStateMachine::alignToPath(){
-    cout << "Aligning to path..." << endl;
+    logMessage("Aligning to path...");
 
     if(centering()){
         array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
@@ -427,7 +444,7 @@ void AUVStateMachine::alignToPath(){
 // Testar
 
 void AUVStateMachine::navigate(){
-    cout << "Navigating..." << endl;
+    logMessage("Navigating...");
 
     int safeRange = 100;
     int count = 0;
@@ -490,7 +507,7 @@ void AUVStateMachine::navigate(){
 // Testar
 
 void AUVStateMachine::dropMarkers(){
-    cout << "Dropping markers..." << endl;
+    logMessage("Dropping markers...");
 
     while(searchObjects("Bin")){
         this->thrusters->defineAction({Action::FORWARD, 20});
@@ -536,7 +553,7 @@ void AUVStateMachine::dropMarkers(){
 // Implementar
 
 void AUVStateMachine::tagging(){
-    cout << "Tagging..." << endl;
+    logMessage("Tagging...");
 
     // In meters
     double minDistance = 1;
@@ -602,24 +619,20 @@ bool AUVStateMachine::searchObjects(string object){
 }
 
 // Testar
-
 void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
-    array<double, 3> gyroCurrent = this->sensors->getGyro(), gyroOld;
-    double rotated = 0;
+    array<double, 3> oriCurrent = this->sensors->getOri();
+    array<double, 3> oriInit = oriCurrent;
     Decision decision = {action, 20};
     
-    while(fabs(rotated) < angle - errorAngle){
+    while(fabs(oriCurrent[2] - oriInit[2]) < angle - errorAngle){
+        double error = (angle - errorAngle) - fabs(oriCurrent[2] - oriInit[2]);
+        decision.value = error * 60;
         this->thrusters->defineAction(decision);
 
-        gyroOld = gyroCurrent;
-        gyroCurrent = this->sensors->getGyro();
-        // Provalmente ta errado
-        double deltaTime = this->sensors->deltaTime().count();
-
-        rotated += deltaTime * (gyroCurrent[2] + gyroOld[2]) / 2;
+        oriCurrent = this->sensors->getOri();
     }
-    decision.value = 0;
 
+    decision.value = 0;
     this->thrusters->defineAction(decision);
 }
 
@@ -629,14 +642,14 @@ void AUVStateMachine::rotate(double angle, double errorAngle, Action action){
 // usar proporção
 
 bool AUVStateMachine::centering(){
-    cout << "Centering..." << endl;
+    logMessage("Centering...");
 
     bool isCenter = false;
 
     while(!isCenter){
         array<int, 4> xyxy = this->yoloCtrl->getXYXY(this->targetObject);
 
-        if(xyxy[0] != -1 && xyxy[1] != -1 && xyxy[2] != -1, xyxy[3] != -1){
+        if(xyxy[0] != -1){
             array<Decision, 2> decision;
 
             centerObject(decision, xyxy);
@@ -646,8 +659,8 @@ bool AUVStateMachine::centering(){
             
             if(decision[0].action == Action::NONE && decision[1].action == Action::NONE) isCenter = true;
         } else{
-	        isCenter = true;
-	        cout << "Lost object!" << endl;
+	        logMessage("Lost object!");
+            return isCenter;
         }
     }
 
@@ -663,7 +676,7 @@ void AUVStateMachine::dropping(){
 // Testar
 
 void AUVStateMachine::advancing(){
-    cout << "Advancing..." << endl;
+    logMessage("Advancing...");
 
     int lostObject = 0;
     int advance = 1;
@@ -683,7 +696,7 @@ void AUVStateMachine::advancing(){
         } else {
             advance = 0;
             lostObject = 1;
-            cout << "Lost object!" << endl;
+            logMessage("Lost object!");
         }
     }
     if(lostObject){
@@ -695,7 +708,7 @@ void AUVStateMachine::advancing(){
 }
 
 void AUVStateMachine::stop(){
-    cout << "Stoping..." << endl;
+    logMessage("Stoping...");
 
     this->yoloCtrl->stop();
     this->thrusters->finish();
@@ -708,42 +721,18 @@ void AUVStateMachine::run(){
         errorThread = thread(&AUVStateMachine::checksErrors, this);
 
         while (this->state != State::STOP){
-            switch (this->state){
-                case State::INIT:
-                    init();
-                    break;
-                case State::SEARCH:
-                    search();
-                    break;
-                case State::PASSGATE:
-                    passGate();
-                    break;
-                case State::ALIGNTOPATH:
-                    alignToPath();
-                    break;
-                case State::NAVIGATE:
-                    navigate();
-                    break;
-                case State::DROPMARKERS:
-                    dropMarkers();
-                    break;
-                case State::TAGGING:
-                    //tagging();
-                    break;
+            if(this->state == State::INIT) init();
+            else if(this->state == State::SEARCH) search();
+            else if(this->state == State::PASSGATE) passGate();
+            else if(this->state == State::ALIGNTOPATH) alignToPath();
+            else if(this->state == State::NAVIGATE) navigate();
+            else if(this->state == State::DROPMARKERS) dropMarkers();
+            else if(this->state == State::TAGGING) tagging();
 
-                //verificar se ainda serão usados
-                case State::CENTERING:
-                    centering();
-                    break;
-                case State::ADVANCING:
-                    advancing();
-                    break;
-                case State::STABILIZING:
-                    stabilizes();
-                    break;
-                default:
-                    break;
-            }
+            // Verificar a necessidade
+            else if(this->state == State::CENTERING) centering();
+            else if(this->state == State::ADVANCING) advancing();
+            else if(this->state == State::STABILIZING) stabilizes();
         }
 
         stop();
@@ -756,6 +745,5 @@ void AUVStateMachine::run(){
 
 int main(){
     AUVStateMachine auv;
-    auv.run();
     return 0;
 }

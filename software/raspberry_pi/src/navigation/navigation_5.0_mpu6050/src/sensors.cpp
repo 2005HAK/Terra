@@ -108,6 +108,10 @@ array<double, 3> Sensors::getVel() {
 // Atualiza os timestamps para controle de tempo
 void Sensors::updateData() {
     std::lock_guard<std::mutex> lock(mutexSensors);
+    array<double, 3> acc = getAcc();
+
+    logMessage("Acelerômetro: " + std::to_string(acc[0]) + ", " + std::to_string(acc[1]) + ", " + std::to_string(acc[2]));
+    
     oldTime = currentTime;
     currentTime = steady_clock::now();
 }

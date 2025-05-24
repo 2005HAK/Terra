@@ -10,6 +10,7 @@
 #include <cmath>
 #include <chrono>
 #include <mutex>
+#include "auverror.h"
 
 using std::array;
 using namespace std::chrono;
