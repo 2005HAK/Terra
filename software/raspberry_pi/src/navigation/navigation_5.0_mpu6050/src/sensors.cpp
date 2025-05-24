@@ -28,6 +28,10 @@ bool Sensors::initialize() {
     
     // Desativa modo sleep do MPU6050
     writeByte(0x6B, 0);
+
+    currentTime = chrono::steady_clock::now();
+    oldTime = currentTime;
+
     return true;
 }
 
@@ -62,9 +66,9 @@ void Sensors::updateData() {
     lastAcc = acc;
     acc = {(readWord(0x3B) / 16384.0) * 9.81, (readWord(0x3D) / 16384.0) * 9.81, (readWord(0x3F) / 16384.0) * 9.81};
     lastGyro = {(readWord(0x43) / 131.0), (readWord(0x45) / 131.0), (readWord(0x47) / 131.0)};
-    lastOri = {atan2(this->lastAcc[1], this->lastAcc[2]) * 180.0 / M_PI, atan2(-this->lastAcc[0], sqrt(this->lastAcc[1] * this->lastAcc[1] + this->lastAcc[2] * this->lastAcc[2])) * 180.0 / M_PI, 0.0};
+    lastOri = {atan2(lastAcc[1], lastAcc[2]) * 180.0 / M_PI, atan2(-lastAcc[0], sqrt(lastAcc[1] * lastAcc[1] + lastAcc[2] * lastAcc[2])) * 180.0 / M_PI, 0.0};
 
-    double deltaT = duration_cast<duration<double>>(this->deltaTime()).count();
+    double deltaT = duration_cast<duration<double>>(deltaTime()).count();
 
     for (int i = 0; i < 3; i++) {
         // Integração: v = v0 + a * deltaT
