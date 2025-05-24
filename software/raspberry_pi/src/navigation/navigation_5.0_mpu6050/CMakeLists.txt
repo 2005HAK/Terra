@@ -18,6 +18,7 @@ set(SOURCES
     src/thrustersctrl.cpp
     src/yoloctrl.cpp
     src/auverror.cpp
+    src/logs.cpp
     src/utils.cpp
     src/activator.cpp
 )
