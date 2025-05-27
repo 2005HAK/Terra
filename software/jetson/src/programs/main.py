@@ -3,8 +3,8 @@ Esse arquivo tem como objetivo principal ser um arquivo leve pra rodar a yolo co
 """
 """
 VALORES DE DETECCAO
-0: SHARK
-1: SAWFISH
+0: SAWFISH
+1: SHARK
 """
 
 from ultralytics import YOLO
@@ -16,13 +16,13 @@ class IA:
     def __init__(self):
         self.state_dict = {
             0: [0, 1],  # Detectar SHARK e SAWFISH no estado 0
-            1: [1]      # Detectar só SAWFISH no estado 1
+            1: [1]      # Detectar só SHARK no estado 1
             # Se quiser mais estados, só adiciona aqui
         }
         self.HOST = '192.168.0.1'
         self.PORT = 65432
         self.model = YOLO('../modelos/SHARK_SAWFISH.pt')
-        self.state = 0
+        self.state = 0SSS
         self.pins = [11, 12, 13, 15]  # Pinos FISICOS!!!
         self.gpio_setup()
 
