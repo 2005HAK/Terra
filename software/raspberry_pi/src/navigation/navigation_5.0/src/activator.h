@@ -1,9 +1,7 @@
 #ifndef ACTIVATOR_H
 #define ACTIVATOR_H
 
-#include <wiringPi.h>
-#include <stdexcept>
-#include <iostream>
+#include "utils.h"
 
 class Activator {
     private:
@@ -20,7 +18,7 @@ class Activator {
         /**
          * @brief Waits for activation signal on the specified GPIO pin.
          * 
-         * This function blocks until the activation signal is received.
+         * @details This function blocks until the activation signal is received.
          */
         void WaitingForActivation();
 };

@@ -1,14 +1,12 @@
 #ifndef THRUSTERSCTRL_H
 #define THRUSTERSCTRL_H
 
-#include <vector>
-#include <wiringPi.h>
-#include "auverror.h"
+#include "utils.h"
 
 // Defines the power maximum that thrusters can receive (in %)
 const double POWER_MAX = 25;
 
-//Frequency used for the PWM signal
+// Frequency used for the PWM signal
 const double FREQUENCY = 200;
 
 /** Thrusters pins
@@ -49,8 +47,7 @@ class Thruster{
         /**
          * @brief Initializes the thruster.
          * 
-         * Sets the pin as output, sets the PWM mode as MS (mark:space), sets the clock divisor
-         * (default clock 19.2MHz), sets the PWM value range, and writes 0 to the pin, which corresponds to 1500us.
+         * Sets the pin as output, sets the PWM mode as MS (mark:space), sets the clock divisor (default clock 19.2MHz), sets the PWM value range, and writes 0 to the pin, which corresponds to 1500us.
          */
         void initThruster();
 
@@ -73,7 +70,7 @@ class Thruster{
         /**
          * @brief Turns off the thruster.
          * 
-         * Sets the duty cycle to 0.
+         * @details Sets the duty cycle to 0.
          */
         void finishesThruster();
 };
@@ -97,8 +94,7 @@ class ThrustersControl{
         /**
          * @brief Initializes each AUV thruster.
          * 
-         * Creates each AUV thruster, adds each one to the thrusters vector, and waits 7 seconds for the
-         * thrusters to start.
+         * Creates each AUV thruster, adds each one to the thrusters vector, and waits 7 seconds for the thrusters to start.
          */
         void initializeThrusters();
 
@@ -109,7 +105,6 @@ class ThrustersControl{
          */
         void defineAction(Decision decision);
 
-        
         bool getStabilizeVert();
 
         bool getStabilizeHori();

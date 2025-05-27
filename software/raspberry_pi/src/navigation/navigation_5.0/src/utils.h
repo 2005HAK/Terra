@@ -1,20 +1,19 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <iostream>
-#include <fstream>
-#include <array>
-#include <string>
+#include <wiringPi.h>
+#include <math.h>
+#include <vector>
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include "auverror.h"
 
-using namespace std;
 using namespace chrono;
 using namespace this_thread;
 
 /**
- * @brief Enum representing the actions the AUV can perform.
+ * Enum representing the actions the AUV can perform.
  * 
  * Actions:
  * 

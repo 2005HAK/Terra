@@ -30,7 +30,7 @@ Sensors::Sensors(){
         logMessage("System is ready!");
     }else FailedDetectSystem();
 
-    currentTime = chrono::steady_clock::now();
+    currentTime = steady_clock::now();
     oldTime = currentTime;
 }
 
@@ -82,7 +82,7 @@ void Sensors::updateData(){
     // cout << "accx: " << acc[0] << ", accy: " << acc[1] << ", accz: " << acc[2] << endl;
 
     oldTime = currentTime;
-    currentTime = chrono::steady_clock::now();
+    currentTime = steady_clock::now();
 }
 
 void Sensors::collisionDetect(){
@@ -118,7 +118,7 @@ array<double, 3> Sensors::getVel(){
     return this->vel;
 }
 
-chrono::duration<double> Sensors::deltaTime(){
+duration<double> Sensors::deltaTime(){
     lock_guard<mutex> lock(mutexSensors);
     return this->currentTime - this->oldTime;
 }

@@ -1,7 +1,7 @@
 #include "navigation.h"
 
-std::string stateToString(State state){
-    static unordered_map<State, std::string> stateNames = {
+string stateToString(State state){
+    static unordered_map<State, string> stateNames = {
         {State::INIT, "INIT"},
         {State::SEARCH, "SEARCH"},
         {State::CENTERING, "CENTERING"},
@@ -21,7 +21,7 @@ std::string stateToString(State state){
     return (it != stateNames.end() ? it->second : "UNKNOWN");
 }
 
-std::array<int, 2> center(std::array<int, 4> xyxy){
+array<int, 2> center(array<int, 4> xyxy){
     if(xyxy[0] >= 0 && xyxy[0] <= IMAGE_WIDTH && xyxy[1] >= 0 && xyxy[1] <= IMAGE_HEIGHT &&
         xyxy[2] >= 0 && xyxy[2] <= IMAGE_WIDTH && xyxy[3] >= 0 && xyxy[3] <= IMAGE_HEIGHT){
         return {(xyxy[0] + xyxy[2]) / 2, (xyxy[1] + xyxy[3]) / 2};
@@ -29,7 +29,7 @@ std::array<int, 2> center(std::array<int, 4> xyxy){
     return {-1, -1};
 }
 
-void centerSetPower(std::array<Decision, 2> &decision, std::array<int, 2> center){
+void centerSetPower(array<Decision, 2> &decision, array<int, 2> center){
     double kpH = .5, kpV = .5;
 
     decision[0].value = max(min(kpH * fabs(center[0] - IMAGE_CENTER[0]), POWER_MAX), .0);
@@ -42,7 +42,7 @@ void distanceSetPower(int &power, double distance){
     power = max(min(kpF * fabs(distance - SAFE_DISTANCE), POWER_MAX), .0);
 }
 
-void velocitySetPower(std::array<Decision, 3> &decision, std::array<double, 3> velocity){
+void velocitySetPower(array<Decision, 3> &decision, array<double, 3> velocity){
     double kpX = 1.5, kpY = 1.5, kpZ = 1.5;
 
     decision[0].value = max(min(kpX * fabs(velocity[0]), POWER_MAX), .0);
@@ -50,8 +50,8 @@ void velocitySetPower(std::array<Decision, 3> &decision, std::array<double, 3> v
     decision[2].value = max(min(kpZ * fabs(velocity[2]), POWER_MAX), .0);
 }
 
-void centerObject(std::array<Decision, 2> &decision, std::array<int, 4> xyxy){
-    std::array<int, 2> middle = center(xyxy);
+void centerObject(array<Decision, 2> &decision, array<int, 4> xyxy){
+    array<int, 2> middle = center(xyxy);
 
     if(middle[0] >= 0 && middle[0] <= IMAGE_WIDTH && middle[1] >= 0 && middle[1] <= IMAGE_HEIGHT){
         if(middle[0] < IMAGE_CENTER[0] - (ERROR_CENTER / 2)) decision[0].action = Action::LEFT;
@@ -67,8 +67,8 @@ void centerObject(std::array<Decision, 2> &decision, std::array<int, 4> xyxy){
 //Essa função deveria esta em yolocrtl
 // Tratar questão do objeto estar de lado
 
-void calculateDistance(double &objectDistance, std::string objectClass, std::array<int, 4> xyxy){
-    static map<std::string, double> widthObjects{{"obj1", 2}, {"Cube", .055}}; // Actual width of the objects (in meters)
+void calculateDistance(double &objectDistance, string objectClass, array<int, 4> xyxy){
+    static map<string, double> widthObjects{{"obj1", 2}, {"Cube", .055}}; // Actual width of the objects (in meters)
     auto it = widthObjects.find(objectClass);
     objectDistance = -1;                                                  // Inicializes the variable with invalid value to indicates error
 

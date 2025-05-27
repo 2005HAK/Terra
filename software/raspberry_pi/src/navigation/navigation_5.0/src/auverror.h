@@ -1,7 +1,7 @@
 #ifndef AUVERROR_H
 #define AUVERROR_H
 
-#include "utils.h"
+#include <array>
 #include "logs.h"
 
 /**
@@ -9,8 +9,8 @@
  */
 class AUVError : public exception{
     private:
-        std::string time;
-        std::string type;
+        string time;
+        string type;
         int code;
 
     public:
@@ -20,7 +20,7 @@ class AUVError : public exception{
          * @param type Type of error identified.
          * @param code Error code.
          */
-        AUVError(std::string type = "Unidentidied error", int code = 95);
+        AUVError(string type = "Unidentidied error", int code = 95);
 
         /**
          * @brief Saves errors to a log file for later checking.
@@ -52,7 +52,7 @@ class FailedInitializationYolo : public AUVError{
          * @param type Type of error identified.
          * @param code Error code.
          */
-        FailedInitializationYolo(std::string type = "Failed to create the yolo object.", int code = 251);
+        FailedInitializationYolo(string type = "Failed to create the yolo object.", int code = 251);
 };
 
 /**
@@ -104,12 +104,12 @@ class DetectionError : public AUVError{
         /**
          * @brief Constructor of the DetectionError class.
          */
-        DetectionError(std::string type = "Failed to detect", int code = 256);
+        DetectionError(string type = "Failed to detect", int code = 256);
 };
 
 class ObjectNotFound : public DetectionError{
     private:
-        std::string object;
+        string object;
 
     public:
         /**
@@ -117,7 +117,7 @@ class ObjectNotFound : public DetectionError{
          * 
          * @param object The object that was not found.
          */
-        ObjectNotFound(std::string object = "Unidentified object");
+        ObjectNotFound(string object = "Unidentified object");
 };
 
 // END YOLOCTRL
@@ -132,7 +132,7 @@ class FailedPixhawk : public AUVError{
          * @param type Type of error identified.
          * @param code Error code.
          */
-        FailedPixhawk(std::string type = "Failed in the Pixhawk", int code = 350);
+        FailedPixhawk(string type = "Failed in the Pixhawk", int code = 350);
 };
 
 class FailedConnectMavsdk : public FailedPixhawk{
@@ -162,7 +162,7 @@ class FailedDetectSystem : public FailedPixhawk{
  */
 class CollisionDetected : public AUVError{
     private:
-        std::array<double, 3> acceleration;
+        array<double, 3> acceleration;
 
     public:
         /**
@@ -170,14 +170,14 @@ class CollisionDetected : public AUVError{
          * 
          * @param acceleration The acceleration values on the x, y, and z axes, respectively.
          */
-        CollisionDetected(std::array<double, 3> acceleration);
+        CollisionDetected(array<double, 3> acceleration);
         
         /**
          * @brief Gets the acceleration values that caused the collision.
          * 
          * @return The acceleration values on the x, y, and z axes, respectively.
          */
-        std::array<double, 3> getAcceleration();
+        array<double, 3> getAcceleration();
 };
 
 /**
@@ -195,7 +195,7 @@ class HighTemperatureError : public AUVError{
      * @param type Type of error identified.
      * @param code Error code.
      */
-    HighTemperatureError(double temperature = -1, std::string type = "High temperature detected", int code = 95);
+    HighTemperatureError(double temperature = -1, string type = "High temperature detected", int code = 95);
 };
 
 /**
@@ -227,14 +227,14 @@ class RaspberryHighTemperature : public HighTemperatureError{
 // END SENSORS
 
 /**
- * @brief Class representing errors that may occur during the initialization of the thrusters.
+ * @brief Class representing errors that may occur during the connection to WiringPi.
  */
-class FailedConnectThrusters : public AUVError{
+class FailedConnectWiringPi : public AUVError{
     public:
         /**
-         * @brief Constructor of the FailedConnectThrusters class.
+         * @brief Constructor of the FailedConnectWiringPi class.
          */
-        FailedConnectThrusters();
+        FailedConnectWiringPi();
 };
 
 /**
