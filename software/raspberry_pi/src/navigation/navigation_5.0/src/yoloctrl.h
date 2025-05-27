@@ -8,9 +8,8 @@
 #include <cstring>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <vector>
 #include <tuple>
-#include "auverror.h"
+#include "utils.h"
 
 using boost::asio::ip::tcp;
 using json = nlohmann::json;
@@ -57,6 +56,7 @@ class YoloCtrl{
          * @brief Processes the received JSON data and extracts identified objects.
          * 
          * @param received_json The received JSON data.
+         * 
          * @return A vector of identified objects.
          */
         vector<Object> process_json(const json& received_json);
@@ -95,6 +95,7 @@ class YoloCtrl{
          * @brief Gets the coordinates of the bounding box of the specified object.
          * 
          * @param objectName The name of the object.
+         * 
          * @return An array containing the coordinates [x1, y1, x2, y2] of the bounding box.
          */
         array<int, 4> getXYXY(string objectName);

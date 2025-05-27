@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/equipeterra/Terranovo/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/src -isystem /usr/include/mavsdk
+CXX_INCLUDES = -I/home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0_mpu6050/src -I/usr/include/eigen3 -isystem /usr/include/mavsdk
 
 CXX_FLAGS = -std=gnu++17
 

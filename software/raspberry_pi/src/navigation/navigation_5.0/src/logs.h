@@ -1,7 +1,11 @@
 #ifndef LOGS_H
 #define LOGS_H
 
-#include "utils.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
 
 /**
  * @brief Logs a message to the console or file based on the mode.

@@ -1,7 +1,7 @@
 CMakeFiles/run_auv.dir/src/activator.cpp.o: \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/activator.cpp \
+ /home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0/src/activator.cpp \
  /usr/include/stdc-predef.h \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/activator.h \
+ /home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0/src/activator.h \
  /usr/local/include/wiringPi.h /usr/include/c++/12/stdexcept \
  /usr/include/c++/12/exception \
  /usr/include/aarch64-linux-gnu/c++/12/bits/c++config.h \

@@ -3,13 +3,11 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-#include <math.h>
 #include <map>
 #include "sensors.h"
 #include "yoloctrl.h"
 #include "thrustersctrl.h"
-#include "auverror.h"
-#include "logs.h"
+#include "utils.h"
 #include "activator.h"
 
 // Width and height of the image seen by the camera

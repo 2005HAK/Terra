@@ -34,7 +34,7 @@ void Thruster::finishesThruster(){
 ThrustersControl::ThrustersControl(){
     logMessage("Starting thrusters...");
     
-    if(wiringPiSetup() == -1) throw FailedConnectThrusters();
+    if(wiringPiSetup() == -1) throw FailedConnectWiringPi();
 
     initializeThrusters();
 

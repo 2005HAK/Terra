@@ -1,7 +1,8 @@
 CMakeFiles/run_auv.dir/src/auverror.cpp.o: \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/auverror.cpp \
+ /home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0/src/auverror.cpp \
  /usr/include/stdc-predef.h \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/auverror.h \
+ /home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0/src/auverror.h \
+ /home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0/src/utils.h \
  /usr/include/c++/12/iostream \
  /usr/include/aarch64-linux-gnu/c++/12/bits/c++config.h \
  /usr/include/aarch64-linux-gnu/c++/12/bits/os_defines.h \
@@ -155,12 +156,14 @@ CMakeFiles/run_auv.dir/src/auverror.cpp.o: \
  /usr/include/aarch64-linux-gnu/c++/12/bits/basic_file.h \
  /usr/include/aarch64-linux-gnu/c++/12/bits/c++io.h \
  /usr/include/c++/12/bits/fstream.tcc /usr/include/c++/12/array \
- /usr/include/c++/12/compare \
- /home/equipeterra/Terra/software/raspberry_pi/src/navegation/navegation_5.0/src/utils.h \
- /usr/include/c++/12/chrono /usr/include/c++/12/bits/chrono.h \
- /usr/include/c++/12/ratio /usr/include/c++/12/limits \
- /usr/include/c++/12/ctime /usr/include/c++/12/bits/parse_numbers.h \
- /usr/include/c++/12/thread /usr/include/c++/12/bits/std_thread.h \
- /usr/include/c++/12/tuple /usr/include/c++/12/bits/uses_allocator.h \
+ /usr/include/c++/12/compare /usr/include/c++/12/chrono \
+ /usr/include/c++/12/bits/chrono.h /usr/include/c++/12/ratio \
+ /usr/include/c++/12/limits /usr/include/c++/12/ctime \
+ /usr/include/c++/12/bits/parse_numbers.h /usr/include/c++/12/thread \
+ /usr/include/c++/12/bits/std_thread.h /usr/include/c++/12/tuple \
+ /usr/include/c++/12/bits/uses_allocator.h \
  /usr/include/c++/12/bits/unique_ptr.h \
- /usr/include/c++/12/bits/this_thread_sleep.h
+ /usr/include/c++/12/bits/this_thread_sleep.h /usr/include/c++/12/mutex \
+ /usr/include/c++/12/bits/std_mutex.h \
+ /usr/include/c++/12/bits/unique_lock.h \
+ /home/equipeterra/Terra/software/raspberry_pi/src/navigation/navigation_5.0/src/logs.h
