@@ -5,11 +5,38 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0b4a5813-818e-42a5-971b-769efa51ab03" name="Changes" comment="troca cam e exclude de img whatsapp(solve)">
-      <change afterPath="$PROJECT_DIR$/software/jetson/src/Testes/TradeCamRecive.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/software/jetson/src/Testes/TradeCamSend.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Terra.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Terra.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/Testes/TradeCamSend.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/jetson/src/Testes/TradeCamBotão.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/jetson/src/Treinos/Client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/Video.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/main_treino_por_socket.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/jetson/src/Treinos/main_treino_por_socket.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/modelos/TreinoCuboV1Para160px01.pt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/modelos/TreinoCuboV1Para160px02.pt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/modelos/TreinoCuboV2Para160px01.pt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/modelos/yolo11n.pt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/modelos/yolo12n.pt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/modelos/yolov8n.pt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/treino_node/Terra-train.v2i.yolov11.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/treino_node/train.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/alternar.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/enviar_troca_camera.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/mainreciver.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/recive.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/run.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/server2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/trocador" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/yolo11n.pt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/YOLO.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/mainReciver.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/reciveobj.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/reciveobj2.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/run" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/server" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/server2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/yolo11n.pt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/LibraryYOLO.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/Main.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,12 +59,12 @@
     &quot;assignee&quot;: &quot;GustavoPiaz2102&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/2005HAK/Terra.git&quot;,
-    &quot;accountId&quot;: &quot;b6e5dae9-7edf-4998-b4ce-5f5e018f92ce&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/2005HAK/Terra.git",
+    "accountId": "143ee950-044d-456e-a0a7-74d3c91175fa"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -59,7 +86,8 @@
     "Python.yolo1.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master"
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "/home/gustavo/Desktop/git/Terra"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -69,7 +97,7 @@
       <recent name="$PROJECT_DIR$/software/jetson/src/Testes" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.TradeCamRecive">
     <configuration name="TradeCamRecive" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Terra" />
       <option name="ENV_FILES" value="" />
@@ -124,7 +152,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-a5bc9544c897-aa17d162503b-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-243.23654.177" />
+        <option value="bundled-python-sdk-4f4e415b4190-aa17d162503b-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-243.26053.29" />
       </set>
     </attachedChunks>
   </component>
