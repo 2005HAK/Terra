@@ -14,6 +14,8 @@
 using boost::asio::ip::tcp;
 using json = nlohmann::json;
 
+const array<int, 4> PINS_STATE_DETECTION = {21, 22, 23, 26}; // GPIO pins for state detection
+
 /**
  * @brief Struct representing an identified object.
  */
@@ -26,14 +28,7 @@ struct Object{
     int cam;
 };
 
-enum class StateDetection{
-    GATE,
-    PATHMARKER,
-    SLALOM,
-    BIN,
-    OCTAGON,
-    NONE
-};
+array<int, 4> decToBin(int decimal);
 
 /**
  * @brief Class responsible for controlling the YOLO object detection.
@@ -46,7 +41,7 @@ class YoloCtrl{
         int addrlen = sizeof(address);
         const char* server_ip = "192.168.0.2";
         int port = 65432;
-        vector<int> StateDetaction = {0, 0, 0, 0};
+        int stateDetection = 0;
         int cam = 0;
 
         vector<Object> identifiedObjects;
@@ -60,13 +55,6 @@ class YoloCtrl{
          * @return A vector of identified objects.
          */
         vector<Object> process_json(const json& received_json);
-
-        /**
-         * @brief Sends the current state of the detection system to the server.
-         * 
-         * @param stateDetection The current state of the detection system.
-         */
-        void sendState(StateDetection stateDetection);
 
     public:
         /**
@@ -82,7 +70,9 @@ class YoloCtrl{
         /**
          * @brief Switches the camera.
          */
+        /*
         void switchCam(int chooseCam);
+        */
 
         /**
          * @brief Checks if any object has been found.
@@ -106,6 +96,10 @@ class YoloCtrl{
          * @return The name of the object with the greatest confidence.
          */
         string greaterConfidanceObject();
+
+        bool changeStateDetection(int state);
+
+        void sendStateDetection();
 
         /**
          * @brief Stops the YOLO control.

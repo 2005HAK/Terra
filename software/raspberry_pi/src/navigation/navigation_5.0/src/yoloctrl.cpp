@@ -1,8 +1,23 @@
 #include "yoloctrl.h"
 
+array<int, 4> decToBin(int decimal) {
+    array<int, 4> binary = {0, 0, 0, 0};
+    for (int i = 3; i >= 0; --i) {
+        binary[i] = decimal % 2;
+        decimal /= 2;
+    }
+    
+    return binary;
+}
+
 // Init class YoloCtrl
 
 YoloCtrl::YoloCtrl(){
+    for(auto pin : PINS_STATE_DETECTION){
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);  // Inicializa os pinos como LOW
+    }
+
     logMessage("Object YoloCtrl created.");
 }
 
@@ -10,6 +25,8 @@ void YoloCtrl::updateData(){
     lock_guard<mutex> lock(mutexIdentifiedObjects);
 
     try {
+        sendStateDetection(); //Definir melhor posição para chamar isto
+
         boost::asio::io_service io_service;  // io_context substituído por io_service
         tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 65432));
 
@@ -37,9 +54,7 @@ void YoloCtrl::updateData(){
     }
 }
 
-// Piaz precisa revisar
-// Nem vai ter
-
+/*
 void YoloCtrl::switchCam(int chooseCam){
     logMessage("Switching camera...");
 
@@ -71,6 +86,7 @@ void YoloCtrl::switchCam(int chooseCam){
         // gerar erro
     }
 }
+*/
 
 vector<Object> YoloCtrl::process_json(const json& received_json){
     vector<Object> results;
@@ -102,10 +118,6 @@ vector<Object> YoloCtrl::process_json(const json& received_json){
     return results;
 }
 
-void YoloCtrl::sendState(StateDetection stateDetection){
-    // usar os pgpio para enviar o estado
-}
-
 bool YoloCtrl::foundObject(){
     return !(this->identifiedObjects.empty());
 }
@@ -135,6 +147,23 @@ string YoloCtrl::greaterConfidanceObject(){
     for(const auto& obj : identifiedObjects) if(obj.confidance > confidenceObject.confidance) confidenceObject = obj;
 
     return confidenceObject.name;
+}
+
+bool YoloCtrl::changeStateDetection(int state){
+    lock_guard<mutex> lock(mutexIdentifiedObjects); // verificar necessidade
+    if(state >= 0 && state <= 15){
+        this->stateDetection = state;
+        logMessage("State detection changed to: " + to_string(state));
+        return true;
+    } else {
+        logMessage("Invalid state detection value: " + to_string(state));
+        return false;
+    }
+}
+
+void YoloCtrl::sendStateDetection(){
+    lock_guard<mutex> lock(mutexIdentifiedObjects); // verificar necessidade
+    for(auto value : decToBin(stateDetection)) digitalWrite(PINS_STATE_DETECTION[value], HIGH);
 }
 
 void YoloCtrl::stop(){
