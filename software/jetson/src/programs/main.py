@@ -22,7 +22,7 @@ class IA:
         self.HOST = '192.168.0.1'
         self.PORT = 65432
         self.model = YOLO('../modelos/SHARK_SAWFISH.pt')
-        self.state = 0SSS
+        self.state = 0
         self.pins = [11, 12, 13, 15]  # Pinos FISICOS!!!
         self.gpio_setup()
 
