@@ -14,7 +14,7 @@ def main():
     epochs_list = [int(input(f"Digite o valor {i+1} de epochs: ")) for i in range(num_epochs)]
 
     for epoch in epochs_list:
-        Popen(["/home/gustavo/Desktop/git/treinamento/venv/bin/python", "Client.py"])
+        Popen(["/home/gustavo/Desktop/venvs/venv_terra/bin/python", "Client.py"])
         conn, addr = server_socket.accept()
         print(f"Conectado com {addr}")
 

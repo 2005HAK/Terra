@@ -6,6 +6,7 @@ password = input("Digite sua senha sudo: ")
 
 comands = [
     'pip install ultralytics',
+    f'echo {password} | sudo pip install Jetson.GPIO',
     f'echo {password} | sudo -S apt update',
     f'echo {password} | sudo -S apt install libboost-all-dev',
     f'echo {password} | sudo -S apt install nlohmann-json3-dev'
