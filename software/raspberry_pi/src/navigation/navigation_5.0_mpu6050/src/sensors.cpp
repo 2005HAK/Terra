@@ -2,6 +2,32 @@
 
 using namespace std::chrono;
 
+KalmanFilter::KalmanFilter(double r, double erm, double ve) : r(r), erm(erm), ve(ve) {
+}
+
+KalmanFilter::~KalmanFilter() {
+    // Destrutor vazio, pois não há alocação dinâmica de memória
+}
+
+std::array<double, 3> KalmanFilter::filtro_Kalman(std::array<double, 3> rawData){
+    std::array<double, 3> dataFiltered;
+
+    for(int i = 0; i < 3; i++) calc(i);
+
+    return {ei[0], ei[1], ei[2]};
+}
+
+void KalmanFilter::calc(int i){
+    // Estimativa do estado atual
+    gk[i] = vx[i] / double(vx[i] + erm);                                   // Ganho de Kalman
+    estadoAtual[i] = ei[i] + gk[i] * (rawData[i] - ei[i]);
+    variacaoestadoAtual[i] = (1 - gk[i]) * vx[i];
+
+    // Previsão
+    ei[i] = estadoAtual[i];
+    vx[i] = variacaoestadoAtual[i] + r;
+}
+
 // Construtor: define endereço e inicializa o descritor como inválido
 Sensors::Sensors(int i2cAddress) : address(i2cAddress), i2cFile(-1) {}
 
@@ -65,6 +91,9 @@ void Sensors::updateData() {
     // Atualiza os dados do sensor
     lastAcc = acc;
     acc = {(readWord(0x3B) / 16384.0) * 9.81, (readWord(0x3D) / 16384.0) * 9.81, (readWord(0x3F) / 16384.0) * 9.81};
+    
+    acc = kalmanFilter.filtro_Kalman(acc); // Aplica filtro de Kalman na aceleração
+
     lastGyro = {(readWord(0x43) / 131.0), (readWord(0x45) / 131.0), (readWord(0x47) / 131.0)};
     lastOri = {atan2(lastAcc[1], lastAcc[2]) * 180.0 / M_PI, atan2(-lastAcc[0], sqrt(lastAcc[1] * lastAcc[1] + lastAcc[2] * lastAcc[2])) * 180.0 / M_PI, 0.0};
 
