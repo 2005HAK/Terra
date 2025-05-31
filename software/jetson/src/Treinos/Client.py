@@ -1,4 +1,4 @@
-from socket import socket,AF_INET,SOCK_STREAM
+from socket import socket, AF_INET, SOCK_STREAM
 from json import dumps
 from ultralytics import YOLO
 
@@ -14,18 +14,23 @@ def main():
 
         model = YOLO("yolo11n.pt")
         results = model.train(
-                device='cuda',
-                data="/home/gustavo/Desktop/git/Terra/software/jetson/src/Treinos/data.yaml",
-                epochs=epochs,
-                imgsz=640,
-                name=f"Treino_Com_{epochs}_Epochs",
-                project="TreinosCubo",
-                save=True
-            )
+            device='cuda',
+            data="/home/gustavo/Desktop/git/Terra/software/jetson/src/Treinos/data.yaml",
+            epochs=epochs,
+            imgsz=160,
+            name=f"Treino_Com_{epochs}_Epochs",
+            project="../modelos",
+            save=True
+        )
+        
         print(f"Dicionario de results:\n{results.results_dict}")
+        
         results_dict = {
-            "maps_50": results.results_dict['metrics/mAP50-95(B)'],
-            "val_loss": results.results_dict.get("metrics/val/loss")
+            "precision": results.results_dict['metrics/precision(B)'],
+            "recall": results.results_dict['metrics/recall(B)'],
+            "mAP50": results.results_dict['metrics/mAP50(B)'],
+            "mAP50_95": results.results_dict['metrics/mAP50-95(B)'],
+            "fitness": results.results_dict['fitness']
         }
 
         client_socket.send(dumps(results_dict).encode())

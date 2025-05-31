@@ -1,7 +1,8 @@
-from socket import socket,AF_INET,SOCK_STREAM
+from socket import socket, AF_INET, SOCK_STREAM
 from subprocess import Popen
 from json import loads
 import matplotlib.pyplot as plt
+import time  # só pra garantir um pequeno delay
 
 def main():
     results_dict = []
@@ -26,22 +27,24 @@ def main():
             results_dict.append(loads(data.decode()))
 
         conn.close()
-    loss = []
+        time.sleep(0.5)  # evitar problemas de concorrência na conexão
+
+    fitness = []
     maps = []
     for i in range(num_epochs):
-        loss.append(results_dict[i]["val_loss"])
-        maps.append(results_dict[i]["maps_50"])
-
+        fitness.append(results_dict[i]["fitness"])
+        maps.append(results_dict[i]["mAP50"])
 
     server_socket.close()
+
     plt.figure(figsize=(12, 6))
 
-    # Gráfico de Val Loss
+    # Gráfico de Fitness
     plt.subplot(1, 2, 1)
-    plt.plot(epochs_list, loss, marker='o', color='red', linestyle='-')
-    plt.title('Val Loss por Número de Epochs')
+    plt.plot(epochs_list, fitness, marker='o', color='green', linestyle='-')
+    plt.title('Fitness por Número de Epochs')
     plt.xlabel('Epochs')
-    plt.ylabel('Val Loss')
+    plt.ylabel('Fitness')
 
     # Gráfico de mAP@50
     plt.subplot(1, 2, 2)
@@ -52,5 +55,6 @@ def main():
 
     plt.tight_layout()
     plt.show()
+
 if __name__ == "__main__":
     main()

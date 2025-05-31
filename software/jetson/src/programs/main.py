@@ -1,11 +1,26 @@
 """
 Esse arquivo tem como objetivo principal ser um arquivo leve pra rodar a yolo com modelo treinado.
 """
+
+
+
+
 """
 VALORES DE DETECCAO
 0: SAWFISH
 1: SHARK
 """
+"""
+ESTADOS
+0: Detectar SHARK e SAWFISH
+1: Detectar só SHARK
+
+
+"""
+
+
+
+
 
 from ultralytics import YOLO
 from socket import socket, AF_INET, SOCK_STREAM

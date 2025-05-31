@@ -5,38 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0b4a5813-818e-42a5-971b-769efa51ab03" name="Changes" comment="troca cam e exclude de img whatsapp(solve)">
-      <change beforePath="$PROJECT_DIR$/.idea/Terra.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Terra.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/software/jetson/src/EmTestes/teste.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/jetson/src/Treinos/Client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/Video.mp4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/main_treino_por_socket.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/jetson/src/Treinos/main_treino_por_socket.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/modelos/TreinoCuboV1Para160px01.pt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/modelos/TreinoCuboV1Para160px02.pt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/modelos/TreinoCuboV2Para160px01.pt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/modelos/yolo11n.pt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/modelos/yolo12n.pt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/modelos/yolov8n.pt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/treino_node/Terra-train.v2i.yolov11.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/Treinos/treino_node/train.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/alternar.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/enviar_troca_camera.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/mainreciver.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/recive.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/run.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/server2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/trocador" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/button_trade/yolo11n.pt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/YOLO.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/mainReciver.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/reciveobj.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/reciveobj2.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/run" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/server" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/server2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/CPP/yolo11n.pt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/LibraryYOLO.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/Main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/jetson/src/programs/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/jetson/src/programs/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,12 +30,12 @@
     &quot;assignee&quot;: &quot;GustavoPiaz2102&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/2005HAK/Terra.git",
-    "accountId": "143ee950-044d-456e-a0a7-74d3c91175fa"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/2005HAK/Terra.git&quot;,
+    &quot;accountId&quot;: &quot;143ee950-044d-456e-a0a7-74d3c91175fa&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -74,22 +45,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.InstallDependecies.executor": "Run",
-    "Python.TradeCamRecive.executor": "Run",
-    "Python.TradeCamSend.executor": "Run",
-    "Python.YOLO.executor": "Run",
-    "Python.recive.executor": "Run",
-    "Python.testetrade.executor": "Run",
-    "Python.yolo0.executor": "Run",
-    "Python.yolo1.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "/home/gustavo/Desktop/git/Terra"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.InstallDependecies.executor&quot;: &quot;Run&quot;,
+    &quot;Python.TradeCamRecive.executor&quot;: &quot;Run&quot;,
+    &quot;Python.TradeCamSend.executor&quot;: &quot;Run&quot;,
+    &quot;Python.YOLO.executor&quot;: &quot;Run&quot;,
+    &quot;Python.recive.executor&quot;: &quot;Run&quot;,
+    &quot;Python.teste.executor&quot;: &quot;Run&quot;,
+    &quot;Python.testetrade.executor&quot;: &quot;Run&quot;,
+    &quot;Python.yolo0.executor&quot;: &quot;Run&quot;,
+    &quot;Python.yolo1.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/gustavo/Desktop/git/Terra&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/software/jetson/src" />
@@ -97,7 +69,7 @@
       <recent name="$PROJECT_DIR$/software/jetson/src/Testes" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.TradeCamRecive">
+  <component name="RunManager">
     <configuration name="TradeCamRecive" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Terra" />
       <option name="ENV_FILES" value="" />
