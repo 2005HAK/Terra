@@ -220,7 +220,7 @@ void AUVStateMachine::errorHandling(AUVError e){
 
     if(error) if(this->state == State::SEARCH) directionCorrection(error->getAcceleration());
     
-    if(dynamic_cast<const FailedConnectThrusters*>(&e) || dynamic_cast<const HighTemperatureError*>(&e)) exit(1); 
+    // if(dynamic_cast<const FailedConnectThrusters*>(&e) || dynamic_cast<const HighTemperatureError*>(&e)) exit(1); 
 
     if(dynamic_cast<const ObjectNotFound*>(&e)){
         transitionTo(State::STOP);
@@ -272,7 +272,6 @@ void AUVStateMachine::search(){
             sleep_for(milliseconds(100));
         }
     } else if(this->lastState == State::PASSGATE){
-        this->yoloCtrl->switchCam(0);
         sleep_for(seconds(2));
 
         Action action = Action::NONE;
@@ -296,7 +295,6 @@ void AUVStateMachine::search(){
             sleep_for(milliseconds(100));
         }
     } else if(this->lastState == State::NAVIGATE || this->lastState == State::DROPMARKERS){
-        this->yoloCtrl->switchCam(0);
         sleep_for(seconds(2));
 
         int time = 100, count = 0;
@@ -434,7 +432,6 @@ void AUVStateMachine::alignToPath(){
 
             if(switchs > 5) isAlign = true;
         }
-        this->yoloCtrl->switchCam(0);
         sleep_for(seconds(2));
 
         checksTransition();
@@ -516,7 +513,6 @@ void AUVStateMachine::dropMarkers(){
 
     this->thrusters->defineAction({Action::NONE, 0});
 
-    this->yoloCtrl->switchCam(0);
     sleep_for(seconds(2));
 
     // Provavelmete terá uma diferenca de profundidade minima para dropar os marcadores, 
