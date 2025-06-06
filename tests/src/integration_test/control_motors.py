@@ -130,3 +130,4 @@ class Motor:
     
     def finishes_motor(self):
         self.gpio.set_servo_pulsewidth(self.pin, 1500)
+
